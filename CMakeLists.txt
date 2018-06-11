@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8.0)
 project(netlist-paths)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED program_options)
 set(Boost_USE_STATIC_LIBS OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic -march=native")
 add_executable(netlist-paths main.cpp)
+target_link_libraries(netlist-paths
+  ${Boost_LIBRARIES})
