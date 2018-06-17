@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -8,6 +9,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/program_options.hpp>
+
+#define INFO(x) {if (verboseMode) x;}
 
 namespace po = boost::program_options;
 
@@ -98,7 +101,7 @@ private:
 public:
   DfsVisitor(ParentMap &parentMap) : parentMap(parentMap) {}
   template<typename Edge, typename Graph>
-  void tree_edge(Edge edge, const Graph &graph) const {
+  void examine_edge(Edge edge, const Graph &graph) const {
     typename boost::graph_traits<Graph>::vertex_descriptor src, dst;
     src = boost::source(edge, graph);
     dst = boost::target(edge, graph);
@@ -120,70 +123,40 @@ int getVertexId(const std::vector<Vertex> vertices,
   return it->id;
 }
 
-void reportPaths(ParentMap &parentMap, std::vector<std::vector<int>> &result,
-                 std::vector<int> path, int startVertexId, int endVertexId) {
-  if (std::find(std::begin(path), std::end(path), endVertexId) != path.end()) {
+void determinePaths(std::vector<Vertex> vertices, ParentMap &parentMap, std::vector<std::vector<int>> &result,
+                    std::vector<int> path, int startVertexId, int endVertexId) {
+  std::cout << "vertex " << endVertexId;
+  //std::cout << " path: ";
+  //for (auto &x : path) std::cout << x << " ";
+  std::cout << "\n";
+  auto &name = vertices[endVertexId].name;
+  if (path.size() > 0 && name[name.size()-1] == 'q' && name[name.size()-2] == '_') {
+      std::cout << "END IN FLOP\n";
+      return;
+  }
+  if (std::find(path.begin(), path.end(), endVertexId) != path.end()) {
     // Ignore cycle.
+    std::cout << "CYCLE!\n";
     return;
   }
   path.push_back(endVertexId);
   if (endVertexId == startVertexId) {
+    std::cout << "FINISH\n";
     result.push_back(path);
     return;
   }
   for (auto &vertex : parentMap[endVertexId]) {
-    reportPaths(parentMap, result, path, startVertexId, vertex);
+    determinePaths(vertices, parentMap, result, path, startVertexId, vertex);
   }
 }
 
-void dumpDotFile(std::vector<Vertex> vertices, std::vector<Edge> edges) {
-  std::cout << "digraph netlist_graph {\n";
-  for (auto &vertex : vertices)
-    std::cout << "  " << vertex.id << " [label=\""
-              << getVertexTypeStr(vertex.type) << "\\n"
-              << vertex.name << "\"];\n";
-  for (auto &edge : edges)
-    std::cout << "  " << edge.src << " -> " << edge.dst << ";\n";
-  std::cout << "}\n";
-}
-
-int main(int argc, char **argv) {
-  try {
-    // Command line options.
-    std::string inputFile;
-    std::string startName;
-    std::string endName;
-    po::options_description hiddenOptions("Positional options");
-    po::options_description genericOptions("General options");
-    po::options_description allOptions("All options");
-    po::positional_options_description p;
-    po::variables_map vm;
-    // Specify options.
-    hiddenOptions.add_options()
-      ("input-file", po::value<std::string>(&inputFile)->required());
-    p.add("input-file", 1);
-    genericOptions.add_options()
-      ("help,h", "display help")
-      ("start,s", po::value<std::string>(&startName)->required(), "Start point")
-      ("end,e", po::value<std::string>(&endName)->required(), "End point");
-    allOptions.add(genericOptions).add(hiddenOptions);
-    // Parse command line.
-    po::store(po::command_line_parser(argc, argv).
-                  options(allOptions).positional(p).run(), vm);
-    if (vm.count("help")) {
-      std::cout << "OVERVIEW: Find paths in a Verilog netlist\n\n";
-      std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
-      std::cout << genericOptions << "\n";
-      return 1;
-    }
-    notify(vm);
-    std::fstream infile(inputFile);
+void parseFile(std::string &filename,
+               std::vector<Vertex> &vertices,
+               std::vector<Edge> &edges) {
+    std::fstream infile(filename);
     if (!infile.is_open()) {
       throw Exception("could not open file");
     }
-    std::vector<Vertex> vertices;
-    std::vector<Edge> edges;
-    ParentMap parentMap;
     // Parse file.
     std::string line;
     int vertexCount = 0;
@@ -215,7 +188,78 @@ int main(int argc, char **argv) {
         throw Exception(std::string("unexpected line: ")+line);
       }
     }
+}
+
+void dumpDotFile(std::vector<Vertex> vertices, std::vector<Edge> edges) {
+  std::cout << "digraph netlist_graph {\n";
+  for (auto &vertex : vertices)
+    std::cout << "  " << vertex.id << " [label=\""
+              << getVertexTypeStr(vertex.type) << "\\n"
+              << vertex.name << "\"];\n";
+  for (auto &edge : edges)
+    std::cout << "  " << edge.src << " -> " << edge.dst << ";\n";
+  std::cout << "}\n";
+}
+
+void reportPath(std::vector<Vertex> &vertices, int num, std::vector<int> path) {
+  std::cout << "PATH " << num << ":\n";
+  for (auto &vertexId : path) {
+    auto &vertex = vertices[vertexId];
+    std::cout << "  "
+              << std::setw(16) << vertex.name
+              << std::setw(8) << getVertexTypeStr(vertex.type) << " "
+              << vertex.loc << "\n";
+  }
+}
+
+int main(int argc, char **argv) {
+  try {
+    // Command line options.
+    std::string inputFile;
+    std::string startName;
+    std::string endName;
+    po::options_description hiddenOptions("Positional options");
+    po::options_description genericOptions("General options");
+    po::options_description allOptions("All options");
+    po::positional_options_description p;
+    po::variables_map vm;
+    // Specify options.
+    hiddenOptions.add_options()
+      ("input-file", po::value<std::string>(&inputFile)->required());
+    p.add("input-file", 1);
+    genericOptions.add_options()
+      ("help,h", "display help")
+      ("verbose,v", "print debugging information")
+      ("dotfile", "dump dotfile")
+      ("start,s", po::value<std::string>(&startName)->required(), "Start point")
+      ("end,e", po::value<std::string>(&endName)->required(), "End point");
+    allOptions.add(genericOptions).add(hiddenOptions);
+    // Parse command line.
+    po::store(po::command_line_parser(argc, argv).
+                  options(allOptions).positional(p).run(), vm);
+    bool displayHelp = vm.count("help");
+    bool verboseMode = vm.count("verbose");
+    bool dumpDotfile = vm.count("dotfile");
+    if (displayHelp) {
+      std::cout << "OVERVIEW: Find paths in a Verilog netlist\n\n";
+      std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
+      std::cout << genericOptions << "\n";
+      return 1;
+    }
+    notify(vm);
+    std::vector<Vertex> vertices;
+    std::vector<Edge> edges;
+    ParentMap parentMap;
+    // Parse the input file.
+    INFO(std::cout << "Parsing input file\n");
+    parseFile(inputFile, vertices, edges);
+    // Dump dot file.
+    if (dumpDotfile) {
+      dumpDotFile(vertices, edges);
+      return 0;
+    }
     // Construct graph.
+    INFO(std::cout << "Constructing graph\n");
     Graph graph(vertices.size());
     for (auto &edge : edges) {
       boost::add_edge(edge.src, edge.dst, graph);
@@ -224,19 +268,15 @@ int main(int argc, char **argv) {
     int startVertexId = getVertexId(vertices, startName, VAR);
     int endVertexId = getVertexId(vertices, endName, VAR);
     DfsVisitor visitor(parentMap);
+    INFO(std::cout << "Performing DFS\n");
     boost::depth_first_search(graph, boost::visitor(visitor).root_vertex(startVertexId));
     std::vector<std::vector<int>> paths;
-    reportPaths(parentMap, paths, std::vector<int>(), startVertexId, endVertexId);
+    INFO(std::cout << "Determining paths\n");
+    determinePaths(vertices, parentMap, paths, std::vector<int>(), startVertexId, endVertexId);
+    int count = 1;
     for (auto &path : paths) {
-      std::cout << "PATH:\n";
       std::reverse(path.begin(), path.end());
-      for (auto &vertexId : path) {
-        auto &vertex = vertices[vertexId];
-        std::cout << "  "
-                  << getVertexTypeStr(vertex.type) << " "
-                  << vertex.name << " @ "
-                  << vertex.loc << "\n";
-      }
+      reportPath(vertices, count++, path);
     }
     return 0;
   } catch (std::exception& e) {
