@@ -236,9 +236,13 @@ void dumpDotFile(std::vector<Vertex> vertices, std::vector<Edge> edges) {
   std::cout << "}\n";
 }
 
-void reportPath(std::vector<Vertex> &vertices, std::vector<int> path) {
+void reportPath(std::vector<Vertex> &vertices,
+                std::vector<int> path,
+                bool netsOnly=false) {
   for (auto &vertexId : path) {
     auto &vertex = vertices[vertexId];
+    if (netsOnly && vertex.type == LOGIC)
+      continue;
     std::cout << "  " << std::left
               << std::setw(64) << vertex.name
               << std::setw(8) << getVertexTypeStr(vertex.type) << " "
@@ -265,6 +269,7 @@ int main(int argc, char **argv) {
       ("help,h",   "display help")
       ("debug",    "print debugging information")
       ("allpaths", "find all paths (exponential time)")
+      ("netsonly", "only display nets in path report")
       ("dotfile",  "dump dotfile")
       ("start,s",  po::value<std::string>(&startName), "Start point")
       ("end,e",    po::value<std::string>(&endName),   "End point");
@@ -276,6 +281,7 @@ int main(int argc, char **argv) {
     bool displayHelp = vm.count("help");
     bool dumpDotfile = vm.count("dotfile");
     bool allPaths    = vm.count("allpaths");
+    bool netsOnly    = vm.count("netsonly");
     if (displayHelp) {
       std::cout << "OVERVIEW: Find paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
@@ -325,7 +331,7 @@ int main(int argc, char **argv) {
     for (auto &path : paths) {
       std::reverse(path.begin(), path.end());
       std::cout << "PATH " << ++count << ":\n";
-      reportPath(vertices, path);
+      reportPath(vertices, path, netsOnly);
     }
     return 0;
   } catch (std::exception& e) {
