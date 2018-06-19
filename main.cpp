@@ -163,12 +163,31 @@ void dumpPath(const std::vector<Vertex> vertices,
   }
 }
 
-void determinePaths(std::vector<Vertex> &vertices,
-                    ParentMap &parentMap,
-                    std::vector<std::vector<int>> &result,
-                    std::vector<int> path,
-                    int startVertexId,
-                    int endVertexId) {
+/// Given the tree structure from a DFS, traverse the tree from leaf to root to
+/// return a path.
+std::vector<int> determinePath(ParentMap &parentMap,
+                               std::vector<int> path,
+                               int startVertexId,
+                               int endVertexId) {
+  path.push_back(endVertexId);
+  if (endVertexId == startVertexId) {
+    return path;
+  }
+  int nextVertexId = parentMap[endVertexId].front();
+  assert(parentMap[endVertexId].size() == 1);
+  assert(std::find(path.begin(), path.end(), nextVertexId) == path.end());
+  return determinePath(parentMap, path, startVertexId, nextVertexId);
+}
+
+/// Determine all paths between a start and an end point.
+/// This performs a DFS starting at the end point. It is not feasible for large
+/// graphs since the number of simple paths grows exponentially.
+void determineAllPaths(std::vector<Vertex> &vertices,
+                       ParentMap &parentMap,
+                       std::vector<std::vector<int>> &result,
+                       std::vector<int> path,
+                       int startVertexId,
+                       int endVertexId) {
   path.push_back(endVertexId);
   if (endVertexId == startVertexId) {
     DEBUG(std::cout << "FOUND PATH\n");
@@ -180,7 +199,8 @@ void determinePaths(std::vector<Vertex> &vertices,
   DEBUG(std::cout<<(parentMap[endVertexId].empty()?"DEAD END\n":""));
   for (auto &vertex : parentMap[endVertexId]) {
     if (std::find(path.begin(), path.end(), vertex) == path.end()) {
-      determinePaths(vertices, parentMap, result, path, startVertexId, vertex);
+      determineAllPaths(vertices, parentMap, result, path,
+                        startVertexId, vertex);
     } else {
       DEBUG(std::cout << "CYCLE DETECTED\n");
     }
@@ -334,15 +354,24 @@ int main(int argc, char **argv) {
     int endVertexId = getVertexId(vertices, endName, REG);
     DEBUG(std::cout << "Performing DFS\n");
     boost::depth_first_search(graph,
-        boost::visitor(DfsVisitor(parentMap, allPaths)).root_vertex(startVertexId));
-    DEBUG(std::cout << "Determining paths\n");
-    std::vector<std::vector<int>> paths;
-    determinePaths(vertices, parentMap, paths, std::vector<int>(),
-                   startVertexId, endVertexId);
-    int count = 0;
-    for (auto &path : paths) {
+        boost::visitor(DfsVisitor(parentMap, allPaths))
+          .root_vertex(startVertexId));
+    if (allPaths) {
+      DEBUG(std::cout << "Determining all paths\n");
+      std::vector<std::vector<int>> paths;
+      determineAllPaths(vertices, parentMap, paths, std::vector<int>(),
+                        startVertexId, endVertexId);
+      int count = 0;
+      for (auto &path : paths) {
+        std::reverse(path.begin(), path.end());
+        std::cout << "PATH " << ++count << ":\n";
+        printPathReport(vertices, path, netsOnly);
+      }
+    } else {
+      DEBUG(std::cout << "Determining a path\n");
+      std::vector<int> path = determinePath(parentMap, std::vector<int>(),
+                                            startVertexId, endVertexId);
       std::reverse(path.begin(), path.end());
-      std::cout << "PATH " << ++count << ":\n";
       printPathReport(vertices, path, netsOnly);
     }
     return 0;
