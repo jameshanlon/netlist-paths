@@ -18,6 +18,8 @@
 
 namespace po = boost::program_options;
 
+namespace {
+
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS>;
 using ParentMap = std::map<int, std::vector<int>>;
 
@@ -109,31 +111,30 @@ struct Edge {
 class DfsVisitor : public boost::default_dfs_visitor {
 private:
   ParentMap &parentMap;
+  bool allPaths;
 public:
-  DfsVisitor(ParentMap &parentMap) : parentMap(parentMap) {}
-  template<typename Edge, typename Graph>
+  DfsVisitor(ParentMap &parentMap, bool allPaths) :
+      parentMap(parentMap), allPaths(allPaths) {}
   // Visit only the edges of the DFS graph.
+  template<typename Edge, typename Graph>
   void tree_edge(Edge edge, const Graph &graph) const {
-    typename boost::graph_traits<Graph>::vertex_descriptor src, dst;
-    src = boost::source(edge, graph);
-    dst = boost::target(edge, graph);
-    parentMap[dst].push_back(src);
+    if (!allPaths) {
+      typename boost::graph_traits<Graph>::vertex_descriptor src, dst;
+      src = boost::source(edge, graph);
+      dst = boost::target(edge, graph);
+      parentMap[dst].push_back(src);
+    }
     return;
   }
-};
-
-class DfsVisitorAllPaths : public boost::default_dfs_visitor {
-private:
-  ParentMap &parentMap;
-public:
-  DfsVisitorAllPaths(ParentMap &parentMap) : parentMap(parentMap) {}
-  template<typename Edge, typename Graph>
   // Visit all edges of a all vertices.
+  template<typename Edge, typename Graph>
   void examine_edge(Edge edge, const Graph &graph) const {
-    typename boost::graph_traits<Graph>::vertex_descriptor src, dst;
-    src = boost::source(edge, graph);
-    dst = boost::target(edge, graph);
-    parentMap[dst].push_back(src);
+    if (allPaths) {
+      typename boost::graph_traits<Graph>::vertex_descriptor src, dst;
+      src = boost::source(edge, graph);
+      dst = boost::target(edge, graph);
+      parentMap[dst].push_back(src);
+    }
     return;
   }
 };
@@ -170,7 +171,7 @@ void determinePaths(std::vector<Vertex> &vertices,
                     int endVertexId) {
   path.push_back(endVertexId);
   if (endVertexId == startVertexId) {
-    DEBUG(std::cout << "FINISH\n");
+    DEBUG(std::cout << "FOUND PATH\n");
     result.push_back(path);
     return;
   }
@@ -181,7 +182,7 @@ void determinePaths(std::vector<Vertex> &vertices,
     if (std::find(path.begin(), path.end(), vertex) == path.end()) {
       determinePaths(vertices, parentMap, result, path, startVertexId, vertex);
     } else {
-      DEBUG(std::cout << "CYCLE\n");
+      DEBUG(std::cout << "CYCLE DETECTED\n");
     }
   }
 }
@@ -225,7 +226,8 @@ void parseFile(std::string &filename,
   }
 }
 
-void dumpDotFile(std::vector<Vertex> vertices, std::vector<Edge> edges) {
+void dumpDotFile(const std::vector<Vertex> vertices,
+                 const std::vector<Edge> edges) {
   std::cout << "digraph netlist_graph {\n";
   for (auto &vertex : vertices)
     std::cout << "  " << vertex.id << " [label=\""
@@ -236,19 +238,33 @@ void dumpDotFile(std::vector<Vertex> vertices, std::vector<Edge> edges) {
   std::cout << "}\n";
 }
 
-void reportPath(std::vector<Vertex> &vertices,
-                std::vector<int> path,
-                bool netsOnly=false) {
+void printPathReport(const std::vector<Vertex> &vertices,
+                     const std::vector<int> path,
+                     bool netsOnly=false) {
+  // Determine the max length of a name.
+  size_t maxNameLength = 0;
+  for (auto &vertexId : path) {
+    maxNameLength = std::max(maxNameLength, vertices[vertexId].name.size());
+  }
+  // Print each vertex on the path.
   for (auto &vertexId : path) {
     auto &vertex = vertices[vertexId];
-    if (netsOnly && vertex.type == LOGIC)
-      continue;
-    std::cout << "  " << std::left
-              << std::setw(64) << vertex.name
-              << std::setw(8) << getVertexTypeStr(vertex.type) << " "
-              << vertex.loc << "\n";
+    if (netsOnly) {
+      if (vertex.type == LOGIC)
+        continue;
+      std::cout << "  " << std::left
+                << std::setw(maxNameLength+1) << vertex.name
+                << vertex.loc << "\n";
+    } else {
+      std::cout << "  " << std::left
+                << std::setw(maxNameLength+1) << vertex.name
+                << std::setw(8) << getVertexTypeStr(vertex.type) << " "
+                << vertex.loc << "\n";
+    }
   }
 }
+
+} // End anonymous namespace.
 
 int main(int argc, char **argv) {
   try {
@@ -256,25 +272,31 @@ int main(int argc, char **argv) {
     std::string inputFile;
     std::string startName;
     std::string endName;
+    std::vector<std::string> throughNames;
     po::options_description hiddenOptions("Positional options");
     po::options_description genericOptions("General options");
     po::options_description allOptions("All options");
     po::positional_options_description p;
     po::variables_map vm;
-    // Specify options.
+    std::vector<Vertex> vertices;
+    std::vector<Edge> edges;
+    ParentMap parentMap;
+    // Specify command line options.
     hiddenOptions.add_options()
       ("input-file", po::value<std::string>(&inputFile)->required());
     p.add("input-file", 1);
     genericOptions.add_options()
-      ("help,h",   "display help")
-      ("debug",    "print debugging information")
-      ("allpaths", "find all paths (exponential time)")
-      ("netsonly", "only display nets in path report")
-      ("dotfile",  "dump dotfile")
-      ("start,s",  po::value<std::string>(&startName), "Start point")
-      ("end,e",    po::value<std::string>(&endName),   "End point");
+      ("help,h",    "Display help")
+      ("start,s",   po::value<std::string>(&startName), "Start point")
+      ("end,e",     po::value<std::string>(&endName),   "End point")
+      ("through,t", po::value<std::vector<std::string>>(&throughNames),
+       "Through point")
+      ("allpaths",  "Find all paths (exponential time)")
+      ("netsonly",  "Only display nets in path report")
+      ("dotfile",   "Dump dotfile")
+      ("debug",     "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
-    // Parse command line.
+    // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
     debugMode = vm.count("debug") > 0;
@@ -289,9 +311,8 @@ int main(int argc, char **argv) {
       return 1;
     }
     notify(vm);
-    std::vector<Vertex> vertices;
-    std::vector<Edge> edges;
-    ParentMap parentMap;
+    if (startName.empty()) throw Exception("no start point specified");
+    if (endName.empty())   throw Exception("no end point specified");
     // Parse the input file.
     DEBUG(std::cout << "Parsing input file\n");
     parseFile(inputFile, vertices, edges);
@@ -309,20 +330,11 @@ int main(int argc, char **argv) {
       }
     }
     // Find and report paths.
-    if (startName.empty())
-      throw Exception("no start point specified");
-    if (endName.empty())
-      throw Exception("no end point specified");
     int startVertexId = getVertexId(vertices, startName, VAR);
     int endVertexId = getVertexId(vertices, endName, REG);
     DEBUG(std::cout << "Performing DFS\n");
-    if (allPaths) {
-      boost::depth_first_search(graph,
-        boost::visitor(DfsVisitorAllPaths(parentMap)).root_vertex(startVertexId));
-    } else {
-      boost::depth_first_search(graph,
-        boost::visitor(DfsVisitor(parentMap)).root_vertex(startVertexId));
-    }
+    boost::depth_first_search(graph,
+        boost::visitor(DfsVisitor(parentMap, allPaths)).root_vertex(startVertexId));
     DEBUG(std::cout << "Determining paths\n");
     std::vector<std::vector<int>> paths;
     determinePaths(vertices, parentMap, paths, std::vector<int>(),
@@ -331,7 +343,7 @@ int main(int argc, char **argv) {
     for (auto &path : paths) {
       std::reverse(path.begin(), path.end());
       std::cout << "PATH " << ++count << ":\n";
-      reportPath(vertices, path, netsOnly);
+      printPathReport(vertices, path, netsOnly);
     }
     return 0;
   } catch (std::exception& e) {
