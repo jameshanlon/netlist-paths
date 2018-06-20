@@ -145,7 +145,7 @@ int getVertexId(const std::vector<Vertex> vertices,
   auto pred = [&] (const Vertex &v) { return v.type == type &&
                                              v.name == name; };
   auto it = std::find_if(std::begin(vertices), std::end(vertices), pred);
-  if (it == vertices.end()) {
+  if (it == std::end(vertices)) {
     throw Exception(std::string("could not find vertex ")
                         +name+" of type "+getVertexTypeStr(type));
   }
@@ -173,16 +173,18 @@ std::vector<int> determinePath(ParentMap &parentMap,
   if (endVertexId == startVertexId) {
     return path;
   }
-  int nextVertexId = parentMap[endVertexId].front();
+  if (parentMap[endVertexId].size() == 0)
+    return std::vector<int>();
   assert(parentMap[endVertexId].size() == 1);
-  assert(std::find(path.begin(), path.end(), nextVertexId) == path.end());
+  int nextVertexId = parentMap[endVertexId].front();
+  assert(std::find(std::begin(path), std::end(path), nextVertexId) == std::end(path));
   return determinePath(parentMap, path, startVertexId, nextVertexId);
 }
 
 /// Determine all paths between a start and an end point.
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
-void determineAllPaths(std::vector<Vertex> &vertices,
+void determineAllPaths(const std::vector<Vertex> &vertices,
                        ParentMap &parentMap,
                        std::vector<std::vector<int>> &result,
                        std::vector<int> path,
@@ -198,7 +200,7 @@ void determineAllPaths(std::vector<Vertex> &vertices,
   DEBUG(dumpPath(vertices, path));
   DEBUG(std::cout<<(parentMap[endVertexId].empty()?"DEAD END\n":""));
   for (auto &vertex : parentMap[endVertexId]) {
-    if (std::find(path.begin(), path.end(), vertex) == path.end()) {
+    if (std::find(std::begin(path), std::end(path), vertex) == std::end(path)) {
       determineAllPaths(vertices, parentMap, result, path,
                         startVertexId, vertex);
     } else {
@@ -300,7 +302,7 @@ int main(int argc, char **argv) {
     po::variables_map vm;
     std::vector<Vertex> vertices;
     std::vector<Edge> edges;
-    ParentMap parentMap;
+    std::vector<int> waypoints;
     // Specify command line options.
     hiddenOptions.add_options()
       ("input-file", po::value<std::string>(&inputFile)->required());
@@ -349,29 +351,54 @@ int main(int argc, char **argv) {
         boost::add_edge(edge.src, edge.dst, graph);
       }
     }
-    // Find and report paths.
-    int startVertexId = getVertexId(vertices, startName, VAR);
-    int endVertexId = getVertexId(vertices, endName, REG);
-    DEBUG(std::cout << "Performing DFS\n");
-    boost::depth_first_search(graph,
-        boost::visitor(DfsVisitor(parentMap, allPaths))
-          .root_vertex(startVertexId));
+    // Find vertices in graph and compile path waypoints.
+    waypoints.push_back(getVertexId(vertices, startName, VAR));
+    for (auto &throughName : throughNames) {
+      int vertexId = getVertexId(vertices, throughName, VAR);
+      waypoints.push_back(vertexId);
+    }
+    waypoints.push_back(getVertexId(vertices, endName, REG));
+    // Find and report path(s).
     if (allPaths) {
+      if (waypoints.size() > 2)
+        throw Exception("through points not supported for all paths");
+      DEBUG(std::cout << "Performing DFS\n");
+      ParentMap parentMap;
+      boost::depth_first_search(graph,
+          boost::visitor(DfsVisitor(parentMap, allPaths))
+            .root_vertex(waypoints[0]));
       DEBUG(std::cout << "Determining all paths\n");
       std::vector<std::vector<int>> paths;
       determineAllPaths(vertices, parentMap, paths, std::vector<int>(),
-                        startVertexId, endVertexId);
+                        waypoints[0], waypoints[1]);
       int count = 0;
       for (auto &path : paths) {
-        std::reverse(path.begin(), path.end());
+        std::reverse(std::begin(path), std::end(path));
         std::cout << "PATH " << ++count << ":\n";
         printPathReport(vertices, path, netsOnly);
       }
     } else {
-      DEBUG(std::cout << "Determining a path\n");
-      std::vector<int> path = determinePath(parentMap, std::vector<int>(),
-                                            startVertexId, endVertexId);
-      std::reverse(path.begin(), path.end());
+      std::vector<int> path;
+      // Construct the path between each adjacent waypoints.
+      for (size_t i = 0; i < waypoints.size()-1; ++i) {
+        int startVertexId = waypoints[i];
+        int endVertexId = waypoints[i+1];
+        DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
+        ParentMap parentMap;
+        boost::depth_first_search(graph,
+            boost::visitor(DfsVisitor(parentMap, allPaths))
+              .root_vertex(startVertexId));
+        DEBUG(std::cout << "Determining a path to " << endVertexId << "\n");
+        std::vector<int> subPath = determinePath(parentMap, std::vector<int>(),
+                                                 startVertexId, endVertexId);
+        if (subPath.empty())
+            throw Exception(std::string("no path from ")
+                                +std::to_string(startVertexId)+" to "
+                                +std::to_string(endVertexId));
+        std::reverse(std::begin(subPath), std::end(subPath));
+        path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
+      }
+      path.push_back(waypoints.back());
       printPathReport(vertices, path, netsOnly);
     }
     return 0;
