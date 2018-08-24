@@ -6,6 +6,8 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <boost/filesystem.hpp>
+#include <boost/process.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/program_options.hpp>
@@ -16,7 +18,9 @@
 #define DEBUG(x) do { if (debugMode) { x; } } while (false)
 #endif
 
+namespace fs = boost::filesystem;
 namespace po = boost::program_options;
+namespace bp = boost::process;
 
 namespace {
 
@@ -209,7 +213,7 @@ void determineAllPaths(const std::vector<Vertex> &vertices,
   }
 }
 
-void parseFile(std::string &filename,
+void parseFile(const std::string &filename,
                std::vector<Vertex> &vertices,
                std::vector<Edge> &edges) {
   std::fstream infile(filename);
@@ -246,6 +250,19 @@ void parseFile(std::string &filename,
       throw Exception(std::string("unexpected line: ")+line);
     }
   }
+}
+
+Graph buildGraph(std::vector<Vertex> &vertices,
+                 std::vector<Edge> &edges) {
+  // Construct graph.
+  DEBUG(std::cout << "Constructing graph\n");
+  Graph graph(vertices.size());
+  for (auto &edge : edges) {
+    if (!boost::edge(edge.src, edge.dst, graph).second) {
+      boost::add_edge(edge.src, edge.dst, graph);
+    }
+  }
+  return graph;
 }
 
 void dumpDotFile(const std::vector<Vertex> vertices,
@@ -291,7 +308,7 @@ void printPathReport(const std::vector<Vertex> &vertices,
 int main(int argc, char **argv) {
   try {
     // Command line options.
-    std::string inputFile;
+    std::vector<std::string> inputFiles;
     std::string startName;
     std::string endName;
     std::vector<std::string> throughNames;
@@ -305,8 +322,9 @@ int main(int argc, char **argv) {
     std::vector<int> waypoints;
     // Specify command line options.
     hiddenOptions.add_options()
-      ("input-file", po::value<std::string>(&inputFile)->required());
-    p.add("input-file", 1);
+      ("input-file",
+       po::value<std::vector<std::string>>(&inputFiles)->required());
+    p.add("input-file", -1);
     genericOptions.add_options()
       ("help,h",    "Display help")
       ("start,s",   po::value<std::string>(&startName), "Start point")
@@ -315,7 +333,12 @@ int main(int argc, char **argv) {
        "Through point")
       ("allpaths",  "Find all paths (exponential time)")
       ("netsonly",  "Only display nets in path report")
-      ("dotfile",   "Dump dotfile")
+      ("dotfile",   "Dump dotfile of netlist graph")
+      ("compile",   "Compile a netlist graph from Verilog source")
+      ("include,I", po::value<std::vector<std::string>>()->composing(),
+                    "include path (only with --compile)")
+      ("define,D",  po::value<std::vector<std::string>>()->composing(),
+                    "preprocessor macro (only with --compile)")
       ("debug",     "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
@@ -326,6 +349,7 @@ int main(int argc, char **argv) {
     bool dumpDotfile = vm.count("dotfile");
     bool allPaths    = vm.count("allpaths");
     bool netsOnly    = vm.count("netsonly");
+    bool compile     = vm.count("compile");
     if (displayHelp) {
       std::cout << "OVERVIEW: Find paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
@@ -333,25 +357,47 @@ int main(int argc, char **argv) {
       return 1;
     }
     notify(vm);
-    if (startName.empty()) throw Exception("no start point specified");
-    if (endName.empty())   throw Exception("no end point specified");
+
+    if (compile) {
+      fs::path exe = fs::system_complete("verilator/bin/verilator_bin");
+      std::vector<std::string> args{"+1800-2012ext+.sv",
+                                    "--lint-only",
+                                    "--dump-netlist-graph",
+                                    "--error-limit", "10000"};
+      if (vm.count("include")) {
+        auto &includes = vm["include"].as<std::vector<std::string>>();
+        for (auto &path : includes)
+          args.push_back(std::string("-y ")+path);
+      }
+      if (vm.count("define")) {
+        auto &defines = vm["define"].as<std::vector<std::string>>();
+        for (auto &define : defines)
+           args.push_back(std::string("-D")+define);
+      }
+      for (auto &path : inputFiles)
+        args.push_back(path);
+      std::stringstream ss;
+      for (auto &arg : args)
+        ss << arg << " ";
+      DEBUG(std::cout << exe << " " << ss.str() << "\n");
+      return bp::system(exe, bp::args(args));
+    }
+
     // Parse the input file.
+    if (inputFiles.size() != 1)
+      throw Exception("multiple graph files specified");
     DEBUG(std::cout << "Parsing input file\n");
-    parseFile(inputFile, vertices, edges);
+    parseFile(inputFiles.front(), vertices, edges);
     // Dump dot file.
     if (dumpDotfile) {
       dumpDotFile(vertices, edges);
       return 0;
     }
-    // Construct graph.
-    DEBUG(std::cout << "Constructing graph\n");
-    Graph graph(vertices.size());
-    for (auto &edge : edges) {
-      if (!boost::edge(edge.src, edge.dst, graph).second) {
-        boost::add_edge(edge.src, edge.dst, graph);
-      }
-    }
+    // Build the graph.
+    auto graph = buildGraph(vertices, edges);
     // Find vertices in graph and compile path waypoints.
+    if (startName.empty()) throw Exception("no start point specified");
+    if (endName.empty())   throw Exception("no end point specified");
     waypoints.push_back(getVertexId(vertices, startName, VAR));
     for (auto &throughName : throughNames) {
       int vertexId = getVertexId(vertices, throughName, VAR);

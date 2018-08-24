@@ -5,27 +5,27 @@ module fsm
     input  logic       i_start,
     input  logic       i_finish,
     input  logic       i_wait,
-    output logic [1:0] o_state,
+    output logic [2:0] o_state
   );
 
-  typedef enum logic [1:0] {
-    IDLE    = 2'b00,
-    BUSY    = 2'b01,
-    WAITING = 2'b10
+  typedef enum logic [2:0] {
+    IDLE = 3'b001,
+    BUSY = 3'b010,
+    WAIT = 3'b100
   } state_enum_t;
 
   // One-hot encoding of states.
-  typedef union {
+  typedef union packed {
     state_enum_t states;
     struct packed {
-      logic waiting,
-      logic busy,
-      logic idle
+      logic waiting;
+      logic busy;
+      logic idle;
     } state;
   } state_t;
 
   // Registers.
-  state_t state_q
+  state_t state_q;
 
   // Wires.
   state_t next_state;
@@ -37,11 +37,12 @@ module fsm
       state_q.state.waiting:
         if (i_start)
           next_state = BUSY;
-      state_q.state.busy:
+      state_q.state.busy: begin
         if (i_wait)
           next_state = WAIT;
         if (i_finish)
           next_state = IDLE;
+      end
     endcase
   end
 
