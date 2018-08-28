@@ -303,6 +303,100 @@ void printPathReport(const std::vector<Vertex> &vertices,
   }
 }
 
+int compileGraph(const std::vector<std::string> includes,
+                 const std::vector<std::string> defines,
+                 const std::vector<std::string> inputFiles) {
+  fs::path exe = fs::system_complete("verilator/bin/verilator_bin");
+  std::vector<std::string> args{"+1800-2012ext+.sv",
+                                "--lint-only",
+                                "--dump-netlist-graph",
+                                "--error-limit", "10000"};
+  for (auto &path : includes)
+    args.push_back(std::string("-y ")+path);
+  for (auto &define : defines)
+    args.push_back(std::string("-D")+define);
+  for (auto &path : inputFiles)
+    args.push_back(path);
+  std::stringstream ss;
+  for (auto &arg : args)
+    ss << arg << " ";
+  DEBUG(std::cout << "Running: " << exe << " " << ss.str() << "\n");
+  return bp::system(exe, bp::args(args));
+}
+
+void reportAllFanout(const std::string &startName,
+                     const std::vector<Vertex> &vertices,
+                     const std::vector<Edge> &edges,
+                     Graph &graph,
+                     bool netsOnly=false) {
+  int startVertexId = getVertexId(vertices, startName, VAR);
+  DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
+  ParentMap parentMap;
+  boost::depth_first_search(graph,
+      boost::visitor(DfsVisitor(parentMap, false))
+        .root_vertex(startVertexId));
+  // Check for a path between startPoint and each register.
+  for (auto &vertex : vertices) {
+    if (vertex.type == REG) {
+      auto path = determinePath(parentMap, std::vector<int>(),
+                                startVertexId, vertex.id);
+      if (!path.empty())
+        printPathReport(vertices, path, netsOnly);
+    }
+  }
+}
+
+void reportAnyPointToPoint(Graph &graph,
+                           const std::vector<int> waypoints,
+                           const std::vector<Vertex> vertices,
+                           bool netsOnly=false) {
+  std::vector<int> path;
+  // Construct the path between each adjacent waypoints.
+  for (size_t i = 0; i < waypoints.size()-1; ++i) {
+    int startVertexId = waypoints[i];
+    int endVertexId = waypoints[i+1];
+    DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
+    ParentMap parentMap;
+    boost::depth_first_search(graph,
+        boost::visitor(DfsVisitor(parentMap, false))
+          .root_vertex(startVertexId));
+    DEBUG(std::cout << "Determining a path to " << endVertexId << "\n");
+    auto subPath = determinePath(parentMap, std::vector<int>(),
+                                 startVertexId, endVertexId);
+    if (subPath.empty())
+        throw Exception(std::string("no path from ")
+                            +std::to_string(startVertexId)+" to "
+                            +std::to_string(endVertexId));
+    std::reverse(std::begin(subPath), std::end(subPath));
+    path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
+  }
+  path.push_back(waypoints.back());
+  printPathReport(vertices, path, netsOnly);
+}
+
+void reportAllPointToPoint(Graph &graph,
+                           const std::vector<int> waypoints,
+                           const std::vector<Vertex> vertices,
+                           bool netsOnly=false) {
+  if (waypoints.size() > 2)
+    throw Exception("through points not supported for all paths");
+  DEBUG(std::cout << "Performing DFS\n");
+  ParentMap parentMap;
+  boost::depth_first_search(graph,
+      boost::visitor(DfsVisitor(parentMap, true))
+        .root_vertex(waypoints[0]));
+  DEBUG(std::cout << "Determining all paths\n");
+  std::vector<std::vector<int>> paths;
+  determineAllPaths(vertices, parentMap, paths, std::vector<int>(),
+                    waypoints[0], waypoints[1]);
+  int count = 0;
+  for (auto &path : paths) {
+    std::reverse(std::begin(path), std::end(path));
+    std::cout << "PATH " << ++count << ":\n";
+    printPathReport(vertices, path, netsOnly);
+  }
+}
+
 } // End anonymous namespace.
 
 int main(int argc, char **argv) {
@@ -331,14 +425,14 @@ int main(int argc, char **argv) {
       ("end,e",     po::value<std::string>(&endName),   "End point")
       ("through,t", po::value<std::vector<std::string>>(&throughNames),
        "Through point")
-      ("allpaths",  "Find all paths (exponential time)")
+      ("allpaths",  "Find all paths between two points (exponential time)")
       ("netsonly",  "Only display nets in path report")
-      ("dotfile",   "Dump dotfile of netlist graph")
       ("compile",   "Compile a netlist graph from Verilog source")
       ("include,I", po::value<std::vector<std::string>>()->composing(),
                     "include path (only with --compile)")
       ("define,D",  po::value<std::vector<std::string>>()->composing(),
-                    "preprocessor macro (only with --compile)")
+                    "define a preprocessor macro (only with --compile)")
+      ("dotfile",   "Dump dotfile of netlist graph")
       ("debug",     "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
@@ -351,102 +445,58 @@ int main(int argc, char **argv) {
     bool netsOnly    = vm.count("netsonly");
     bool compile     = vm.count("compile");
     if (displayHelp) {
-      std::cout << "OVERVIEW: Find paths in a Verilog netlist\n\n";
+      std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
       std::cout << genericOptions << "\n";
       return 1;
     }
     notify(vm);
-
+    // Call Verilator to produce graph file. ================================ //
     if (compile) {
-      fs::path exe = fs::system_complete("verilator/bin/verilator_bin");
-      std::vector<std::string> args{"+1800-2012ext+.sv",
-                                    "--lint-only",
-                                    "--dump-netlist-graph",
-                                    "--error-limit", "10000"};
-      if (vm.count("include")) {
-        auto &includes = vm["include"].as<std::vector<std::string>>();
-        for (auto &path : includes)
-          args.push_back(std::string("-y ")+path);
-      }
-      if (vm.count("define")) {
-        auto &defines = vm["define"].as<std::vector<std::string>>();
-        for (auto &define : defines)
-           args.push_back(std::string("-D")+define);
-      }
-      for (auto &path : inputFiles)
-        args.push_back(path);
-      std::stringstream ss;
-      for (auto &arg : args)
-        ss << arg << " ";
-      DEBUG(std::cout << exe << " " << ss.str() << "\n");
-      return bp::system(exe, bp::args(args));
+      auto includes = vm.count("include")
+                        ? vm["include"].as<std::vector<std::string>>()
+                        : std::vector<std::string>{};
+      auto defines = vm.count("define")
+                        ? vm["define"].as<std::vector<std::string>>()
+                        : std::vector<std::string>{};
+      return compileGraph(includes, defines, inputFiles);
     }
-
-    // Parse the input file.
+    // Parse the input file. =================================================//
     if (inputFiles.size() != 1)
       throw Exception("multiple graph files specified");
     DEBUG(std::cout << "Parsing input file\n");
     parseFile(inputFiles.front(), vertices, edges);
-    // Dump dot file.
+    // Dump dot file. ========================================================//
     if (dumpDotfile) {
       dumpDotFile(vertices, edges);
       return 0;
     }
-    // Build the graph.
+    // Build the graph. ======================================================//
     auto graph = buildGraph(vertices, edges);
-    // Find vertices in graph and compile path waypoints.
-    if (startName.empty()) throw Exception("no start point specified");
-    if (endName.empty())   throw Exception("no end point specified");
+    // Any query must have a start point.
+    if (startName.empty())
+      throw Exception("no start point specified");
+    // Report paths fanning out from startName.===============================//
+    if (endName.empty()) {
+      if (!throughNames.empty())
+        throw Exception("through points not supported for start only");
+      reportAllFanout(startName, vertices, edges, graph, netsOnly);
+      return 0;
+    }
+    // Find vertices in graph and compile path waypoints. ====================//
     waypoints.push_back(getVertexId(vertices, startName, VAR));
     for (auto &throughName : throughNames) {
       int vertexId = getVertexId(vertices, throughName, VAR);
       waypoints.push_back(vertexId);
     }
     waypoints.push_back(getVertexId(vertices, endName, REG));
-    // Find and report path(s).
+    // Report all paths between two points. ==================================//
     if (allPaths) {
-      if (waypoints.size() > 2)
-        throw Exception("through points not supported for all paths");
-      DEBUG(std::cout << "Performing DFS\n");
-      ParentMap parentMap;
-      boost::depth_first_search(graph,
-          boost::visitor(DfsVisitor(parentMap, allPaths))
-            .root_vertex(waypoints[0]));
-      DEBUG(std::cout << "Determining all paths\n");
-      std::vector<std::vector<int>> paths;
-      determineAllPaths(vertices, parentMap, paths, std::vector<int>(),
-                        waypoints[0], waypoints[1]);
-      int count = 0;
-      for (auto &path : paths) {
-        std::reverse(std::begin(path), std::end(path));
-        std::cout << "PATH " << ++count << ":\n";
-        printPathReport(vertices, path, netsOnly);
-      }
-    } else {
-      std::vector<int> path;
-      // Construct the path between each adjacent waypoints.
-      for (size_t i = 0; i < waypoints.size()-1; ++i) {
-        int startVertexId = waypoints[i];
-        int endVertexId = waypoints[i+1];
-        DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
-        ParentMap parentMap;
-        boost::depth_first_search(graph,
-            boost::visitor(DfsVisitor(parentMap, allPaths))
-              .root_vertex(startVertexId));
-        DEBUG(std::cout << "Determining a path to " << endVertexId << "\n");
-        std::vector<int> subPath = determinePath(parentMap, std::vector<int>(),
-                                                 startVertexId, endVertexId);
-        if (subPath.empty())
-            throw Exception(std::string("no path from ")
-                                +std::to_string(startVertexId)+" to "
-                                +std::to_string(endVertexId));
-        std::reverse(std::begin(subPath), std::end(subPath));
-        path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
-      }
-      path.push_back(waypoints.back());
-      printPathReport(vertices, path, netsOnly);
+      reportAllPointToPoint(graph, waypoints, vertices, netsOnly);
+      return 0;
     }
+    // Report a paths between two points. ====================================//
+    reportAnyPointToPoint(graph, waypoints, vertices, netsOnly);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
