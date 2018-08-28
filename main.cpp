@@ -312,7 +312,7 @@ int compileGraph(const std::vector<std::string> includes,
                                 "--dump-netlist-graph",
                                 "--error-limit", "10000"};
   for (auto &path : includes)
-    args.push_back(std::string("-y ")+path);
+    args.push_back(std::string("+incdir+")+path);
   for (auto &define : defines)
     args.push_back(std::string("-D")+define);
   for (auto &path : inputFiles)
