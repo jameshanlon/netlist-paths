@@ -10,6 +10,7 @@
 #include <boost/process.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/reverse_graph.hpp>
 #include <boost/program_options.hpp>
 
 #ifdef NDEBUG
@@ -24,7 +25,7 @@ namespace bp = boost::process;
 
 namespace {
 
-using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS>;
+using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS>;
 using ParentMap = std::map<int, std::vector<int>>;
 
 bool debugMode;
@@ -145,17 +146,32 @@ public:
 
 int getVertexId(const std::vector<Vertex> vertices,
                 const std::string &name,
-                VertexType type) {
+                VertexType type,
+                bool supressException=false) {
   auto pred = [&] (const Vertex &v) { return v.type == type &&
                                              v.name == name; };
   auto it = std::find_if(std::begin(vertices), std::end(vertices), pred);
   if (it == std::end(vertices)) {
-    throw Exception(std::string("could not find vertex ")
-                        +name+" of type "+getVertexTypeStr(type));
+    if (!supressException)
+      throw Exception(std::string("could not find vertex ")
+                          +name+" of type "+getVertexTypeStr(type));
+    else
+      return -1;
   }
   DEBUG(std::cout<<"Vertex "<<it->id<<" matches "<<name
                  <<" of type "<<getVertexTypeStr(type)<<"\n");
   return it->id;
+}
+
+int getVertexId(const std::vector<Vertex> vertices,
+                const std::string &name) {
+  // Look for a REG type first.
+  auto vertexId = getVertexId(vertices, name, REG, true);
+  // Otherwise, look for a VAR type.
+  if (vertexId == -1) {
+    vertexId = getVertexId(vertices, name, VAR);
+  }
+  return vertexId;
 }
 
 void dumpPath(const std::vector<Vertex> vertices,
@@ -213,6 +229,7 @@ void determineAllPaths(const std::vector<Vertex> &vertices,
   }
 }
 
+/// Parse a graph input file and return a list of Vertices and a list of Edges.
 void parseFile(const std::string &filename,
                std::vector<Vertex> &vertices,
                std::vector<Edge> &edges) {
@@ -252,6 +269,7 @@ void parseFile(const std::string &filename,
   }
 }
 
+/// Build a Boost graph object.
 Graph buildGraph(std::vector<Vertex> &vertices,
                  std::vector<Edge> &edges) {
   // Construct graph.
@@ -286,6 +304,7 @@ void dumpVertexNames(const std::vector<Vertex> vertices) {
   }
 }
 
+/// Pretty print a path (some sequence of vertices).
 void printPathReport(const std::vector<Vertex> &vertices,
                      const std::vector<int> path,
                      bool netsOnly=false,
@@ -315,6 +334,7 @@ void printPathReport(const std::vector<Vertex> &vertices,
   }
 }
 
+/// Use Verilator to compile a graph of the flattened Verilog netlist.
 int compileGraph(const char *argv0,
                  const std::vector<std::string> includes,
                  const std::vector<std::string> defines,
@@ -338,14 +358,16 @@ int compileGraph(const char *argv0,
   return bp::system(verilatorExe, bp::args(args));
 }
 
+/// Report all paths fanning out from a net/register/port.
 void reportAllFanout(const std::string &startName,
                      const std::vector<Vertex> &vertices,
                      const std::vector<Edge> &edges,
                      Graph &graph,
                      bool netsOnly=false,
                      bool filenamesOnly=false) {
-  int startVertexId = getVertexId(vertices, startName, VAR);
-  DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
+  int startVertexId = getVertexId(vertices, startName);
+  DEBUG(std::cout << "Performing DFS from "
+                  << vertices[startVertexId].name << "\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, false))
@@ -367,15 +389,37 @@ void reportAllFanout(const std::string &startName,
   std::cout << "Found " << pathCount << " paths\n";
 }
 
+/// Report all paths fanning into a net/register/port.
 void reportAllFanin(const std::string &endName,
                     const std::vector<Vertex> &vertices,
                     const std::vector<Edge> &edges,
-                    Graph &graph,
+                    boost::reverse_graph<Graph> graph,
                     bool netsOnly=false,
                     bool filenamesOnly=false) {
-  // TODO
+  int endVertexId = getVertexId(vertices, endName);
+  DEBUG(std::cout << "Performing DFS in reverse graph from "
+                  << vertices[endVertexId].name << "\n");
+  ParentMap parentMap;
+  boost::depth_first_search(graph,
+      boost::visitor(DfsVisitor(parentMap, false))
+        .root_vertex(endVertexId));
+  // Check for a path between endPoint and each register.
+  int pathCount = 0;
+  for (auto &vertex : vertices) {
+    if (vertex.type == REG) {
+      auto path = determinePath(parentMap, std::vector<int>(),
+                                endVertexId, vertex.id);
+      if (!path.empty()) {
+        std::cout << "Path " << ++pathCount << "\n";
+        printPathReport(vertices, path, netsOnly, filenamesOnly);
+        std::cout << "\n";
+      }
+    }
+  }
+  std::cout << "Found " << pathCount << " paths\n";
 }
 
+/// Report a single path between a set of named points.
 void reportAnyPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
                            const std::vector<Vertex> vertices,
@@ -386,7 +430,8 @@ void reportAnyPointToPoint(Graph &graph,
   for (size_t i = 0; i < waypoints.size()-1; ++i) {
     int startVertexId = waypoints[i];
     int endVertexId = waypoints[i+1];
-    DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
+    DEBUG(std::cout << "Performing DFS from "
+                    << vertices[startVertexId].name << "\n");
     ParentMap parentMap;
     boost::depth_first_search(graph,
         boost::visitor(DfsVisitor(parentMap, false))
@@ -396,8 +441,8 @@ void reportAnyPointToPoint(Graph &graph,
                                  startVertexId, endVertexId);
     if (subPath.empty())
         throw Exception(std::string("no path from ")
-                            +std::to_string(startVertexId)+" to "
-                            +std::to_string(endVertexId));
+                            +vertices[startVertexId].name+" to "
+                            +vertices[endVertexId].name);
     std::reverse(std::begin(subPath), std::end(subPath));
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
   }
@@ -405,6 +450,7 @@ void reportAnyPointToPoint(Graph &graph,
   printPathReport(vertices, path, netsOnly, filenamesOnly);
 }
 
+/// Report all paths between start and end points.
 void reportAllPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
                            const std::vector<Vertex> vertices,
@@ -532,19 +578,21 @@ int main(int argc, char **argv) {
     // Report paths fanning in to endName.
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
-        throw Exception("through points not supported for start only");
-      reportAllFanin(endName, vertices, edges, graph,
+        throw Exception("through points not supported for end only");
+      reportAllFanin(endName, vertices, edges, boost::make_reverse_graph(graph),
                      netsOnly, filenamesOnly);
       return 0;
     }
 
     // Find vertices in graph and compile path waypoints.
-    waypoints.push_back(getVertexId(vertices, startName, VAR));
+    waypoints.push_back(getVertexId(vertices, startName));
     for (auto &throughName : throughNames) {
-      int vertexId = getVertexId(vertices, throughName, VAR);
+      int vertexId = getVertexId(vertices, throughName);
       waypoints.push_back(vertexId);
     }
-    waypoints.push_back(getVertexId(vertices, endName, VAR));
+    // Look for a register end point, otherwise any matching variable.
+    auto endVertexId = getVertexId(vertices, endName);
+    waypoints.push_back(endVertexId);
 
     // Report all paths between two points.
     if (allPaths) {
