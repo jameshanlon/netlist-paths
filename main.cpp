@@ -265,6 +265,7 @@ Graph buildGraph(std::vector<Vertex> &vertices,
   return graph;
 }
 
+/// Dump a Graphviz dotfile of the netlist graph for visualisation.
 void dumpDotFile(const std::vector<Vertex> vertices,
                  const std::vector<Edge> edges) {
   std::cout << "digraph netlist_graph {\n";
@@ -287,7 +288,8 @@ void dumpVertexNames(const std::vector<Vertex> vertices) {
 
 void printPathReport(const std::vector<Vertex> &vertices,
                      const std::vector<int> path,
-                     bool netsOnly=false) {
+                     bool netsOnly=false,
+                     bool filenamesOnly=false) {
   // Determine the max length of a name.
   size_t maxNameLength = 0;
   for (auto &vertexId : path) {
@@ -296,17 +298,19 @@ void printPathReport(const std::vector<Vertex> &vertices,
   // Print each vertex on the path.
   for (auto &vertexId : path) {
     auto &vertex = vertices[vertexId];
+    auto path = filenamesOnly ? fs::path(vertex.loc).filename()
+                              : fs::path(vertex.loc);
     if (netsOnly) {
       if (vertex.type == LOGIC)
         continue;
       std::cout << "  " << std::left
                 << std::setw(maxNameLength+1) << vertex.name
-                << vertex.loc << "\n";
+                << path.string() << "\n";
     } else {
       std::cout << "  " << std::left
                 << std::setw(maxNameLength+1) << vertex.name
                 << std::setw(8) << getVertexTypeStr(vertex.type) << " "
-                << vertex.loc << "\n";
+                << path.string() << "\n";
     }
   }
 }
@@ -336,7 +340,8 @@ void reportAllFanout(const std::string &startName,
                      const std::vector<Vertex> &vertices,
                      const std::vector<Edge> &edges,
                      Graph &graph,
-                     bool netsOnly=false) {
+                     bool netsOnly=false,
+                     bool filenamesOnly=false) {
   int startVertexId = getVertexId(vertices, startName, VAR);
   DEBUG(std::cout << "Performing DFS from " << startVertexId << "\n");
   ParentMap parentMap;
@@ -349,7 +354,7 @@ void reportAllFanout(const std::string &startName,
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
       if (!path.empty())
-        printPathReport(vertices, path, netsOnly);
+        printPathReport(vertices, path, netsOnly, filenamesOnly);
     }
   }
 }
@@ -357,7 +362,8 @@ void reportAllFanout(const std::string &startName,
 void reportAnyPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
                            const std::vector<Vertex> vertices,
-                           bool netsOnly=false) {
+                           bool netsOnly=false,
+                           bool filenamesOnly=false) {
   std::vector<int> path;
   // Construct the path between each adjacent waypoints.
   for (size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -379,13 +385,14 @@ void reportAnyPointToPoint(Graph &graph,
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
   }
   path.push_back(waypoints.back());
-  printPathReport(vertices, path, netsOnly);
+  printPathReport(vertices, path, netsOnly, filenamesOnly);
 }
 
 void reportAllPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
                            const std::vector<Vertex> vertices,
-                           bool netsOnly=false) {
+                           bool netsOnly=false,
+                           bool filenamesOnly=false) {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
   DEBUG(std::cout << "Performing DFS\n");
@@ -401,7 +408,7 @@ void reportAllPointToPoint(Graph &graph,
   for (auto &path : paths) {
     std::reverse(std::begin(path), std::end(path));
     std::cout << "PATH " << ++count << ":\n";
-    printPathReport(vertices, path, netsOnly);
+    printPathReport(vertices, path, netsOnly, filenamesOnly);
   }
 }
 
@@ -428,30 +435,34 @@ int main(int argc, char **argv) {
        po::value<std::vector<std::string>>(&inputFiles)->required());
     p.add("input-file", -1);
     genericOptions.add_options()
-      ("help,h",    "Display help")
-      ("start,s",   po::value<std::string>(&startName), "Start point")
-      ("end,e",     po::value<std::string>(&endName),   "End point")
-      ("through,t", po::value<std::vector<std::string>>(&throughNames),
+      ("help,h",        "Display help")
+      ("start,s",       po::value<std::string>(&startName), "Start point")
+      ("end,e",         po::value<std::string>(&endName),   "End point")
+      ("through,t",     po::value<std::vector<std::string>>(&throughNames),
        "Through point")
-      ("allpaths",  "Find all paths between two points (exponential time)")
-      ("netsonly",  "Only display nets in path report")
-      ("compile",   "Compile a netlist graph from Verilog source")
-      ("include,I", po::value<std::vector<std::string>>()->composing(),
-                    "include path (only with --compile)")
-      ("define,D",  po::value<std::vector<std::string>>()->composing(),
-                    "define a preprocessor macro (only with --compile)")
-      ("dotfile",   "Dump dotfile of netlist graph")
-      ("debug",     "Print debugging information");
+      ("allpaths",      "Find all paths between two points (exponential time)")
+      ("netsonly",      "Only display nets in path report")
+      ("filenamesonly", "Only display filenames in path report")
+      ("compile",       "Compile a netlist graph from Verilog source")
+      ("include,I",     po::value<std::vector<std::string>>()->composing(),
+                        "include path (only with --compile)")
+      ("define,D",      po::value<std::vector<std::string>>()->composing(),
+                        "define a preprocessor macro (only with --compile)")
+      ("dotfile",       "Dump dotfile of netlist graph")
+      ("dumpnames",     "Dump list of names in netlist")
+      ("debug",         "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
     debugMode = vm.count("debug") > 0;
-    bool displayHelp = vm.count("help");
-    bool dumpDotfile = vm.count("dotfile");
-    bool allPaths    = vm.count("allpaths");
-    bool netsOnly    = vm.count("netsonly");
-    bool compile     = vm.count("compile");
+    bool displayHelp   = vm.count("help");
+    bool dumpDotfile   = vm.count("dotfile");
+    bool dumpNames     = vm.count("dumpnames");
+    bool allPaths      = vm.count("allpaths");
+    bool netsOnly      = vm.count("filenamesonly");
+    bool filenamesOnly = vm.count("netsonly");
+    bool compile       = vm.count("compile");
     if (displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
@@ -493,7 +504,8 @@ int main(int argc, char **argv) {
     if (endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for start only");
-      reportAllFanout(startName, vertices, edges, graph, netsOnly);
+      reportAllFanout(startName, vertices, edges, graph,
+                      netsOnly, filenamesOnly);
       return 0;
     }
     // Find vertices in graph and compile path waypoints. ====================//
@@ -502,14 +514,15 @@ int main(int argc, char **argv) {
       int vertexId = getVertexId(vertices, throughName, VAR);
       waypoints.push_back(vertexId);
     }
-    waypoints.push_back(getVertexId(vertices, endName, REG));
+    waypoints.push_back(getVertexId(vertices, endName, VAR));
     // Report all paths between two points. ==================================//
     if (allPaths) {
-      reportAllPointToPoint(graph, waypoints, vertices, netsOnly);
+      reportAllPointToPoint(graph, waypoints, vertices,
+                            netsOnly, filenamesOnly);
       return 0;
     }
     // Report a paths between two points. ====================================//
-    reportAnyPointToPoint(graph, waypoints, vertices, netsOnly);
+    reportAnyPointToPoint(graph, waypoints, vertices, filenamesOnly, netsOnly);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
