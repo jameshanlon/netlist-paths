@@ -315,10 +315,12 @@ void printPathReport(const std::vector<Vertex> &vertices,
   }
 }
 
-int compileGraph(const std::vector<std::string> includes,
+int compileGraph(const char *argv0,
+                 const std::vector<std::string> includes,
                  const std::vector<std::string> defines,
                  const std::vector<std::string> inputFiles) {
-  fs::path exe = fs::system_complete("verilator/bin/verilator_bin");
+  fs::path currentExe = fs::system_complete(argv0);
+  fs::path verilatorExe = currentExe.remove_leaf() / fs::path("verilator_bin");
   std::vector<std::string> args{"+1800-2012ext+.sv",
                                 "--lint-only",
                                 "--dump-netlist-graph",
@@ -332,8 +334,8 @@ int compileGraph(const std::vector<std::string> includes,
   std::stringstream ss;
   for (auto &arg : args)
     ss << arg << " ";
-  DEBUG(std::cout << "Running: " << exe << " " << ss.str() << "\n");
-  return bp::system(exe, bp::args(args));
+  DEBUG(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
+  return bp::system(verilatorExe, bp::args(args));
 }
 
 void reportAllFanout(const std::string &startName,
@@ -494,7 +496,7 @@ int main(int argc, char **argv) {
       auto defines = vm.count("define")
                         ? vm["define"].as<std::vector<std::string>>()
                         : std::vector<std::string>{};
-      return compileGraph(includes, defines, inputFiles);
+      return compileGraph(argv[0], includes, defines, inputFiles);
     }
 
     // Parse the input file.
