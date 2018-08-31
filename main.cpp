@@ -349,14 +349,29 @@ void reportAllFanout(const std::string &startName,
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(startVertexId));
   // Check for a path between startPoint and each register.
+  int pathCount = 0;
   for (auto &vertex : vertices) {
     if (vertex.type == REG) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
-      if (!path.empty())
+      std::reverse(std::begin(path), std::end(path));
+      if (!path.empty()) {
+        std::cout << "Path " << ++pathCount << "\n";
         printPathReport(vertices, path, netsOnly, filenamesOnly);
+        std::cout << "\n";
+      }
     }
   }
+  std::cout << "Found " << pathCount << " paths\n";
+}
+
+void reportAllFanin(const std::string &endName,
+                    const std::vector<Vertex> &vertices,
+                    const std::vector<Edge> &edges,
+                    Graph &graph,
+                    bool netsOnly=false,
+                    bool filenamesOnly=false) {
+  // TODO
 }
 
 void reportAnyPointToPoint(Graph &graph,
@@ -470,7 +485,8 @@ int main(int argc, char **argv) {
       return 1;
     }
     notify(vm);
-    // Call Verilator to produce graph file. ================================ //
+
+    // Call Verilator to produce graph file.
     if (compile) {
       auto includes = vm.count("include")
                         ? vm["include"].as<std::vector<std::string>>()
@@ -480,48 +496,62 @@ int main(int argc, char **argv) {
                         : std::vector<std::string>{};
       return compileGraph(includes, defines, inputFiles);
     }
-    // Parse the input file. =================================================//
+
+    // Parse the input file.
     if (inputFiles.size() != 1)
       throw Exception("multiple graph files specified");
     DEBUG(std::cout << "Parsing input file\n");
     parseFile(inputFiles.front(), vertices, edges);
-    // Dump dot file. ========================================================//
+
+    // Dump dot file.
     if (dumpDotfile) {
       dumpDotFile(vertices, edges);
       return 0;
     }
-    // Dump netlist names. ===================================================//
+
+    // Dump netlist names.
     if (dumpNames) {
       dumpVertexNames(vertices);
       return 0;
     }
-    // Build the graph. ======================================================//
+
+    // Build the graph.
     auto graph = buildGraph(vertices, edges);
-    // Any query must have a start point.
-    if (startName.empty())
-      throw Exception("no start point specified");
-    // Report paths fanning out from startName.===============================//
-    if (endName.empty()) {
+
+    // Report paths fanning out from startName.
+    if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for start only");
       reportAllFanout(startName, vertices, edges, graph,
                       netsOnly, filenamesOnly);
       return 0;
     }
-    // Find vertices in graph and compile path waypoints. ====================//
+
+    // Report paths fanning in to endName.
+    if (startName.empty() && !endName.empty()) {
+      if (!throughNames.empty())
+        throw Exception("through points not supported for start only");
+      reportAllFanin(endName, vertices, edges, graph,
+                     netsOnly, filenamesOnly);
+      return 0;
+    }
+
+    // Find vertices in graph and compile path waypoints.
     waypoints.push_back(getVertexId(vertices, startName, VAR));
     for (auto &throughName : throughNames) {
       int vertexId = getVertexId(vertices, throughName, VAR);
       waypoints.push_back(vertexId);
     }
     waypoints.push_back(getVertexId(vertices, endName, VAR));
-    // Report all paths between two points. ==================================//
+
+    // Report all paths between two points.
     if (allPaths) {
       reportAllPointToPoint(graph, waypoints, vertices,
                             netsOnly, filenamesOnly);
       return 0;
     }
-    // Report a paths between two points. ====================================//
+
+    // Report a paths between two points.
     reportAnyPointToPoint(graph, waypoints, vertices, filenamesOnly, netsOnly);
     return 0;
   } catch (std::exception& e) {
