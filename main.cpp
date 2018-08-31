@@ -277,6 +277,14 @@ void dumpDotFile(const std::vector<Vertex> vertices,
   std::cout << "}\n";
 }
 
+/// Dump all of the names in the netlist for searching.
+void dumpVertexNames(const std::vector<Vertex> vertices) {
+  for (auto &vertex : vertices) {
+    std::cout << std::setw(8) << getVertexTypeStr(vertex.type)
+              << " " << vertex.name << "\n";
+  }
+}
+
 void printPathReport(const std::vector<Vertex> &vertices,
                      const std::vector<int> path,
                      bool netsOnly=false) {
@@ -469,6 +477,11 @@ int main(int argc, char **argv) {
     // Dump dot file. ========================================================//
     if (dumpDotfile) {
       dumpDotFile(vertices, edges);
+      return 0;
+    }
+    // Dump netlist names. ===================================================//
+    if (dumpNames) {
+      dumpVertexNames(vertices);
       return 0;
     }
     // Build the graph. ======================================================//
