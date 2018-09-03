@@ -11,6 +11,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_executable(netlist-paths main.cpp)
 target_link_libraries(netlist-paths
   ${Boost_LIBRARIES}
+  ${CMAKE_DL_LIBS} # Required for Boost_DLL
   pthread)
 set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 install(TARGETS netlist-paths
