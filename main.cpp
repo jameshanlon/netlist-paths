@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <unordered_set>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -25,7 +26,8 @@ namespace bp = boost::process;
 
 namespace {
 
-using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS>;
+using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
+                                    boost::bidirectionalS>;
 using ParentMap = std::map<int, std::vector<int>>;
 
 const int VERTEX_NULL_ID = 0;
@@ -182,6 +184,7 @@ int getEndVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
   if (int vertexId = getVertexId(vertices, name, REG_DST))    return vertexId;
   if (int vertexId = getVertexId(vertices, name, VAR_OUTPUT)) return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR))        return vertexId;
   throw Exception(std::string("could not find end vertex ")+name);
 }
 
@@ -276,11 +279,18 @@ void dumpDotFile(const std::vector<Vertex> vertices,
   std::cout << "}\n";
 }
 
-/// Dump all of the names in the netlist for searching.
+/// Dump unique names of vars/regs/wires in the netlist for searching.
 void dumpVertexNames(const std::vector<Vertex> vertices) {
+  std::unordered_set<std::string> names;
   for (auto &vertex : vertices) {
-    std::cout << std::setw(8) << getVertexTypeStr(vertex.type)
-              << " " << vertex.name << "\n";
+    if (vertex.type == LOGIC)
+      continue;
+    names.insert(std::string(getVertexTypeStr(vertex.type))+" "+vertex.name);
+  }
+  std::vector<std::string> sortedNames(names.begin(), names.end());
+  std::sort(sortedNames.begin(), sortedNames.end());
+  for (auto &name : sortedNames) {
+    std::cout << std::setw(8) << name << "\n";
   }
 }
 
@@ -354,7 +364,8 @@ void reportAllFanout(const std::string &startName,
   // Check for a path between startPoint and each register.
   int pathCount = 0;
   for (auto &vertex : vertices) {
-    if (vertex.type == REG_DST ||
+    if (vertex.type == REG_SRC ||
+        vertex.type == REG_DST ||
         vertex.type == VAR_OUTPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
@@ -366,7 +377,7 @@ void reportAllFanout(const std::string &startName,
       }
     }
   }
-  std::cout << "Found " << pathCount << " paths\n";
+  std::cout << "Found " << pathCount << " path(s)\n";
 }
 
 /// Report all paths fanning into a net/register/port.
@@ -386,6 +397,7 @@ void reportAllFanin(const std::string &endName,
   int pathCount = 0;
   for (auto &vertex : vertices) {
     if (vertex.type == REG_SRC ||
+        vertex.type == REG_DST ||
         vertex.type == VAR_INPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 endVertexId, vertex.id);
