@@ -28,6 +28,8 @@ namespace {
 using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS>;
 using ParentMap = std::map<int, std::vector<int>>;
 
+const int VERTEX_NULL_ID = 0;
+
 bool debugMode;
 
 struct Exception : public std::exception {
@@ -39,35 +41,23 @@ struct Exception : public std::exception {
 
 typedef enum {
   NONE,
-  INPUTS,
-  REG,
-  VAR,
-  VAR_STD,
-  VAR_PRE,
-  VAR_POST,
-  VAR_PORD,
   LOGIC,
-  LOGICACTIVE,
-  LOGICASSIGNW,
-  LOGICASSIGNPRE,
-  LOGICASSIGNPOST,
-  LOGICALWAYS
+  REG_SRC,
+  REG_DST,
+  VAR,
+  VAR_WIRE,
+  VAR_INPUT,
+  VAR_OUTPUT
 } VertexType;
 
 VertexType getVertexType(const std::string &type) {
-  if (type == "*INPUTS*")             return INPUTS;
-  else if (type == "REG")             return REG;
-  else if (type == "VAR")             return VAR;
-  else if (type == "VAR_STD")         return VAR_STD;
-  else if (type == "VAR_PRE")         return VAR_PRE;
-  else if (type == "VAR_POST")        return VAR_POST;
-  else if (type == "VAR_PORD")        return VAR_PORD;
-  else if (type == "LOGIC")           return LOGIC;
-  else if (type == "LOGICACTIVE")     return LOGICACTIVE;
-  else if (type == "LOGICASSIGNW")    return LOGICASSIGNW;
-  else if (type == "LOGICASSIGNPRE")  return LOGICASSIGNPRE;
-  else if (type == "LOGICASSIGNPOST") return LOGICASSIGNPOST;
-  else if (type == "LOGICALWAYS")     return LOGICALWAYS;
+       if (type == "LOGIC")      return LOGIC;
+  else if (type == "REG_SRC")    return REG_SRC;
+  else if (type == "REG_DST")    return REG_DST;
+  else if (type == "VAR")        return VAR;
+  else if (type == "VAR_WIRE")   return VAR_WIRE;
+  else if (type == "VAR_INPUT")  return VAR_INPUT;
+  else if (type == "VAR_OUTPUT") return VAR_OUTPUT;
   else {
     throw Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -75,20 +65,14 @@ VertexType getVertexType(const std::string &type) {
 
 const char *getVertexTypeStr(VertexType type) {
   switch (type) {
-    case INPUTS:         return "*INPUTS*";
-    case REG:            return "REG";
-    case VAR:            return "VAR";
-    case VAR_STD:        return "VAR_STD";
-    case VAR_PRE:        return "VAR_PRE";
-    case VAR_POST:       return "VAR_POST";
-    case VAR_PORD:       return "VAR_PORD";
-    case LOGIC:          return "LOGIC";
-    case LOGICACTIVE:    return "LOGICACTIVE";
-    case LOGICASSIGNW:   return "LOGICASSIGNW";
-    case LOGICASSIGNPRE: return "LOGICASSIGNPRE";
-    case LOGICASSIGNPOST:return "LOGICASSIGNPOST";
-    case LOGICALWAYS:    return "LOGICALWAYS";
-    default:             return "UNKNOWN";
+    case LOGIC:      return "LOGIC";
+    case REG_SRC:    return "REG_SRC";
+    case REG_DST:    return "REG_DST";
+    case VAR:        return "VAR";
+    case VAR_WIRE:   return "VAR_WIRE";
+    case VAR_INPUT:  return "VAR_INPUT";
+    case VAR_OUTPUT: return "VAR_OUTPUT";
+    default:         return "UNKNOWN";
   }
 }
 
@@ -144,34 +128,70 @@ public:
   }
 };
 
-int getVertexId(const std::vector<Vertex> vertices,
-                const std::string &name,
-                VertexType type,
-                bool supressException=false) {
-  auto pred = [&] (const Vertex &v) { return v.type == type &&
-                                             v.name == name; };
-  auto it = std::find_if(std::begin(vertices), std::end(vertices), pred);
-  if (it == std::end(vertices)) {
-    if (!supressException)
-      throw Exception(std::string("could not find vertex ")
-                          +name+" of type "+getVertexTypeStr(type));
-    else
-      return -1;
+/// Parse a graph input file and return a list of Vertices and a list of Edges.
+void parseFile(const std::string &filename,
+               std::vector<Vertex> &vertices,
+               std::vector<Edge> &edges) {
+  std::fstream infile(filename);
+  std::string line;
+  int vertexCount = 0;
+  if (!infile.is_open()) {
+    throw Exception("could not open file");
   }
-  DEBUG(std::cout<<"Vertex "<<it->id<<" matches "<<name
-                 <<" of type "<<getVertexTypeStr(type)<<"\n");
-  return it->id;
+  while (std::getline(infile, line)) {
+    std::istringstream iss(line);
+    std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                                    std::istream_iterator<std::string>{}};
+    if (tokens[0] == "VERTEX") {
+      auto type = getVertexType(tokens[2]);
+      vertices.push_back(Vertex(vertexCount, type, tokens[3], tokens[5]));
+      ++vertexCount;
+    } else if (tokens[0] == "EDGE") {
+      auto edge = Edge(std::stoi(tokens[1]),
+                       std::stoi(tokens[3]));
+      edges.push_back(edge);
+    } else {
+      throw Exception(std::string("unexpected line: ")+line);
+    }
+  }
 }
 
 int getVertexId(const std::vector<Vertex> vertices,
-                const std::string &name) {
-  // Look for a REG type first.
-  auto vertexId = getVertexId(vertices, name, REG, true);
-  // Otherwise, look for a VAR type.
-  if (vertexId == -1) {
-    vertexId = getVertexId(vertices, name, VAR);
+                const std::string &name,
+                VertexType type) {
+  auto pred = [&] (const Vertex &v) { return v.type == type &&
+                                             v.name == name; };
+  auto it = std::find_if(std::begin(vertices), std::end(vertices), pred);
+  if (it != std::end(vertices)) {
+    DEBUG(std::cout<<"Vertex "<<it->id<<" matches "<<name
+                   <<" of type "<<getVertexTypeStr(type)<<"\n");
+    return it->id;
   }
-  return vertexId;
+  return VERTEX_NULL_ID;
+}
+
+int getStartVertexId(const std::vector<Vertex> vertices,
+                     const std::string &name) {
+  if (int vertexId = getVertexId(vertices, name, REG_SRC))   return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR_INPUT)) return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR))       return vertexId;
+  throw Exception(std::string("could not find start vertex ")+name);
+}
+
+int getEndVertexId(const std::vector<Vertex> vertices,
+                     const std::string &name) {
+  if (int vertexId = getVertexId(vertices, name, REG_DST))    return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR_OUTPUT)) return vertexId;
+  throw Exception(std::string("could not find end vertex ")+name);
+}
+
+int getMidVertexId(const std::vector<Vertex> vertices,
+                   const std::string &name) {
+  if (int vertexId = getVertexId(vertices, name, VAR))        return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR_WIRE))   return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR_INPUT))  return vertexId;
+  if (int vertexId = getVertexId(vertices, name, VAR_OUTPUT)) return vertexId;
+  throw Exception(std::string("could not find mid vertex ")+name);
 }
 
 void dumpPath(const std::vector<Vertex> vertices,
@@ -229,46 +249,6 @@ void determineAllPaths(const std::vector<Vertex> &vertices,
   }
 }
 
-/// Parse a graph input file and return a list of Vertices and a list of Edges.
-void parseFile(const std::string &filename,
-               std::vector<Vertex> &vertices,
-               std::vector<Edge> &edges) {
-  std::fstream infile(filename);
-  std::string line;
-  int vertexCount = 0;
-  if (!infile.is_open()) {
-    throw Exception("could not open file");
-  }
-  while (std::getline(infile, line)) {
-    std::istringstream iss(line);
-    std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
-                                    std::istream_iterator<std::string>{}};
-    if (tokens[0] == "VERTEX") {
-      auto type = getVertexType(tokens[2]);
-      if (type == INPUTS) {
-        // No name or fileline.
-        vertices.push_back(Vertex(vertexCount, type));
-      } else if (type == LOGICACTIVE ||
-                 type == LOGICASSIGNW ||
-                 type == LOGICASSIGNPRE ||
-                 type == LOGICASSIGNPOST ||
-                 type == LOGICALWAYS) {
-        // No name.
-        vertices.push_back(Vertex(vertexCount, type, tokens[4]));
-      } else {
-        vertices.push_back(Vertex(vertexCount, type, tokens[3], tokens[5]));
-      }
-      ++vertexCount;
-    } else if (tokens[0] == "EDGE") {
-      auto edge = Edge(std::stoi(tokens[1]),
-                       std::stoi(tokens[3]));
-      edges.push_back(edge);
-    } else {
-      throw Exception(std::string("unexpected line: ")+line);
-    }
-  }
-}
-
 /// Build a Boost graph object.
 Graph buildGraph(std::vector<Vertex> &vertices,
                  std::vector<Edge> &edges) {
@@ -290,7 +270,7 @@ void dumpDotFile(const std::vector<Vertex> vertices,
   for (auto &vertex : vertices)
     std::cout << "  " << vertex.id << " [label=\""
               << getVertexTypeStr(vertex.type) << "\\n"
-              << vertex.name << "\"];\n";
+              << vertex.name << " (" << vertex.id << ")\"];\n";
   for (auto &edge : edges)
     std::cout << "  " << edge.src << " -> " << edge.dst << ";\n";
   std::cout << "}\n";
@@ -361,11 +341,10 @@ int compileGraph(const char *argv0,
 /// Report all paths fanning out from a net/register/port.
 void reportAllFanout(const std::string &startName,
                      const std::vector<Vertex> &vertices,
-                     const std::vector<Edge> &edges,
                      Graph &graph,
                      bool netsOnly=false,
                      bool filenamesOnly=false) {
-  int startVertexId = getVertexId(vertices, startName);
+  int startVertexId = getStartVertexId(vertices, startName);
   DEBUG(std::cout << "Performing DFS from "
                   << vertices[startVertexId].name << "\n");
   ParentMap parentMap;
@@ -375,7 +354,8 @@ void reportAllFanout(const std::string &startName,
   // Check for a path between startPoint and each register.
   int pathCount = 0;
   for (auto &vertex : vertices) {
-    if (vertex.type == REG) {
+    if (vertex.type == REG_DST ||
+        vertex.type == VAR_OUTPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
       std::reverse(std::begin(path), std::end(path));
@@ -392,11 +372,10 @@ void reportAllFanout(const std::string &startName,
 /// Report all paths fanning into a net/register/port.
 void reportAllFanin(const std::string &endName,
                     const std::vector<Vertex> &vertices,
-                    const std::vector<Edge> &edges,
                     boost::reverse_graph<Graph> graph,
                     bool netsOnly=false,
                     bool filenamesOnly=false) {
-  int endVertexId = getVertexId(vertices, endName);
+  int endVertexId = getEndVertexId(vertices, endName);
   DEBUG(std::cout << "Performing DFS in reverse graph from "
                   << vertices[endVertexId].name << "\n");
   ParentMap parentMap;
@@ -406,7 +385,8 @@ void reportAllFanin(const std::string &endName,
   // Check for a path between endPoint and each register.
   int pathCount = 0;
   for (auto &vertex : vertices) {
-    if (vertex.type == REG) {
+    if (vertex.type == REG_SRC ||
+        vertex.type == VAR_INPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 endVertexId, vertex.id);
       if (!path.empty()) {
@@ -570,8 +550,7 @@ int main(int argc, char **argv) {
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for start only");
-      reportAllFanout(startName, vertices, edges, graph,
-                      netsOnly, filenamesOnly);
+      reportAllFanout(startName, vertices, graph, netsOnly, filenamesOnly);
       return 0;
     }
 
@@ -579,19 +558,19 @@ int main(int argc, char **argv) {
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for end only");
-      reportAllFanin(endName, vertices, edges, boost::make_reverse_graph(graph),
+      reportAllFanin(endName, vertices, boost::make_reverse_graph(graph),
                      netsOnly, filenamesOnly);
       return 0;
     }
 
     // Find vertices in graph and compile path waypoints.
-    waypoints.push_back(getVertexId(vertices, startName));
+    waypoints.push_back(getStartVertexId(vertices, startName));
     for (auto &throughName : throughNames) {
-      int vertexId = getVertexId(vertices, throughName);
+      int vertexId = getMidVertexId(vertices, throughName);
       waypoints.push_back(vertexId);
     }
     // Look for a register end point, otherwise any matching variable.
-    auto endVertexId = getVertexId(vertices, endName);
+    auto endVertexId = getEndVertexId(vertices, endName);
     waypoints.push_back(endVertexId);
 
     // Report all paths between two points.

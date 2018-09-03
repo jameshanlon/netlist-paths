@@ -18,4 +18,5 @@ ExternalProject_Add(Verilator
   CONFIGURE_COMMAND autoconf && ./configure --prefix=${INSTALL_DIR}
   BUILD_COMMAND make
   BUILD_IN_SOURCE 1
+  BUILD_ALWAYS 1
   INSTALL_COMMAND make install)
