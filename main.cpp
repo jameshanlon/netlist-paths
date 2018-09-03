@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <unordered_set>
+#include <boost/dll.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -329,8 +330,8 @@ int compileGraph(const char *argv0,
                  const std::vector<std::string> includes,
                  const std::vector<std::string> defines,
                  const std::vector<std::string> inputFiles) {
-  fs::path currentExe = fs::system_complete(argv0);
-  fs::path verilatorExe = currentExe.remove_leaf() / fs::path("verilator_bin");
+  fs::path programLocation = boost::dll::program_location().parent_path();
+  fs::path verilatorExe = programLocation / fs::path("verilator_bin");
   std::vector<std::string> args{"+1800-2012ext+.sv",
                                 "--lint-only",
                                 "--dump-netlist-graph",
