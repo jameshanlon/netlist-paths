@@ -31,7 +31,7 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
                                     boost::bidirectionalS>;
 using ParentMap = std::map<int, std::vector<int>>;
 
-const int VERTEX_NULL_ID = 0;
+const int NULL_VERTEX_ID = 0;
 
 bool debugMode;
 
@@ -47,6 +47,7 @@ typedef enum {
   LOGIC,
   REG_SRC,
   REG_DST,
+  REG_DST_OUTPUT,
   VAR,
   VAR_WIRE,
   VAR_INPUT,
@@ -54,13 +55,14 @@ typedef enum {
 } VertexType;
 
 VertexType getVertexType(const std::string &type) {
-       if (type == "LOGIC")      return LOGIC;
-  else if (type == "REG_SRC")    return REG_SRC;
-  else if (type == "REG_DST")    return REG_DST;
-  else if (type == "VAR")        return VAR;
-  else if (type == "VAR_WIRE")   return VAR_WIRE;
-  else if (type == "VAR_INPUT")  return VAR_INPUT;
-  else if (type == "VAR_OUTPUT") return VAR_OUTPUT;
+       if (type == "LOGIC")          return LOGIC;
+  else if (type == "REG_SRC")        return REG_SRC;
+  else if (type == "REG_DST")        return REG_DST;
+  else if (type == "REG_DST_OUTPUT") return REG_DST_OUTPUT;
+  else if (type == "VAR")            return VAR;
+  else if (type == "VAR_WIRE")       return VAR_WIRE;
+  else if (type == "VAR_INPUT")      return VAR_INPUT;
+  else if (type == "VAR_OUTPUT")     return VAR_OUTPUT;
   else {
     throw Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -68,14 +70,15 @@ VertexType getVertexType(const std::string &type) {
 
 const char *getVertexTypeStr(VertexType type) {
   switch (type) {
-    case LOGIC:      return "LOGIC";
-    case REG_SRC:    return "REG_SRC";
-    case REG_DST:    return "REG_DST";
-    case VAR:        return "VAR";
-    case VAR_WIRE:   return "VAR_WIRE";
-    case VAR_INPUT:  return "VAR_INPUT";
-    case VAR_OUTPUT: return "VAR_OUTPUT";
-    default:         return "UNKNOWN";
+    case LOGIC:          return "LOGIC";
+    case REG_SRC:        return "REG_SRC";
+    case REG_DST:        return "REG_DST";
+    case REG_DST_OUTPUT: return "REG_DST_OUTPUT";
+    case VAR:            return "VAR";
+    case VAR_WIRE:       return "VAR_WIRE";
+    case VAR_INPUT:      return "VAR_INPUT";
+    case VAR_OUTPUT:     return "VAR_OUTPUT";
+    default:             return "UNKNOWN";
   }
 }
 
@@ -170,31 +173,32 @@ int getVertexId(const std::vector<Vertex> vertices,
                    <<" of type "<<getVertexTypeStr(type)<<"\n");
     return it->id;
   }
-  return VERTEX_NULL_ID;
+  return NULL_VERTEX_ID;
 }
 
 int getStartVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vertexId = getVertexId(vertices, name, REG_SRC))   return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR_INPUT)) return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR))       return vertexId;
+  if (int vId = getVertexId(vertices, name, REG_SRC))   return vId;
+  if (int vId = getVertexId(vertices, name, VAR_INPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VAR))       return vId;
   throw Exception(std::string("could not find start vertex ")+name);
 }
 
 int getEndVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vertexId = getVertexId(vertices, name, REG_DST))    return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR_OUTPUT)) return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR))        return vertexId;
+  if (int vId = getVertexId(vertices, name, REG_DST))        return vId;
+  if (int vId = getVertexId(vertices, name, REG_DST_OUTPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VAR_OUTPUT))     return vId;
+  if (int vId = getVertexId(vertices, name, VAR))            return vId;
   throw Exception(std::string("could not find end vertex ")+name);
 }
 
 int getMidVertexId(const std::vector<Vertex> vertices,
                    const std::string &name) {
-  if (int vertexId = getVertexId(vertices, name, VAR))        return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR_WIRE))   return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR_INPUT))  return vertexId;
-  if (int vertexId = getVertexId(vertices, name, VAR_OUTPUT)) return vertexId;
+  if (int vId = getVertexId(vertices, name, VAR))        return vId;
+  if (int vId = getVertexId(vertices, name, VAR_WIRE))   return vId;
+  if (int vId = getVertexId(vertices, name, VAR_INPUT))  return vId;
+  if (int vId = getVertexId(vertices, name, VAR_OUTPUT)) return vId;
   throw Exception(std::string("could not find mid vertex ")+name);
 }
 
@@ -367,6 +371,7 @@ void reportAllFanout(const std::string &startName,
   for (auto &vertex : vertices) {
     if (vertex.type == REG_SRC ||
         vertex.type == REG_DST ||
+        vertex.type == REG_DST_OUTPUT ||
         vertex.type == VAR_OUTPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
@@ -399,6 +404,7 @@ void reportAllFanin(const std::string &endName,
   for (auto &vertex : vertices) {
     if (vertex.type == REG_SRC ||
         vertex.type == REG_DST ||
+        vertex.type == REG_DST_OUTPUT ||
         vertex.type == VAR_INPUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 endVertexId, vertex.id);
