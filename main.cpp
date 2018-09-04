@@ -140,7 +140,7 @@ void parseFile(const std::string &filename,
                std::vector<Edge> &edges) {
   std::fstream infile(filename);
   std::string line;
-  int vertexCount = 0;
+  int vertexCount = 1;
   if (!infile.is_open()) {
     throw Exception("could not open file");
   }
