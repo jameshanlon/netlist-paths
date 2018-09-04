@@ -138,6 +138,7 @@ public:
 void parseFile(const std::string &filename,
                std::vector<Vertex> &vertices,
                std::vector<Edge> &edges) {
+  DEBUG(std::cout << "Parsing input file\n");
   std::fstream infile(filename);
   std::string line;
   int vertexCount = 1;
@@ -268,18 +269,19 @@ Graph buildGraph(std::vector<Vertex> &vertices,
       boost::add_edge(edge.src, edge.dst, graph);
     }
   }
-  // Do some checks.
+  // Perform some checks.
   for (auto &vertex : vertices) {
     // Source registers don't have in edges.
-    if (vertex.type == REG_DST ||
-        vertex.type == REG_DST_OUTPUT)
-      if (boost::in_degree(boost::vertex(vertex.id, graph), graph) == 0)
-         throw Exception(std::string("src reg ")+vertex.name+" has in edges");
+    if (vertex.type == REG_SRC)
+      if (boost::in_degree(boost::vertex(vertex.id, graph), graph) > 0)
+         std::cout << "Warning: source reg " << vertex.name
+                   << " (" << vertex.id << ") has in edges" << "\n";
     // Destination registers don't have out edges.
     if (vertex.type == REG_DST ||
         vertex.type == REG_DST_OUTPUT)
-      if (boost::out_degree(boost::vertex(vertex.id, graph), graph) == 0)
-        throw Exception(std::string("dst reg ")+vertex.name+" has out edges");
+      if (boost::out_degree(boost::vertex(vertex.id, graph), graph) > 0)
+        std::cout << "Warning: destination reg " << vertex.name
+                  << " (" << vertex.id << ") has out edges"<<"\n";
   }
   return graph;
 }
@@ -558,9 +560,8 @@ int main(int argc, char **argv) {
     }
 
     // Parse the input file.
-    if (inputFiles.size() != 1)
+    if (inputFiles.size() > 1)
       throw Exception("multiple graph files specified");
-    DEBUG(std::cout << "Parsing input file\n");
     parseFile(inputFiles.front(), vertices, edges);
 
     // Dump dot file.
@@ -577,6 +578,10 @@ int main(int argc, char **argv) {
 
     // Build the graph.
     auto graph = buildGraph(vertices, edges);
+
+    if (startName.empty() && endName.empty()) {
+      throw Exception("no start and/or end point specified");
+    }
 
     // Report paths fanning out from startName.
     if (!startName.empty() && endName.empty()) {
