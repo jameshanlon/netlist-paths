@@ -268,6 +268,19 @@ Graph buildGraph(std::vector<Vertex> &vertices,
       boost::add_edge(edge.src, edge.dst, graph);
     }
   }
+  // Do some checks.
+  for (auto &vertex : vertices) {
+    // Source registers don't have in edges.
+    if (vertex.type == REG_DST ||
+        vertex.type == REG_DST_OUTPUT)
+      if (boost::in_degree(boost::vertex(vertex.id, graph), graph) == 0)
+         throw Exception(std::string("src reg ")+vertex.name+" has in edges");
+    // Destination registers don't have out edges.
+    if (vertex.type == REG_DST ||
+        vertex.type == REG_DST_OUTPUT)
+      if (boost::out_degree(boost::vertex(vertex.id, graph), graph) == 0)
+        throw Exception(std::string("dst reg ")+vertex.name+" has out edges");
+  }
   return graph;
 }
 
