@@ -32,6 +32,7 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
 using ParentMap = std::map<int, std::vector<int>>;
 
 const int NULL_VERTEX_ID = 0;
+const char *DEFAULT_OUTPUT_FILENAME = "netlist";
 
 bool debugMode;
 
@@ -287,16 +288,26 @@ Graph buildGraph(std::vector<Vertex> &vertices,
 }
 
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
-void dumpDotFile(const std::vector<Vertex> vertices,
-                 const std::vector<Edge> edges) {
-  std::cout << "digraph netlist_graph {\n";
+void dumpDotFile(const std::vector<Vertex> &vertices,
+                 const std::vector<Edge> &edges,
+                 const std::string &outputFilename) {
+  std::stringstream ss;
+  ss << "digraph netlist_graph {\n";
   for (auto &vertex : vertices)
-    std::cout << "  " << vertex.id << " [label=\""
-              << getVertexTypeStr(vertex.type) << "\\n"
-              << vertex.name << " (" << vertex.id << ")\"];\n";
+    ss << "  " << vertex.id << " [label=\""
+       << getVertexTypeStr(vertex.type) << "\\n"
+       << vertex.name << " (" << vertex.id << ")\"];\n";
   for (auto &edge : edges)
-    std::cout << "  " << edge.src << " -> " << edge.dst << ";\n";
-  std::cout << "}\n";
+    ss << "  " << edge.src << " -> " << edge.dst << ";\n";
+  ss << "}\n";
+  // Write to file.
+  std::ofstream outputFile(outputFilename);
+  if (!outputFile.is_open())
+    throw Exception(std::string("unable to open ")+outputFilename);
+  outputFile << ss.str();
+  outputFile.close();
+  // Print command line to generate graph file.
+  std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n";
 }
 
 /// Dump unique names of vars/regs/wires in the netlist for searching.
@@ -345,16 +356,17 @@ void printPathReport(const std::vector<Vertex> &vertices,
 }
 
 /// Use Verilator to compile a graph of the flattened Verilog netlist.
-int compileGraph(const char *argv0,
-                 const std::vector<std::string> includes,
-                 const std::vector<std::string> defines,
-                 const std::vector<std::string> inputFiles) {
+int compileGraph(const std::vector<std::string> &includes,
+                 const std::vector<std::string> &defines,
+                 const std::vector<std::string> &inputFiles,
+                 const std::string &outputFile) {
   fs::path programLocation = boost::dll::program_location().parent_path();
   fs::path verilatorExe = programLocation / fs::path("verilator_bin");
   std::vector<std::string> args{"+1800-2012ext+.sv",
                                 "--lint-only",
                                 "--dump-netlist-graph",
-                                "--error-limit", "10000"};
+                                "--error-limit", "10000",
+                                "-o", outputFile};
   for (auto &path : includes)
     args.push_back(std::string("+incdir+")+path);
   for (auto &define : defines)
@@ -495,6 +507,7 @@ int main(int argc, char **argv) {
   try {
     // Command line options.
     std::vector<std::string> inputFiles;
+    std::string outputFilename;
     std::string startName;
     std::string endName;
     std::vector<std::string> throughNames;
@@ -527,6 +540,9 @@ int main(int argc, char **argv) {
                         "define a preprocessor macro (only with --compile)")
       ("dotfile",       "Dump dotfile of netlist graph")
       ("dumpnames",     "Dump list of names in netlist")
+      ("outfile,o",     po::value<std::string>(&outputFilename)
+                          ->default_value(DEFAULT_OUTPUT_FILENAME),
+                        "output file")
       ("debug",         "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
@@ -550,13 +566,15 @@ int main(int argc, char **argv) {
 
     // Call Verilator to produce graph file.
     if (compile) {
+      if (outputFilename == DEFAULT_OUTPUT_FILENAME)
+         outputFilename += ".graph";
       auto includes = vm.count("include")
                         ? vm["include"].as<std::vector<std::string>>()
                         : std::vector<std::string>{};
       auto defines = vm.count("define")
                         ? vm["define"].as<std::vector<std::string>>()
                         : std::vector<std::string>{};
-      return compileGraph(argv[0], includes, defines, inputFiles);
+      return compileGraph(includes, defines, inputFiles, outputFilename);
     }
 
     // Parse the input file.
@@ -566,7 +584,9 @@ int main(int argc, char **argv) {
 
     // Dump dot file.
     if (dumpDotfile) {
-      dumpDotFile(vertices, edges);
+      if (outputFilename == DEFAULT_OUTPUT_FILENAME)
+         outputFilename += ".dot";
+      dumpDotFile(vertices, edges, outputFilename);
       return 0;
     }
 
