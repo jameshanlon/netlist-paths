@@ -207,8 +207,8 @@ int getMidVertexId(const std::vector<Vertex> vertices,
 void dumpPath(const std::vector<Vertex> vertices,
               const std::vector<int> path) {
   for (int vertexId : path) {
-    if (vertices[vertexId].type != LOGIC) {
-      std::cout << "  " << vertices[vertexId].name << "\n";
+    if (vertices[vertexId-1].type != LOGIC) {
+      std::cout << "  " << vertices[vertexId-1].name << "\n";
     }
   }
 }
@@ -333,11 +333,11 @@ void printPathReport(const std::vector<Vertex> &vertices,
   // Determine the max length of a name.
   size_t maxNameLength = 0;
   for (auto &vertexId : path) {
-    maxNameLength = std::max(maxNameLength, vertices[vertexId].name.size());
+    maxNameLength = std::max(maxNameLength, vertices[vertexId-1].name.size());
   }
   // Print each vertex on the path.
   for (auto &vertexId : path) {
-    auto &vertex = vertices[vertexId];
+    auto &vertex = vertices[vertexId-1];
     auto path = filenamesOnly ? fs::path(vertex.loc).filename()
                               : fs::path(vertex.loc);
     if (netsOnly) {
