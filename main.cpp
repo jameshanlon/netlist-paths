@@ -52,7 +52,8 @@ typedef enum {
   VAR,
   VAR_WIRE,
   VAR_INPUT,
-  VAR_OUTPUT
+  VAR_OUTPUT,
+  VAR_INOUT,
 } VertexType;
 
 VertexType getVertexType(const std::string &type) {
@@ -64,6 +65,7 @@ VertexType getVertexType(const std::string &type) {
   else if (type == "VAR_WIRE")       return VAR_WIRE;
   else if (type == "VAR_INPUT")      return VAR_INPUT;
   else if (type == "VAR_OUTPUT")     return VAR_OUTPUT;
+  else if (type == "VAR_INOUT")      return VAR_INOUT;
   else {
     throw Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -79,6 +81,7 @@ const char *getVertexTypeStr(VertexType type) {
     case VAR_WIRE:       return "VAR_WIRE";
     case VAR_INPUT:      return "VAR_INPUT";
     case VAR_OUTPUT:     return "VAR_OUTPUT";
+    case VAR_INOUT:      return "VAR_INOUT";
     default:             return "UNKNOWN";
   }
 }
@@ -191,6 +194,7 @@ int getEndVertexId(const std::vector<Vertex> vertices,
   if (int vId = getVertexId(vertices, name, REG_DST))        return vId;
   if (int vId = getVertexId(vertices, name, REG_DST_OUTPUT)) return vId;
   if (int vId = getVertexId(vertices, name, VAR_OUTPUT))     return vId;
+  if (int vId = getVertexId(vertices, name, VAR_INOUT))      return vId;
   if (int vId = getVertexId(vertices, name, VAR))            return vId;
   throw Exception(std::string("could not find end vertex ")+name);
 }
@@ -201,6 +205,7 @@ int getMidVertexId(const std::vector<Vertex> vertices,
   if (int vId = getVertexId(vertices, name, VAR_WIRE))   return vId;
   if (int vId = getVertexId(vertices, name, VAR_INPUT))  return vId;
   if (int vId = getVertexId(vertices, name, VAR_OUTPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VAR_INOUT))  return vId;
   throw Exception(std::string("could not find mid vertex ")+name);
 }
 
@@ -399,7 +404,8 @@ void reportAllFanout(const std::string &startName,
     if (vertex.type == REG_SRC ||
         vertex.type == REG_DST ||
         vertex.type == REG_DST_OUTPUT ||
-        vertex.type == VAR_OUTPUT) {
+        vertex.type == VAR_OUTPUT ||
+        vertex.type == VAR_INOUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
       std::reverse(std::begin(path), std::end(path));
@@ -432,7 +438,8 @@ void reportAllFanin(const std::string &endName,
     if (vertex.type == REG_SRC ||
         vertex.type == REG_DST ||
         vertex.type == REG_DST_OUTPUT ||
-        vertex.type == VAR_INPUT) {
+        vertex.type == VAR_INPUT ||
+        vertex.type == VAR_INOUT) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 endVertexId, vertex.id);
       if (!path.empty()) {
