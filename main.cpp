@@ -47,6 +47,10 @@ struct Exception : public std::exception {
 typedef enum {
   NONE,
   LOGIC,
+  ASSIGN,
+  ASSIGNW,
+  ALWAYS,
+  INITIAL,
   REG_SRC,
   REG_DST,
   REG_DST_OUTPUT,
@@ -59,6 +63,10 @@ typedef enum {
 
 VertexType getVertexType(const std::string &type) {
        if (type == "LOGIC")          return LOGIC;
+  else if (type == "ASSIGN")         return ASSIGN;
+  else if (type == "ASSIGNW")        return ASSIGNW;
+  else if (type == "ALWAYS")         return ALWAYS;
+  else if (type == "INITIAL")        return INITIAL;
   else if (type == "REG_SRC")        return REG_SRC;
   else if (type == "REG_DST")        return REG_DST;
   else if (type == "REG_DST_OUTPUT") return REG_DST_OUTPUT;
@@ -75,6 +83,10 @@ VertexType getVertexType(const std::string &type) {
 const char *getVertexTypeStr(VertexType type) {
   switch (type) {
     case LOGIC:          return "LOGIC";
+    case ASSIGN:         return "ASSIGN";
+    case ASSIGNW:        return "ASSIGNW";
+    case ALWAYS:         return "ALWAYS";
+    case INITIAL:        return "INITIAL";
     case REG_SRC:        return "REG_SRC";
     case REG_DST:        return "REG_DST";
     case REG_DST_OUTPUT: return "REG_DST_OUTPUT";
@@ -96,10 +108,34 @@ struct Vertex {
     id(id), type(type) {}
   Vertex(int id, VertexType type, const std::string &loc) :
     id(id), type(type), loc(loc) {}
-  Vertex(int id, VertexType type,
+  Vertex(int id,
+         VertexType type,
          const std::string &name,
          const std::string &loc) :
     id(id), type(type), name(name), loc(loc) {}
+  bool isLogic() const {
+    return type == LOGIC ||
+           type == ASSIGN ||
+           type == ASSIGNW ||
+           type == ALWAYS ||
+           type == INITIAL;
+  }
+  bool isStartPoint() const {
+    return type == REG_SRC ||
+           type == VAR_INPUT ||
+           type == VAR_INOUT;
+  }
+  bool isEndPoint() const {
+    return type == REG_DST ||
+           type == REG_DST_OUTPUT ||
+           type == VAR_OUTPUT ||
+           type == VAR_INOUT;
+  }
+  bool canIgnore() const {
+    // Ignore variables Verilator has introduced.
+    return name.find("__Vdly") != std::string::npos ||
+           name.find("__Vcell") != std::string::npos;
+  }
 };
 
 struct Edge {
@@ -146,7 +182,6 @@ void parseFile(const std::string &filename,
   DEBUG(std::cout << "Parsing input file\n");
   std::fstream infile(filename);
   std::string line;
-  int vertexCount = 1;
   if (!infile.is_open()) {
     throw Exception("could not open file");
   }
@@ -155,9 +190,22 @@ void parseFile(const std::string &filename,
     std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
                                     std::istream_iterator<std::string>{}};
     if (tokens[0] == "VERTEX") {
+      int id = std::atoi(tokens[1].c_str());
+      if (id == 0) {
+        throw Exception("vertex has NULL ID");
+      }
       auto type = getVertexType(tokens[2]);
-      vertices.push_back(Vertex(vertexCount, type, tokens[3], tokens[5]));
-      ++vertexCount;
+      if (tokens[3] == "@") {
+        // Unnamed logic vertex.
+        auto &loc = tokens[4];
+        vertices.push_back(Vertex(id, type, loc));
+      } else {
+        // Named net/port/register.
+        assert(tokens[4] == "@");
+        auto &name = tokens[3];
+        auto &loc = tokens[5];
+        vertices.push_back(Vertex(id, type, name, loc));
+      }
     } else if (tokens[0] == "EDGE") {
       auto edge = Edge(std::stoi(tokens[1]),
                        std::stoi(tokens[3]));
@@ -313,14 +361,14 @@ void dumpDotFile(const std::vector<Vertex> &vertices,
   outputFile << ss.str();
   outputFile.close();
   // Print command line to generate graph file.
-  std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n";
+  DEBUG(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
 }
 
 /// Dump unique names of vars/regs/wires in the netlist for searching.
 void dumpVertexNames(const std::vector<Vertex> vertices) {
   std::unordered_set<std::string> names;
   for (auto &vertex : vertices) {
-    if (vertex.type == LOGIC)
+    if (vertex.isLogic())
       continue;
     names.insert(std::string(getVertexTypeStr(vertex.type))+" "+vertex.name);
   }
@@ -344,20 +392,32 @@ void printPathReport(const std::vector<Vertex> &vertices,
   // Print each vertex on the path.
   for (auto &vertexId : path) {
     auto &vertex = vertices[vertexId-1];
+    if (vertex.canIgnore())
+      continue;
     auto path = filenamesOnly ? fs::path(vertex.loc).filename()
                               : fs::path(vertex.loc);
     if (netsOnly) {
-      if (vertex.type == LOGIC)
-        continue;
-      std::cout << "  " << std::left
-                << std::setw(maxNameLength+1) << vertex.name
-                << path.string() << "\n";
+      if (!vertex.isLogic()) {
+        std::cout << "  " << std::left
+                  << std::setw(maxNameLength+1) << vertex.name
+                  << path.string() << "\n";
+      }
     } else {
-      std::cout << "  " << std::left
-                << std::setw(maxNameLength+1) << vertex.name
-                << std::setw(VERTEX_TYPE_STR_MAX_LEN)
-                << getVertexTypeStr(vertex.type) << " "
-                << path.string() << "\n";
+      if (vertex.isLogic()) {
+        std::cout << "  " << std::left
+                  << std::setw(maxNameLength+1)
+                  << getVertexTypeStr(vertex.type)
+                  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
+                  << "LOGIC"
+                  << path.string() << "\n";
+      } else {
+        std::cout << "  " << std::left
+                  << std::setw(maxNameLength+1)
+                  << vertex.name
+                  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
+                  << getVertexTypeStr(vertex.type)
+                  << path.string() << "\n";
+      }
     }
   }
 }
@@ -403,11 +463,7 @@ void reportAllFanout(const std::string &startName,
   // Check for a path between startPoint and each register.
   int pathCount = 0;
   for (auto &vertex : vertices) {
-    if (vertex.type == REG_SRC ||
-        vertex.type == REG_DST ||
-        vertex.type == REG_DST_OUTPUT ||
-        vertex.type == VAR_OUTPUT ||
-        vertex.type == VAR_INOUT) {
+    if (vertex.isEndPoint()) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 startVertexId, vertex.id);
       std::reverse(std::begin(path), std::end(path));
@@ -437,11 +493,7 @@ void reportAllFanin(const std::string &endName,
   // Check for a path between endPoint and each register.
   int pathCount = 0;
   for (auto &vertex : vertices) {
-    if (vertex.type == REG_SRC ||
-        vertex.type == REG_DST ||
-        vertex.type == REG_DST_OUTPUT ||
-        vertex.type == VAR_INPUT ||
-        vertex.type == VAR_INOUT) {
+    if (vertex.isStartPoint()) {
       auto path = determinePath(parentMap, std::vector<int>(),
                                 endVertexId, vertex.id);
       if (!path.empty()) {
