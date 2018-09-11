@@ -44,7 +44,7 @@ struct Exception : public std::exception {
    const char* what() const throw() { return msg.c_str(); }
 };
 
-typedef enum {
+enum class VertexType {
   NONE,
   LOGIC,
   ASSIGN,
@@ -59,22 +59,22 @@ typedef enum {
   VAR_INPUT,
   VAR_OUTPUT,
   VAR_INOUT,
-} VertexType;
+};
 
 VertexType getVertexType(const std::string &type) {
-       if (type == "LOGIC")          return LOGIC;
-  else if (type == "ASSIGN")         return ASSIGN;
-  else if (type == "ASSIGNW")        return ASSIGNW;
-  else if (type == "ALWAYS")         return ALWAYS;
-  else if (type == "INITIAL")        return INITIAL;
-  else if (type == "REG_SRC")        return REG_SRC;
-  else if (type == "REG_DST")        return REG_DST;
-  else if (type == "REG_DST_OUTPUT") return REG_DST_OUTPUT;
-  else if (type == "VAR")            return VAR;
-  else if (type == "VAR_WIRE")       return VAR_WIRE;
-  else if (type == "VAR_INPUT")      return VAR_INPUT;
-  else if (type == "VAR_OUTPUT")     return VAR_OUTPUT;
-  else if (type == "VAR_INOUT")      return VAR_INOUT;
+       if (type == "LOGIC")          return VertexType::LOGIC;
+  else if (type == "ASSIGN")         return VertexType::ASSIGN;
+  else if (type == "ASSIGNW")        return VertexType::ASSIGNW;
+  else if (type == "ALWAYS")         return VertexType::ALWAYS;
+  else if (type == "INITIAL")        return VertexType::INITIAL;
+  else if (type == "REG_SRC")        return VertexType::REG_SRC;
+  else if (type == "REG_DST")        return VertexType::REG_DST;
+  else if (type == "REG_DST_OUTPUT") return VertexType::REG_DST_OUTPUT;
+  else if (type == "VAR")            return VertexType::VAR;
+  else if (type == "VAR_WIRE")       return VertexType::VAR_WIRE;
+  else if (type == "VAR_INPUT")      return VertexType::VAR_INPUT;
+  else if (type == "VAR_OUTPUT")     return VertexType::VAR_OUTPUT;
+  else if (type == "VAR_INOUT")      return VertexType::VAR_INOUT;
   else {
     throw Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -82,20 +82,20 @@ VertexType getVertexType(const std::string &type) {
 
 const char *getVertexTypeStr(VertexType type) {
   switch (type) {
-    case LOGIC:          return "LOGIC";
-    case ASSIGN:         return "ASSIGN";
-    case ASSIGNW:        return "ASSIGNW";
-    case ALWAYS:         return "ALWAYS";
-    case INITIAL:        return "INITIAL";
-    case REG_SRC:        return "REG_SRC";
-    case REG_DST:        return "REG_DST";
-    case REG_DST_OUTPUT: return "REG_DST_OUTPUT";
-    case VAR:            return "VAR";
-    case VAR_WIRE:       return "VAR_WIRE";
-    case VAR_INPUT:      return "VAR_INPUT";
-    case VAR_OUTPUT:     return "VAR_OUTPUT";
-    case VAR_INOUT:      return "VAR_INOUT";
-    default:             return "UNKNOWN";
+    case VertexType::LOGIC:          return "LOGIC";
+    case VertexType::ASSIGN:         return "ASSIGN";
+    case VertexType::ASSIGNW:        return "ASSIGNW";
+    case VertexType::ALWAYS:         return "ALWAYS";
+    case VertexType::INITIAL:        return "INITIAL";
+    case VertexType::REG_SRC:        return "REG_SRC";
+    case VertexType::REG_DST:        return "REG_DST";
+    case VertexType::REG_DST_OUTPUT: return "REG_DST_OUTPUT";
+    case VertexType::VAR:            return "VAR";
+    case VertexType::VAR_WIRE:       return "VAR_WIRE";
+    case VertexType::VAR_INPUT:      return "VAR_INPUT";
+    case VertexType::VAR_OUTPUT:     return "VAR_OUTPUT";
+    case VertexType::VAR_INOUT:      return "VAR_INOUT";
+    default:                         return "UNKNOWN";
   }
 }
 
@@ -114,27 +114,27 @@ struct Vertex {
          const std::string &loc) :
     id(id), type(type), name(name), loc(loc) {}
   bool isLogic() const {
-    return type == LOGIC ||
-           type == ASSIGN ||
-           type == ASSIGNW ||
-           type == ALWAYS ||
-           type == INITIAL;
+    return type == VertexType::LOGIC ||
+           type == VertexType::ASSIGN ||
+           type == VertexType::ASSIGNW ||
+           type == VertexType::ALWAYS ||
+           type == VertexType::INITIAL;
   }
   bool isStartPoint() const {
-    return type == REG_SRC ||
-           type == VAR_INPUT ||
-           type == VAR_INOUT;
+    return type == VertexType::REG_SRC ||
+           type == VertexType::VAR_INPUT ||
+           type == VertexType::VAR_INOUT;
   }
   bool isEndPoint() const {
-    return type == REG_DST ||
-           type == REG_DST_OUTPUT ||
-           type == VAR_OUTPUT ||
-           type == VAR_INOUT;
+    return type == VertexType::REG_DST ||
+           type == VertexType::REG_DST_OUTPUT ||
+           type == VertexType::VAR_OUTPUT ||
+           type == VertexType::VAR_INOUT;
   }
   bool isReg() const {
-    return type == REG_DST ||
-           type == REG_DST_OUTPUT ||
-           type == REG_SRC;
+    return type == VertexType::REG_DST ||
+           type == VertexType::REG_DST_OUTPUT ||
+           type == VertexType::REG_SRC;
   }
   bool canIgnore() const {
     // Ignore variables Verilator has introduced.
@@ -237,36 +237,36 @@ int getVertexId(const std::vector<Vertex> vertices,
 
 int getStartVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vId = getVertexId(vertices, name, REG_SRC))   return vId;
-  if (int vId = getVertexId(vertices, name, VAR_INPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VAR))       return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::REG_SRC))   return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_INPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR))       return vId;
   throw Exception(std::string("could not find start vertex ")+name);
 }
 
 int getEndVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vId = getVertexId(vertices, name, REG_DST))        return vId;
-  if (int vId = getVertexId(vertices, name, REG_DST_OUTPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VAR_OUTPUT))     return vId;
-  if (int vId = getVertexId(vertices, name, VAR_INOUT))      return vId;
-  if (int vId = getVertexId(vertices, name, VAR))            return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::REG_DST))        return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::REG_DST_OUTPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_OUTPUT))     return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_INOUT))      return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR))            return vId;
   throw Exception(std::string("could not find end vertex ")+name);
 }
 
 int getMidVertexId(const std::vector<Vertex> vertices,
                    const std::string &name) {
-  if (int vId = getVertexId(vertices, name, VAR))        return vId;
-  if (int vId = getVertexId(vertices, name, VAR_WIRE))   return vId;
-  if (int vId = getVertexId(vertices, name, VAR_INPUT))  return vId;
-  if (int vId = getVertexId(vertices, name, VAR_OUTPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VAR_INOUT))  return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR))        return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_WIRE))   return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_INPUT))  return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_OUTPUT)) return vId;
+  if (int vId = getVertexId(vertices, name, VertexType::VAR_INOUT))  return vId;
   throw Exception(std::string("could not find mid vertex ")+name);
 }
 
 void dumpPath(const std::vector<Vertex> vertices,
               const std::vector<int> path) {
   for (int vertexId : path) {
-    if (vertices[vertexId-1].type != LOGIC) {
+    if (!vertices[vertexId-1].isLogic()) {
       std::cout << "  " << vertices[vertexId-1].name << "\n";
     }
   }
@@ -332,13 +332,13 @@ Graph buildGraph(std::vector<Vertex> &vertices,
   // Perform some checks.
   for (auto &vertex : vertices) {
     // Source registers don't have in edges.
-    if (vertex.type == REG_SRC)
+    if (vertex.type == VertexType::REG_SRC)
       if (boost::in_degree(boost::vertex(vertex.id, graph), graph) > 0)
          std::cout << "Warning: source reg " << vertex.name
                    << " (" << vertex.id << ") has in edges" << "\n";
     // Destination registers don't have out edges.
-    if (vertex.type == REG_DST ||
-        vertex.type == REG_DST_OUTPUT)
+    if (vertex.type == VertexType::REG_DST ||
+        vertex.type == VertexType::REG_DST_OUTPUT)
       if (boost::out_degree(boost::vertex(vertex.id, graph), graph) > 0)
         std::cout << "Warning: destination reg " << vertex.name
                   << " (" << vertex.id << ") has out edges"<<"\n";
