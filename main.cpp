@@ -131,6 +131,11 @@ struct Vertex {
            type == VAR_OUTPUT ||
            type == VAR_INOUT;
   }
+  bool isReg() const {
+    return type == REG_DST ||
+           type == REG_DST_OUTPUT ||
+           type == REG_SRC;
+  }
   bool canIgnore() const {
     // Ignore variables Verilator has introduced.
     return name.find("__Vdly") != std::string::npos ||
@@ -390,8 +395,11 @@ void printPathReport(const std::vector<Vertex> &vertices,
     maxNameLength = std::max(maxNameLength, vertices[vertexId-1].name.size());
   }
   // Print each vertex on the path.
-  for (auto &vertexId : path) {
-    auto &vertex = vertices[vertexId-1];
+  for (auto it = path.begin(); it != path.end(); ++it) {
+    auto &vertex = vertices[*it-1];
+    // Each non start or end point should not be a register.
+    if (!(it == path.begin() || std::next(it) == path.end()))
+      assert(!vertex.isReg());
     if (vertex.canIgnore())
       continue;
     auto path = filenamesOnly ? fs::path(vertex.loc).filename()
