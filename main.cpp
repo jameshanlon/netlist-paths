@@ -32,6 +32,7 @@ using Graph = boost::adjacency_list<boost::vecS, boost::vecS,
 using ParentMap = std::map<int, std::vector<int>>;
 
 const int NULL_VERTEX_ID = 0;
+const int VERTEX_TYPE_STR_MAX_LEN = 16;
 const char *DEFAULT_OUTPUT_FILENAME = "netlist";
 
 bool debugMode;
@@ -354,7 +355,8 @@ void printPathReport(const std::vector<Vertex> &vertices,
     } else {
       std::cout << "  " << std::left
                 << std::setw(maxNameLength+1) << vertex.name
-                << std::setw(8) << getVertexTypeStr(vertex.type) << " "
+                << std::setw(VERTEX_TYPE_STR_MAX_LEN)
+                << getVertexTypeStr(vertex.type) << " "
                 << path.string() << "\n";
     }
   }
