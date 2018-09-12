@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <unordered_set>
+#include <boost/algorithm/string.hpp>
 #include <boost/dll.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
@@ -104,6 +105,7 @@ struct Vertex {
   VertexType type;
   std::string name;
   std::string loc;
+  bool isTop;
   Vertex(int id, VertexType type) :
     id(id), type(type) {}
   Vertex(int id, VertexType type, const std::string &loc) :
@@ -112,7 +114,12 @@ struct Vertex {
          VertexType type,
          const std::string &name,
          const std::string &loc) :
-    id(id), type(type), name(name), loc(loc) {}
+      id(id), type(type), name(name), loc(loc) {
+    // module.name or name is top level, but module.submodule.name is not.
+    std::vector<std::string> tokens;
+    boost::split(tokens, name, boost::is_any_of("."));
+    isTop = tokens.size() < 3;
+  }
   bool isLogic() const {
     return type == VertexType::LOGIC ||
            type == VertexType::ASSIGN ||
@@ -122,14 +129,14 @@ struct Vertex {
   }
   bool isStartPoint() const {
     return type == VertexType::REG_SRC ||
-           type == VertexType::VAR_INPUT ||
-           type == VertexType::VAR_INOUT;
+           (type == VertexType::VAR_INPUT && isTop) ||
+           (type == VertexType::VAR_INOUT && isTop);
   }
   bool isEndPoint() const {
     return type == VertexType::REG_DST ||
            type == VertexType::REG_DST_OUTPUT ||
-           type == VertexType::VAR_OUTPUT ||
-           type == VertexType::VAR_INOUT;
+           (type == VertexType::VAR_OUTPUT && isTop)||
+           (type == VertexType::VAR_INOUT && isTop);
   }
   bool isReg() const {
     return type == VertexType::REG_DST ||
@@ -191,9 +198,8 @@ void parseFile(const std::string &filename,
     throw Exception("could not open file");
   }
   while (std::getline(infile, line)) {
-    std::istringstream iss(line);
-    std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
-                                    std::istream_iterator<std::string>{}};
+    std::vector<std::string> tokens;
+    boost::split(tokens, line, boost::is_any_of(" "));
     if (tokens[0] == "VERTEX") {
       int id = std::atoi(tokens[1].c_str());
       if (id == 0) {
@@ -398,8 +404,10 @@ void printPathReport(const std::vector<Vertex> &vertices,
   for (auto it = path.begin(); it != path.end(); ++it) {
     auto &vertex = vertices[*it-1];
     // Each non start or end point should not be a register.
-    if (!(it == path.begin() || std::next(it) == path.end()))
-      assert(!vertex.isReg());
+    // TODO: vertices may be incorrectly marked as reg if a field of a structure
+    // has a delayed assignment to a field of it.
+    //if (!(it == path.begin() || std::next(it) == path.end()))
+    //  assert(!vertex.isReg());
     if (vertex.canIgnore())
       continue;
     auto path = filenamesOnly ? fs::path(vertex.loc).filename()
