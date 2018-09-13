@@ -19,7 +19,7 @@
 #ifdef NDEBUG
 #define DEBUG(x) do {} while (false)
 #else
-#define DEBUG(x) do { if (debugMode) { x; } } while (false)
+#define DEBUG(x) do { if (options.debugMode) { x; } } while (false)
 #endif
 
 namespace fs = boost::filesystem;
@@ -35,8 +35,6 @@ using ParentMap = std::map<int, std::vector<int>>;
 const int NULL_VERTEX_ID = 0;
 const int VERTEX_TYPE_STR_MAX_LEN = 16;
 const char *DEFAULT_OUTPUT_FILENAME = "netlist";
-
-bool debugMode;
 
 struct Exception : public std::exception {
    std::string msg;
