@@ -45,6 +45,28 @@ struct Exception : public std::exception {
    const char* what() const throw() { return msg.c_str(); }
 };
 
+struct Options {
+  bool debugMode;
+  bool displayHelp;
+  bool dumpDotfile;
+  bool dumpNames;
+  bool allPaths;
+  bool netsOnly;
+  bool filenamesOnly;
+  bool compile;
+  Options() :
+      debugMode(false),
+      displayHelp(false),
+      dumpDotfile(false),
+      dumpNames(false),
+      allPaths(false),
+      netsOnly(false),
+      filenamesOnly(false),
+      compile(false) {}
+};
+
+Options options;
+
 enum class VertexType {
   NONE,
   LOGIC,
@@ -135,7 +157,7 @@ struct Vertex {
   bool isEndPoint() const {
     return type == VertexType::REG_DST ||
            type == VertexType::REG_DST_OUTPUT ||
-           (type == VertexType::VAR_OUTPUT && isTop)||
+           (type == VertexType::VAR_OUTPUT && isTop) ||
            (type == VertexType::VAR_INOUT && isTop);
   }
   bool isReg() const {
@@ -243,29 +265,29 @@ int getVertexId(const std::vector<Vertex> vertices,
 
 int getStartVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vId = getVertexId(vertices, name, VertexType::REG_SRC))   return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_INPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR))       return vId;
+  if (int v = getVertexId(vertices, name, VertexType::REG_SRC))   return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_INPUT)) return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR))       return v;
   throw Exception(std::string("could not find start vertex ")+name);
 }
 
 int getEndVertexId(const std::vector<Vertex> vertices,
                      const std::string &name) {
-  if (int vId = getVertexId(vertices, name, VertexType::REG_DST))        return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::REG_DST_OUTPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_OUTPUT))     return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_INOUT))      return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR))            return vId;
+  if (int v = getVertexId(vertices, name, VertexType::REG_DST))        return v;
+  if (int v = getVertexId(vertices, name, VertexType::REG_DST_OUTPUT)) return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_OUTPUT))     return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_INOUT))      return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR))            return v;
   throw Exception(std::string("could not find end vertex ")+name);
 }
 
 int getMidVertexId(const std::vector<Vertex> vertices,
                    const std::string &name) {
-  if (int vId = getVertexId(vertices, name, VertexType::VAR))        return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_WIRE))   return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_INPUT))  return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_OUTPUT)) return vId;
-  if (int vId = getVertexId(vertices, name, VertexType::VAR_INOUT))  return vId;
+  if (int v = getVertexId(vertices, name, VertexType::VAR))        return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_WIRE))   return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_INPUT))  return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_OUTPUT)) return v;
+  if (int v = getVertexId(vertices, name, VertexType::VAR_INOUT))  return v;
   throw Exception(std::string("could not find mid vertex ")+name);
 }
 
@@ -348,6 +370,8 @@ Graph buildGraph(std::vector<Vertex> &vertices,
       if (boost::out_degree(boost::vertex(vertex.id, graph), graph) > 0)
         std::cout << "Warning: destination reg " << vertex.name
                   << " (" << vertex.id << ") has out edges"<<"\n";
+    // NOTE: vertices may be incorrectly marked as reg if a field of a
+    // structure has a delayed assignment to a field of it.
   }
   return graph;
 }
@@ -392,27 +416,22 @@ void dumpVertexNames(const std::vector<Vertex> vertices) {
 
 /// Pretty print a path (some sequence of vertices).
 void printPathReport(const std::vector<Vertex> &vertices,
-                     const std::vector<int> path,
-                     bool netsOnly=false,
-                     bool filenamesOnly=false) {
+                     const std::vector<int> path) {
   // Determine the max length of a name.
   size_t maxNameLength = 0;
   for (auto &vertexId : path) {
+    if (vertices[vertexId-1].canIgnore())
+      continue;
     maxNameLength = std::max(maxNameLength, vertices[vertexId-1].name.size());
   }
   // Print each vertex on the path.
   for (auto it = path.begin(); it != path.end(); ++it) {
     auto &vertex = vertices[*it-1];
-    // Each non start or end point should not be a register.
-    // TODO: vertices may be incorrectly marked as reg if a field of a structure
-    // has a delayed assignment to a field of it.
-    //if (!(it == path.begin() || std::next(it) == path.end()))
-    //  assert(!vertex.isReg());
     if (vertex.canIgnore())
       continue;
-    auto path = filenamesOnly ? fs::path(vertex.loc).filename()
-                              : fs::path(vertex.loc);
-    if (netsOnly) {
+    auto path = options.filenamesOnly ? fs::path(vertex.loc).filename()
+                                      : fs::path(vertex.loc);
+    if (options.netsOnly) {
       if (!vertex.isLogic()) {
         std::cout << "  " << std::left
                   << std::setw(maxNameLength+1) << vertex.name
@@ -466,9 +485,7 @@ int compileGraph(const std::vector<std::string> &includes,
 /// Report all paths fanning out from a net/register/port.
 void reportAllFanout(const std::string &startName,
                      const std::vector<Vertex> &vertices,
-                     Graph &graph,
-                     bool netsOnly=false,
-                     bool filenamesOnly=false) {
+                     Graph &graph) {
   int startVertexId = getStartVertexId(vertices, startName);
   DEBUG(std::cout << "Performing DFS from "
                   << vertices[startVertexId].name << "\n");
@@ -485,7 +502,7 @@ void reportAllFanout(const std::string &startName,
       std::reverse(std::begin(path), std::end(path));
       if (!path.empty()) {
         std::cout << "Path " << ++pathCount << "\n";
-        printPathReport(vertices, path, netsOnly, filenamesOnly);
+        printPathReport(vertices, path);
         std::cout << "\n";
       }
     }
@@ -496,9 +513,7 @@ void reportAllFanout(const std::string &startName,
 /// Report all paths fanning into a net/register/port.
 void reportAllFanin(const std::string &endName,
                     const std::vector<Vertex> &vertices,
-                    boost::reverse_graph<Graph> graph,
-                    bool netsOnly=false,
-                    bool filenamesOnly=false) {
+                    boost::reverse_graph<Graph> graph) {
   int endVertexId = getEndVertexId(vertices, endName);
   DEBUG(std::cout << "Performing DFS in reverse graph from "
                   << vertices[endVertexId].name << "\n");
@@ -514,7 +529,7 @@ void reportAllFanin(const std::string &endName,
                                 endVertexId, vertex.id);
       if (!path.empty()) {
         std::cout << "Path " << ++pathCount << "\n";
-        printPathReport(vertices, path, netsOnly, filenamesOnly);
+        printPathReport(vertices, path);
         std::cout << "\n";
       }
     }
@@ -525,9 +540,7 @@ void reportAllFanin(const std::string &endName,
 /// Report a single path between a set of named points.
 void reportAnyPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
-                           const std::vector<Vertex> vertices,
-                           bool netsOnly=false,
-                           bool filenamesOnly=false) {
+                           const std::vector<Vertex> vertices) {
   std::vector<int> path;
   // Construct the path between each adjacent waypoints.
   for (size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -550,15 +563,13 @@ void reportAnyPointToPoint(Graph &graph,
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
   }
   path.push_back(waypoints.back());
-  printPathReport(vertices, path, netsOnly, filenamesOnly);
+  printPathReport(vertices, path);
 }
 
 /// Report all paths between start and end points.
 void reportAllPointToPoint(Graph &graph,
                            const std::vector<int> waypoints,
-                           const std::vector<Vertex> vertices,
-                           bool netsOnly=false,
-                           bool filenamesOnly=false) {
+                           const std::vector<Vertex> vertices) {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
   DEBUG(std::cout << "Performing DFS\n");
@@ -574,7 +585,7 @@ void reportAllPointToPoint(Graph &graph,
   for (auto &path : paths) {
     std::reverse(std::begin(path), std::end(path));
     std::cout << "PATH " << ++count << ":\n";
-    printPathReport(vertices, path, netsOnly, filenamesOnly);
+    printPathReport(vertices, path);
   }
 }
 
@@ -583,16 +594,16 @@ void reportAllPointToPoint(Graph &graph,
 int main(int argc, char **argv) {
   try {
     // Command line options.
-    std::vector<std::string> inputFiles;
-    std::string outputFilename;
-    std::string startName;
-    std::string endName;
-    std::vector<std::string> throughNames;
     po::options_description hiddenOptions("Positional options");
     po::options_description genericOptions("General options");
     po::options_description allOptions("All options");
     po::positional_options_description p;
     po::variables_map vm;
+    std::vector<std::string> inputFiles;
+    std::string outputFilename;
+    std::string startName;
+    std::string endName;
+    std::vector<std::string> throughNames;
     std::vector<Vertex> vertices;
     std::vector<Edge> edges;
     std::vector<int> waypoints;
@@ -625,15 +636,15 @@ int main(int argc, char **argv) {
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
-    debugMode = vm.count("debug") > 0;
-    bool displayHelp   = vm.count("help");
-    bool dumpDotfile   = vm.count("dotfile");
-    bool dumpNames     = vm.count("dumpnames");
-    bool allPaths      = vm.count("allpaths");
-    bool netsOnly      = vm.count("filenamesonly");
-    bool filenamesOnly = vm.count("netsonly");
-    bool compile       = vm.count("compile");
-    if (displayHelp) {
+    options.debugMode     = vm.count("debug") > 0;
+    options.displayHelp   = vm.count("help");
+    options.dumpDotfile   = vm.count("dotfile");
+    options.dumpNames     = vm.count("dumpnames");
+    options.allPaths      = vm.count("allpaths");
+    options.netsOnly      = vm.count("filenamesonly");
+    options.filenamesOnly = vm.count("netsonly");
+    options.compile       = vm.count("compile");
+    if (options.displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
       std::cout << genericOptions << "\n";
@@ -642,7 +653,7 @@ int main(int argc, char **argv) {
     notify(vm);
 
     // Call Verilator to produce graph file.
-    if (compile) {
+    if (options.compile) {
       if (outputFilename == DEFAULT_OUTPUT_FILENAME)
          outputFilename += ".graph";
       auto includes = vm.count("include")
@@ -660,7 +671,7 @@ int main(int argc, char **argv) {
     parseFile(inputFiles.front(), vertices, edges);
 
     // Dump dot file.
-    if (dumpDotfile) {
+    if (options.dumpDotfile) {
       if (outputFilename == DEFAULT_OUTPUT_FILENAME)
          outputFilename += ".dot";
       dumpDotFile(vertices, edges, outputFilename);
@@ -668,7 +679,7 @@ int main(int argc, char **argv) {
     }
 
     // Dump netlist names.
-    if (dumpNames) {
+    if (options.dumpNames) {
       dumpVertexNames(vertices);
       return 0;
     }
@@ -684,7 +695,7 @@ int main(int argc, char **argv) {
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for start only");
-      reportAllFanout(startName, vertices, graph, netsOnly, filenamesOnly);
+      reportAllFanout(startName, vertices, graph);
       return 0;
     }
 
@@ -692,8 +703,7 @@ int main(int argc, char **argv) {
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw Exception("through points not supported for end only");
-      reportAllFanin(endName, vertices, boost::make_reverse_graph(graph),
-                     netsOnly, filenamesOnly);
+      reportAllFanin(endName, vertices, boost::make_reverse_graph(graph));
       return 0;
     }
 
@@ -708,14 +718,13 @@ int main(int argc, char **argv) {
     waypoints.push_back(endVertexId);
 
     // Report all paths between two points.
-    if (allPaths) {
-      reportAllPointToPoint(graph, waypoints, vertices,
-                            netsOnly, filenamesOnly);
+    if (options.allPaths) {
+      reportAllPointToPoint(graph, waypoints, vertices);
       return 0;
     }
 
     // Report a paths between two points.
-    reportAnyPointToPoint(graph, waypoints, vertices, filenamesOnly, netsOnly);
+    reportAnyPointToPoint(graph, waypoints, vertices);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
