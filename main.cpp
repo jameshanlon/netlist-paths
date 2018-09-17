@@ -465,7 +465,6 @@ int compileGraph(const std::vector<std::string> &includes,
   fs::path programLocation = boost::dll::program_location().parent_path();
   fs::path verilatorExe = programLocation / fs::path("verilator_bin");
   std::vector<std::string> args{"+1800-2012ext+.sv",
-                                "--lint-only",
                                 "--dump-netlist-graph",
                                 "--error-limit", "10000",
                                 "-o", outputFile};
