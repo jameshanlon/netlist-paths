@@ -135,6 +135,8 @@ struct Vertex {
          const std::string &name,
          const std::string &loc) :
       id(id), type(type), name(name), loc(loc) {
+    // Check there are no Vlvbound nodes.
+    assert(name.find("__Vlvbound") == std::string::npos);
     // module.name or name is top level, but module.submodule.name is not.
     std::vector<std::string> tokens;
     boost::split(tokens, name, boost::is_any_of("."));
