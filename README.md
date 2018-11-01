@@ -7,7 +7,7 @@ This is a command line tool for querying paths in a Verilog netlist.
 Install dependencies:
 ```
 C/C++ compiler
-CMake (minimum 3.8.0)
+CMake (minimum 3.12.0)
 Boost
 ```
 Install Verilator dependencies:
@@ -22,6 +22,6 @@ Then:
 git submodule update --init --recursive
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Debug
 make -j8 install
 ```
