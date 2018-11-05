@@ -1,0 +1,7 @@
+#ifndef TESTS_DEFINITIONS_HPP
+#define TESTS_DEFINITIONS_HPP
+
+constexpr const char *installPrefix = "${CMAKE_BINARY_DIR}/install/bin";
+
+#endif // TESTS_DEFINITIONS_HPP
+
