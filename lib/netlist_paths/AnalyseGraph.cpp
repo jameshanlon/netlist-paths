@@ -121,8 +121,9 @@ void AnalyseGraph::parseFile(const std::string &filename) {
       throw Exception(std::string("unexpected line: ")+line);
     }
   }
-  // Build the graph.
+  // Build and check the graph.
   buildGraph();
+  checkGraph();
 }
 
 /// Build a Boost graph object.
@@ -135,7 +136,11 @@ void AnalyseGraph::buildGraph() {
       boost::add_edge(edge.src, edge.dst, *graph);
     }
   }
+}
+
+void AnalyseGraph::checkGraph() {
   // Perform some checks.
+  DEBUG(std::cout << "Checking graph\n");
   for (auto &vertex : vertices) {
     // Source registers don't have in edges.
     if (vertex.type == VertexType::REG_SRC)
@@ -374,7 +379,7 @@ void AnalyseGraph::reportAllFanin(const std::string &endName) const {
 }
 
 /// Report a single path between a set of named points.
-void AnalyseGraph::reportAnyPointToPoint(const std::vector<int> waypoints) const {
+void AnalyseGraph::reportAnyPointToPoint(const std::vector<int> &waypoints) const {
   std::vector<int> path;
   // Construct the path between each adjacent waypoints.
   for (size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -401,7 +406,7 @@ void AnalyseGraph::reportAnyPointToPoint(const std::vector<int> waypoints) const
 }
 
 /// Report all paths between start and end points.
-void AnalyseGraph::reportAllPointToPoint(const std::vector<int> waypoints) const {
+void AnalyseGraph::reportAllPointToPoint(const std::vector<int> &waypoints) const {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
   DEBUG(std::cout << "Performing DFS\n");

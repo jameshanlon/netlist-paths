@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 #include "netlist_paths/CompileGraph.hpp"
 #include "netlist_paths/Options.hpp"
 #include "tests/definitions.hpp"

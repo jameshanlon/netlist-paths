@@ -20,6 +20,7 @@ private:
   std::unique_ptr<Graph> graph;
 
   void buildGraph();
+  void checkGraph();
   VertexType getVertexType(const std::string &type) const;
   const char *getVertexTypeStr(VertexType type) const;
   int getVertexId(const std::string &name, VertexType type) const;
@@ -45,8 +46,10 @@ public:
   int getMidVertexId(const std::string &name) const;
   void reportAllFanout(const std::string &startName) const;
   void reportAllFanin(const std::string &endName) const;
-  void reportAnyPointToPoint(const std::vector<int> waypoints) const;
-  void reportAllPointToPoint(const std::vector<int> waypoints) const;
+  void reportAnyPointToPoint(const std::vector<int> &waypoints) const;
+  void reportAllPointToPoint(const std::vector<int> &waypoints) const;
+  std::size_t getNumVertices() const { return vertices.size(); }
+  std::size_t getNumEdges() const { return edges.size(); }
 };
 
 } // End namespace.

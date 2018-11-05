@@ -75,9 +75,6 @@ int main(int argc, char **argv) {
     }
     notify(vm);
 
-    netlist_paths::AnalyseGraph analyseGraph;
-    std::vector<int> waypoints;
-
     // Call Verilator to produce graph file.
     if (options.compile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
@@ -94,6 +91,8 @@ int main(int argc, char **argv) {
                               inputFiles,
                               outputFilename);
     }
+
+    netlist_paths::AnalyseGraph analyseGraph;
 
     // Parse the input file.
     if (inputFiles.size() > 1)
@@ -114,6 +113,7 @@ int main(int argc, char **argv) {
       return 0;
     }
 
+    // A start or an endpoint must be specified.
     if (startName.empty() && endName.empty()) {
       throw netlist_paths::Exception("no start and/or end point specified");
     }
@@ -135,14 +135,13 @@ int main(int argc, char **argv) {
     }
 
     // Find vertices in graph and compile path waypoints.
+    std::vector<int> waypoints;
     waypoints.push_back(analyseGraph.getStartVertexId(startName));
     for (auto &throughName : throughNames) {
-      int vertexId = analyseGraph.getMidVertexId(throughName);
-      waypoints.push_back(vertexId);
+      waypoints.push_back(analyseGraph.getMidVertexId(throughName));
     }
     // Look for a register end point, otherwise any matching variable.
-    auto endVertexId = analyseGraph.getEndVertexId(endName);
-    waypoints.push_back(endVertexId);
+    waypoints.push_back(analyseGraph.getEndVertexId(endName));
 
     // Report all paths between two points.
     if (options.allPaths) {
