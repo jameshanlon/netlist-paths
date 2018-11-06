@@ -16,26 +16,42 @@ enum class VertexType {
   INITIAL,
   REG_SRC,
   REG_DST,
-  REG_DST_OUTPUT,
   VAR,
-  VAR_WIRE,
-  VAR_INPUT,
-  VAR_OUTPUT,
-  VAR_INOUT,
+  WIRE,
+  PORT
 };
+
+enum class VertexDirection {
+  NONE,
+  INPUT,
+  OUTPUT,
+  INOUT
+};
+
+inline bool isVertexTypeLogic(VertexType type) {
+  return type == VertexType::LOGIC ||
+         type == VertexType::ASSIGN ||
+         type == VertexType::ASSIGNW ||
+         type == VertexType::ALWAYS ||
+         type == VertexType::INITIAL;
+}
 
 struct Vertex {
   int id;
   VertexType type;
+  VertexDirection direction;
   std::string name;
   std::string loc;
   bool isTop;
-  Vertex(int id, VertexType type) :
-    id(id), type(type) {}
-  Vertex(int id, VertexType type, const std::string &loc) :
-    id(id), type(type), loc(loc) {}
+  // Logic vertex.
   Vertex(int id,
          VertexType type,
+         const std::string &loc) :
+    id(id), type(type), direction(VertexDirection::NONE), loc(loc) {}
+  // Variable vertex.
+  Vertex(int id,
+         VertexType type,
+         VertexDirection direction,
          const std::string &name,
          const std::string &loc) :
       id(id), type(type), name(name), loc(loc) {
@@ -47,26 +63,20 @@ struct Vertex {
     isTop = tokens.size() < 3;
   }
   bool isLogic() const {
-    return type == VertexType::LOGIC ||
-           type == VertexType::ASSIGN ||
-           type == VertexType::ASSIGNW ||
-           type == VertexType::ALWAYS ||
-           type == VertexType::INITIAL;
+    return isVertexTypeLogic(type);
   }
   bool isStartPoint() const {
     return type == VertexType::REG_SRC ||
-           (type == VertexType::VAR_INPUT && isTop) ||
-           (type == VertexType::VAR_INOUT && isTop);
+           (direction == VertexDirection::INPUT && isTop) ||
+           (direction == VertexDirection::INOUT && isTop);
   }
   bool isEndPoint() const {
     return type == VertexType::REG_DST ||
-           type == VertexType::REG_DST_OUTPUT ||
-           (type == VertexType::VAR_OUTPUT && isTop) ||
-           (type == VertexType::VAR_INOUT && isTop);
+           (direction == VertexDirection::OUTPUT && isTop) ||
+           (direction == VertexDirection::INOUT && isTop);
   }
   bool isReg() const {
     return type == VertexType::REG_DST ||
-           type == VertexType::REG_DST_OUTPUT ||
            type == VertexType::REG_SRC;
   }
   bool canIgnore() const {

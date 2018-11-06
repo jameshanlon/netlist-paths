@@ -10,6 +10,7 @@
 #include <boost/graph/reverse_graph.hpp>
 #include "netlist_paths/AnalyseGraph.hpp"
 #include "netlist_paths/Exception.hpp"
+#include "netlist_paths/Graph.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/utilities.hpp"
 
@@ -48,19 +49,16 @@ public:
 };
 
 VertexType AnalyseGraph::getVertexType(const std::string &type) const {
-       if (type == "LOGIC")          return VertexType::LOGIC;
-  else if (type == "ASSIGN")         return VertexType::ASSIGN;
-  else if (type == "ASSIGNW")        return VertexType::ASSIGNW;
-  else if (type == "ALWAYS")         return VertexType::ALWAYS;
-  else if (type == "INITIAL")        return VertexType::INITIAL;
-  else if (type == "REG_SRC")        return VertexType::REG_SRC;
-  else if (type == "REG_DST")        return VertexType::REG_DST;
-  else if (type == "REG_DST_OUTPUT") return VertexType::REG_DST_OUTPUT;
-  else if (type == "VAR")            return VertexType::VAR;
-  else if (type == "VAR_WIRE")       return VertexType::VAR_WIRE;
-  else if (type == "VAR_INPUT")      return VertexType::VAR_INPUT;
-  else if (type == "VAR_OUTPUT")     return VertexType::VAR_OUTPUT;
-  else if (type == "VAR_INOUT")      return VertexType::VAR_INOUT;
+       if (type == "LOGIC")   return VertexType::LOGIC;
+  else if (type == "ASSIGN")  return VertexType::ASSIGN;
+  else if (type == "ASSIGNW") return VertexType::ASSIGNW;
+  else if (type == "ALWAYS")  return VertexType::ALWAYS;
+  else if (type == "INITIAL") return VertexType::INITIAL;
+  else if (type == "REG_SRC") return VertexType::REG_SRC;
+  else if (type == "REG_DST") return VertexType::REG_DST;
+  else if (type == "VAR")     return VertexType::VAR;
+  else if (type == "WIRE")    return VertexType::WIRE;
+  else if (type == "PORT")    return VertexType::PORT;
   else {
     throw netlist_paths::Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -68,20 +66,40 @@ VertexType AnalyseGraph::getVertexType(const std::string &type) const {
 
 const char *AnalyseGraph::getVertexTypeStr(VertexType type) const {
   switch (type) {
-    case VertexType::LOGIC:          return "LOGIC";
-    case VertexType::ASSIGN:         return "ASSIGN";
-    case VertexType::ASSIGNW:        return "ASSIGNW";
-    case VertexType::ALWAYS:         return "ALWAYS";
-    case VertexType::INITIAL:        return "INITIAL";
-    case VertexType::REG_SRC:        return "REG_SRC";
-    case VertexType::REG_DST:        return "REG_DST";
-    case VertexType::REG_DST_OUTPUT: return "REG_DST_OUTPUT";
-    case VertexType::VAR:            return "VAR";
-    case VertexType::VAR_WIRE:       return "VAR_WIRE";
-    case VertexType::VAR_INPUT:      return "VAR_INPUT";
-    case VertexType::VAR_OUTPUT:     return "VAR_OUTPUT";
-    case VertexType::VAR_INOUT:      return "VAR_INOUT";
-    default:                         return "UNKNOWN";
+    case VertexType::LOGIC:   return "LOGIC";
+    case VertexType::ASSIGN:  return "ASSIGN";
+    case VertexType::ASSIGNW: return "ASSIGNW";
+    case VertexType::ALWAYS:  return "ALWAYS";
+    case VertexType::INITIAL: return "INITIAL";
+    case VertexType::REG_SRC: return "REG_SRC";
+    case VertexType::REG_DST: return "REG_DST";
+    case VertexType::VAR:     return "VAR";
+    case VertexType::WIRE:    return "WIRE";
+    case VertexType::PORT:    return "PORT";
+    default:                  return "UNKNOWN";
+  }
+}
+
+VertexDirection AnalyseGraph::
+getVertexDirection(const std::string &direction) const {
+       if (direction == "NONE")   return VertexDirection::NONE;
+  else if (direction == "INPUT")  return VertexDirection::INPUT;
+  else if (direction == "OUTPUT") return VertexDirection::OUTPUT;
+  else if (direction == "INOUT")  return VertexDirection::INOUT;
+  else {
+    throw netlist_paths::Exception(std::string("unexpected vertex direction: ")
+                                     +direction);
+  }
+}
+
+const char *AnalyseGraph::
+getVertexDirectionStr(VertexDirection direction) const {
+  switch (direction) {
+    case VertexDirection::NONE:   return "NONE";
+    case VertexDirection::INPUT:  return "INPUT";
+    case VertexDirection::OUTPUT: return "OUTPUT";
+    case VertexDirection::INOUT:  return "INOUT";
+    default:                      return "UNKNOWN";
   }
 }
 
@@ -96,23 +114,26 @@ void AnalyseGraph::parseFile(const std::string &filename) {
   while (std::getline(infile, line)) {
     std::vector<std::string> tokens;
     boost::split(tokens, line, boost::is_any_of(" "));
+    // "VERTEX" <id> <type> <location>
+    // "VERTEX" <id> <type> <direction> <name> <location>
     if (tokens[0] == "VERTEX") {
       int id = std::atoi(tokens[1].c_str());
+      auto type = getVertexType(tokens[2]);
       if (id == 0) {
         throw Exception("vertex has NULL ID");
       }
-      auto type = getVertexType(tokens[2]);
-      if (tokens[3] == "@") {
+      if (isVertexTypeLogic(type)) {
         // Unnamed logic vertex.
-        auto &loc = tokens[4];
+        auto &loc = tokens[3];
         vertices.push_back(Vertex(id, type, loc));
       } else {
         // Named net/port/register.
-        assert(tokens[4] == "@");
-        auto &name = tokens[3];
+        auto direction = getVertexDirection(tokens[3]);
+        auto &name = tokens[4];
         auto &loc = tokens[5];
-        vertices.push_back(Vertex(id, type, name, loc));
+        vertices.push_back(Vertex(id, type, direction, name, loc));
       }
+    // "EDGE" <vertex-src-id> "->" <vertex-dst-id>
     } else if (tokens[0] == "EDGE") {
       auto edge = Edge(std::stoi(tokens[1]),
                        std::stoi(tokens[3]));
@@ -143,16 +164,17 @@ void AnalyseGraph::checkGraph() {
   DEBUG(std::cout << "Checking graph\n");
   for (auto &vertex : vertices) {
     // Source registers don't have in edges.
-    if (vertex.type == VertexType::REG_SRC)
+    if (vertex.type == VertexType::REG_SRC) {
       if (boost::in_degree(boost::vertex(vertex.id, *graph), *graph) > 0)
          std::cout << "Warning: source reg " << vertex.name
                    << " (" << vertex.id << ") has in edges" << "\n";
+    }
     // Destination registers don't have out edges.
-    if (vertex.type == VertexType::REG_DST ||
-        vertex.type == VertexType::REG_DST_OUTPUT)
+    if (vertex.type == VertexType::REG_DST) {
       if (boost::out_degree(boost::vertex(vertex.id, *graph), *graph) > 0)
         std::cout << "Warning: destination reg " << vertex.name
                   << " (" << vertex.id << ") has out edges"<<"\n";
+    }
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
   }
@@ -172,27 +194,25 @@ int AnalyseGraph::getVertexId(const std::string &name,
 }
 
 int AnalyseGraph::getStartVertexId(const std::string &name) const {
-  if (int v = getVertexId(name, VertexType::REG_SRC))   return v;
-  if (int v = getVertexId(name, VertexType::VAR_INPUT)) return v;
-  if (int v = getVertexId(name, VertexType::VAR))       return v;
+  if (int v = getVertexId(name, VertexType::REG_SRC)) return v;
+  if (int v = getVertexId(name, VertexType::VAR))     return v;
+  if (int v = getVertexId(name, VertexType::WIRE))    return v;
+  if (int v = getVertexId(name, VertexType::PORT))    return v;
   throw Exception(std::string("could not find start vertex ")+name);
 }
 
 int AnalyseGraph::getEndVertexId(const std::string &name) const {
-  if (int v = getVertexId(name, VertexType::REG_DST))        return v;
-  if (int v = getVertexId(name, VertexType::REG_DST_OUTPUT)) return v;
-  if (int v = getVertexId(name, VertexType::VAR_OUTPUT))     return v;
-  if (int v = getVertexId(name, VertexType::VAR_INOUT))      return v;
-  if (int v = getVertexId(name, VertexType::VAR))            return v;
+  if (int v = getVertexId(name, VertexType::REG_DST)) return v;
+  if (int v = getVertexId(name, VertexType::VAR))     return v;
+  if (int v = getVertexId(name, VertexType::WIRE))    return v;
+  if (int v = getVertexId(name, VertexType::PORT))    return v;
   throw Exception(std::string("could not find end vertex ")+name);
 }
 
 int AnalyseGraph::getMidVertexId(const std::string &name) const {
-  if (int v = getVertexId(name, VertexType::VAR))        return v;
-  if (int v = getVertexId(name, VertexType::VAR_WIRE))   return v;
-  if (int v = getVertexId(name, VertexType::VAR_INPUT))  return v;
-  if (int v = getVertexId(name, VertexType::VAR_OUTPUT)) return v;
-  if (int v = getVertexId(name, VertexType::VAR_INOUT))  return v;
+  if (int v = getVertexId(name, VertexType::VAR))  return v;
+  if (int v = getVertexId(name, VertexType::WIRE)) return v;
+  if (int v = getVertexId(name, VertexType::PORT)) return v;
   throw Exception(std::string("could not find mid vertex ")+name);
 }
 
@@ -218,7 +238,9 @@ std::vector<int> AnalyseGraph::determinePath(ParentMap &parentMap,
     return std::vector<int>();
   assert(parentMap[endVertexId].size() == 1);
   int nextVertexId = parentMap[endVertexId].front();
-  assert(std::find(std::begin(path), std::end(path), nextVertexId) == std::end(path));
+  assert(std::find(std::begin(path),
+                   std::end(path),
+                   nextVertexId) == std::end(path));
   return determinePath(parentMap, path, startVertexId, nextVertexId);
 }
 
@@ -379,7 +401,8 @@ void AnalyseGraph::reportAllFanin(const std::string &endName) const {
 }
 
 /// Report a single path between a set of named points.
-void AnalyseGraph::reportAnyPointToPoint(const std::vector<int> &waypoints) const {
+void AnalyseGraph::
+reportAnyPointToPoint(const std::vector<int> &waypoints) const {
   std::vector<int> path;
   // Construct the path between each adjacent waypoints.
   for (size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -406,7 +429,8 @@ void AnalyseGraph::reportAnyPointToPoint(const std::vector<int> &waypoints) cons
 }
 
 /// Report all paths between start and end points.
-void AnalyseGraph::reportAllPointToPoint(const std::vector<int> &waypoints) const {
+void AnalyseGraph::
+reportAllPointToPoint(const std::vector<int> &waypoints) const {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
   DEBUG(std::cout << "Performing DFS\n");

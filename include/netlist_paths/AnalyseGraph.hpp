@@ -23,6 +23,8 @@ private:
   void checkGraph();
   VertexType getVertexType(const std::string &type) const;
   const char *getVertexTypeStr(VertexType type) const;
+  VertexDirection getVertexDirection(const std::string &direction) const;
+  const char *getVertexDirectionStr(VertexDirection direction) const;
   int getVertexId(const std::string &name, VertexType type) const;
   void dumpPath(const std::vector<int> &path) const;
   std::vector<int> determinePath(ParentMap &parentMap,
