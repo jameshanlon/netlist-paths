@@ -20,8 +20,9 @@ bison
 Then:
 ```
 git submodule update --init --recursive
-mkdir build
-cd build
+mkdir Debug
+cd Debug
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 make -j8 install
+ctest
 ```
