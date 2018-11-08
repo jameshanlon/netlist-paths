@@ -10,7 +10,7 @@
 
 namespace bp = boost::process;
 
-namespace netlist_paths {
+using namespace netlist_paths;
 
 CompileGraph::CompileGraph() {
   // Locate the Verilator binary relative to this program.
@@ -29,7 +29,6 @@ int CompileGraph::run(const std::vector<std::string> &includes,
                       const std::vector<std::string> &inputFiles,
                       const std::string &outputFile) const {
   std::vector<std::string> args{"+1800-2012ext+.sv",
-
                                 "--dump-netlist-graph",
                                 "--error-limit", "10000",
                                 "-o", outputFile};
@@ -45,5 +44,3 @@ int CompileGraph::run(const std::vector<std::string> &includes,
   DEBUG(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
   return bp::system(verilatorExe, bp::args(args));
 }
-
-} // End netlist_paths namespace.

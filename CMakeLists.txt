@@ -4,6 +4,8 @@ include(ExternalProject)
 enable_testing()
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS
+             graph
+             regex
              program_options
              system
              filesystem

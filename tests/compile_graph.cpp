@@ -24,7 +24,6 @@ constexpr auto VERILOG_SOURCE =
 netlist_paths::Options options;
 
 BOOST_AUTO_TEST_CASE(basic_test) {
-  options.debugMode = true;
   auto inTemp = fs::unique_path();
   auto outTemp = fs::unique_path();
   // Write an input file.
@@ -36,13 +35,19 @@ BOOST_AUTO_TEST_CASE(basic_test) {
   std::vector<std::string> defines = {};
   std::vector<std::string> inputFiles = {inTemp.native()};
   netlist_paths::CompileGraph compileGraph(installPrefix);
-  compileGraph.run(includes, defines, inputFiles, outTemp.native());
+  BOOST_CHECK_NO_THROW(compileGraph.run(includes,
+                                        defines,
+                                        inputFiles,
+                                        outTemp.native()));
   // Read the output file.
   std::ifstream outFile(outTemp.native());
   std::stringstream outBuffer;
   outBuffer << outFile.rdbuf();
-  BOOST_TEST(outBuffer.str().find("VERTEX 1") != std::string::npos);
-  BOOST_TEST(outBuffer.str().find("EDGE 1") != std::string::npos);
+  std::cout << outBuffer.str();
+  // Check that the output looks good.
+  BOOST_TEST(outBuffer.str().find("digraph netlist {") != std::string::npos);
+  BOOST_TEST(outBuffer.str().find("n0[id=0") != std::string::npos);
+  BOOST_TEST(outBuffer.str().find("n0 ->") != std::string::npos);
   fs::remove(inTemp);
   fs::remove(outTemp);
 }

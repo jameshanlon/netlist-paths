@@ -134,23 +134,21 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    // Find vertices in graph and compile path waypoints.
-    std::vector<int> waypoints;
-    waypoints.push_back(analyseGraph.getStartVertexId(startName));
+    // Compile path waypoints.
+    analyseGraph.addStartpoint(startName);
     for (auto &throughName : throughNames) {
-      waypoints.push_back(analyseGraph.getMidVertexId(throughName));
+      analyseGraph.addWaypoint(throughName);
     }
-    // Look for a register end point, otherwise any matching variable.
-    waypoints.push_back(analyseGraph.getEndVertexId(endName));
+    analyseGraph.addEndpoint(endName);
 
     // Report all paths between two points.
     if (options.allPaths) {
-      analyseGraph.reportAllPointToPoint(waypoints);
+      analyseGraph.reportAllPointToPoint();
       return 0;
     }
 
     // Report a paths between two points.
-    analyseGraph.reportAnyPointToPoint(waypoints);
+    analyseGraph.reportAnyPointToPoint();
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
