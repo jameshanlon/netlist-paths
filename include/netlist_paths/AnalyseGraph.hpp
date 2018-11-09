@@ -6,7 +6,6 @@
 #include <boost/property_map/dynamic_property_map.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "netlist_paths/Vertex.hpp"
-#include "netlist_paths/Edge.hpp"
 
 namespace netlist_paths {
 
