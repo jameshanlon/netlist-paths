@@ -1,4 +1,4 @@
 [submodule "verilator"]
 	path = verilator
-	url = git@github.com:jameshanlon/verilator.git
+	url = ssh://cgit@phabricator.xmos.silicon/diffusion/VERILATOR/verilator.git
 	branch = dump-netlist-graph
