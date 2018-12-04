@@ -3,14 +3,13 @@ project(netlist-paths)
 include(ExternalProject)
 enable_testing()
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost COMPONENTS
+find_package(Boost 1.68.0 REQUIRED COMPONENTS
              graph
              regex
              program_options
              system
              filesystem
-             unit_test_framework
-             REQUIRED)
+             unit_test_framework)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
