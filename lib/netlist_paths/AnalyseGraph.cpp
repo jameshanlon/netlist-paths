@@ -296,7 +296,7 @@ void AnalyseGraph::reportAllFanout(const std::string &startName) const {
       auto path = determinePath(parentMap,
                                 Path(),
                                 startVertex,
-                                graph[v].id);
+                                static_cast<VertexDesc>(graph[v].id));
       std::reverse(std::begin(path), std::end(path));
       if (!path.empty()) {
         std::cout << "Path " << ++pathCount << "\n";
@@ -311,7 +311,7 @@ void AnalyseGraph::reportAllFanout(const std::string &startName) const {
 /// Report all paths fanning into a net/register/port.
 void AnalyseGraph::reportAllFanin(const std::string &endName) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
-  int endVertex = getEndVertex(endName);
+  auto endVertex = getEndVertex(endName);
   DEBUG(std::cout << "Performing DFS in reverse graph from "
                   << graph[endVertex].name << "\n");
   ParentMap parentMap;
@@ -325,7 +325,7 @@ void AnalyseGraph::reportAllFanin(const std::string &endName) const {
       auto path = determinePath(parentMap,
                                 Path(),
                                 endVertex,
-                                graph[v].id);
+                                static_cast<VertexDesc>(graph[v].id));
       if (!path.empty()) {
         std::cout << "Path " << ++pathCount << "\n";
         printPathReport(path);
@@ -341,8 +341,8 @@ void AnalyseGraph::reportAnyPointToPoint() const {
   std::vector<VertexDesc> path;
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
-    int startVertex = waypoints[i];
-    int endVertex = waypoints[i+1];
+    auto startVertex = waypoints[i];
+    auto endVertex = waypoints[i+1];
     DEBUG(std::cout << "Performing DFS from "
                     << graph[startVertex].name << "\n");
     ParentMap parentMap;
