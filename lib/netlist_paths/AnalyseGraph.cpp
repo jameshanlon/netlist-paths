@@ -280,9 +280,23 @@ void AnalyseGraph::printPathReport(const Path &path) const {
   }
 }
 
+/// Print a collection of paths.
+void AnalyseGraph::
+printPathReport(const std::vector<Path> &paths) const {
+  int pathCount = 0;
+  for (auto &path : paths) {
+    if (!path.empty()) {
+      std::cout << "Path " << ++pathCount << "\n";
+      printPathReport(path);
+      std::cout << "\n";
+    }
+  }
+  std::cout << "Found " << pathCount << " path(s)\n";
+}
+
 /// Report all paths fanning out from a net/register/port.
-void AnalyseGraph::reportAllFanout(const std::string &startName) const {
-  auto startVertex = getStartVertex(startName);
+std::vector<Path> AnalyseGraph::
+getAllFanOut(VertexDesc startVertex) const {
   DEBUG(std::cout << "Performing DFS from "
                   << graph[startVertex].name << "\n");
   ParentMap parentMap;
@@ -290,7 +304,7 @@ void AnalyseGraph::reportAllFanout(const std::string &startName) const {
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(startVertex));
   // Check for a path between startPoint and each register.
-  int pathCount = 0;
+  std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (isEndPoint(graph[v].type, graph[v].dir, graph[v].isTop)) {
       auto path = determinePath(parentMap,
@@ -298,20 +312,22 @@ void AnalyseGraph::reportAllFanout(const std::string &startName) const {
                                 startVertex,
                                 static_cast<VertexDesc>(graph[v].id));
       std::reverse(std::begin(path), std::end(path));
-      if (!path.empty()) {
-        std::cout << "Path " << ++pathCount << "\n";
-        printPathReport(path);
-        std::cout << "\n";
-      }
+      paths.push_back(path);
     }
   }
-  std::cout << "Found " << pathCount << " path(s)\n";
+  return paths;
+}
+
+std::vector<Path> AnalyseGraph::
+getAllFanOut(const std::string &startName) const {
+  auto startVertex = getStartVertex(startName);
+  return getAllFanOut(startVertex);
 }
 
 /// Report all paths fanning into a net/register/port.
-void AnalyseGraph::reportAllFanin(const std::string &endName) const {
+std::vector<Path> AnalyseGraph::
+getAllFanIn(VertexDesc endVertex) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
-  auto endVertex = getEndVertex(endName);
   DEBUG(std::cout << "Performing DFS in reverse graph from "
                   << graph[endVertex].name << "\n");
   ParentMap parentMap;
@@ -319,25 +335,28 @@ void AnalyseGraph::reportAllFanin(const std::string &endName) const {
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(endVertex));
   // Check for a path between endPoint and each register.
-  int pathCount = 0;
+  std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (isStartPoint(graph[v].type, graph[v].dir, graph[v].isTop)) {
       auto path = determinePath(parentMap,
                                 Path(),
                                 endVertex,
                                 static_cast<VertexDesc>(graph[v].id));
-      if (!path.empty()) {
-        std::cout << "Path " << ++pathCount << "\n";
-        printPathReport(path);
-        std::cout << "\n";
-      }
+      paths.push_back(path);
     }
   }
-  std::cout << "Found " << pathCount << " paths\n";
+  return paths;
+}
+
+std::vector<Path> AnalyseGraph::
+getAllFanIn(const std::string &endName) const {
+  auto endVertex = getStartVertex(endName);
+  return getAllFanIn(endVertex);
 }
 
 /// Report a single path between a set of named points.
-void AnalyseGraph::reportAnyPointToPoint() const {
+Path AnalyseGraph::
+getAnyPointToPoint() const {
   std::vector<VertexDesc> path;
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -349,7 +368,8 @@ void AnalyseGraph::reportAnyPointToPoint() const {
     boost::depth_first_search(graph,
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
-    DEBUG(std::cout << "Determining a path to " << graph[endVertex].name << "\n");
+    DEBUG(std::cout << "Determining a path to "
+                    << graph[endVertex].name << "\n");
     auto subPath = determinePath(parentMap,
                                  Path(),
                                  startVertex,
@@ -363,11 +383,12 @@ void AnalyseGraph::reportAnyPointToPoint() const {
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
   }
   path.push_back(waypoints.back());
-  printPathReport(path);
+  return path;
 }
 
 /// Report all paths between start and end points.
-void AnalyseGraph::reportAllPointToPoint() const {
+std::vector<Path> AnalyseGraph::
+getAllPointToPoint() const {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
   DEBUG(std::cout << "Performing DFS\n");
@@ -382,10 +403,39 @@ void AnalyseGraph::reportAllPointToPoint() const {
                     Path(),
                     waypoints[0],
                     waypoints[1]);
-  int count = 0;
   for (auto &path : paths) {
     std::reverse(std::begin(path), std::end(path));
-    std::cout << "PATH " << ++count << ":\n";
-    printPathReport(path);
+  }
+  return paths;
+}
+
+std::vector<std::pair<VertexDesc, size_t>> AnalyseGraph::
+getAllFanOutDegrees() const {
+  DEBUG(std::cout << "Reporting fan outs of all non-logic vertices\n");
+  using Pair = std::pair<VertexDesc, size_t>;
+  std::vector<Pair> fanOuts;
+  BGL_FORALL_VERTICES(v, graph, Graph) {
+    if (!isLogic(graph[v].type)) {
+       auto fanOut = boost::out_degree(v, graph);
+       fanOuts.push_back(std::make_pair(v, fanOut));
+    }
+  }
+  std::sort(std::begin(fanOuts), std::end(fanOuts),
+            [](const Pair &a, const Pair &b) -> bool {
+                return b.second < a.second; });
+  return fanOuts;
+}
+
+void AnalyseGraph::
+printFanOuts(const std::vector<std::pair<VertexDesc, size_t>> &fanOuts,
+             size_t min) const {
+  for (auto pair : fanOuts) {
+    auto v = pair.first;
+    auto degree = pair.second;
+    if (degree >= min) {
+      std::cout << degree
+                << " " << getVertexTypeStr(graph[v].type)
+                << " " << graph[v].name << "\n";
+    }
   }
 }

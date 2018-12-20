@@ -48,6 +48,10 @@ inline bool determineIsTop(const std::string &name) {
   return tokens.size() < 3;
 }
 
+inline bool isSrcReg(VertexType type) {
+  return type == VertexType::REG_SRC;
+}
+
 inline bool isLogic(VertexType type) {
   return type == VertexType::LOGIC ||
          type == VertexType::ASSIGN ||

@@ -34,20 +34,26 @@ private:
                          Path path,
                          VertexDesc startVertex,
                          VertexDesc endVertex) const;
-  void printPathReport(const Path &path) const;
 
 public:
   AnalyseGraph();
   void parseFile(const std::string &filename);
   void dumpDotFile(const std::string &outputFilename) const;
   void dumpVertexNames() const;
+  void printPathReport(const Path &path) const;
+  void printPathReport(const std::vector<Path> &paths) const;
+  void printFanOuts(const std::vector<std::pair<VertexDesc, size_t>> &fanOuts,
+                    size_t min=2) const;
   VertexDesc getStartVertex(const std::string &name) const;
   VertexDesc getEndVertex(const std::string &name) const;
   VertexDesc getMidVertex(const std::string &name) const;
-  void reportAllFanout(const std::string &startName) const;
-  void reportAllFanin(const std::string &endName) const;
-  void reportAnyPointToPoint() const;
-  void reportAllPointToPoint() const;
+  std::vector<Path> getAllFanOut(VertexDesc startVertex) const;
+  std::vector<Path> getAllFanOut(const std::string &startName) const;
+  std::vector<Path> getAllFanIn(VertexDesc endVertex) const;
+  std::vector<Path> getAllFanIn(const std::string &endName) const;
+  Path getAnyPointToPoint() const;
+  std::vector<Path> getAllPointToPoint() const;
+  std::vector<std::pair<VertexDesc, size_t>> getAllFanOutDegrees() const;
   std::size_t getNumVertices() const { return boost::num_vertices(graph); }
   std::size_t getNumEdges() const { return boost::num_edges(graph); }
   void addStartpoint(const std::string &name) {
@@ -64,4 +70,3 @@ public:
 } // End namespace.
 
 #endif // NETLIST_PATHS_ANALYSE_GRAPH_HPP
-

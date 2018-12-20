@@ -13,6 +13,7 @@ struct Options {
   bool dumpDotfile;
   bool dumpNames;
   bool allPaths;
+  bool allFanOut;
   bool netsOnly;
   bool filenamesOnly;
   bool compile;
@@ -22,6 +23,7 @@ struct Options {
       dumpDotfile(false),
       dumpNames(false),
       allPaths(false),
+      allFanOut(false),
       netsOnly(false),
       filenamesOnly(false),
       compile(false) {}

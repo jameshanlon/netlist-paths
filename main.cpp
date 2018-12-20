@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
     po::options_description allOptions("All options");
     po::positional_options_description p;
     po::variables_map vm;
+    size_t maxFanOut;
     std::vector<std::string> inputFiles;
     std::string outputFilename;
     std::string startName;
@@ -37,22 +38,36 @@ int main(int argc, char **argv) {
     p.add("input-file", -1);
     genericOptions.add_options()
       ("help,h",        "Display help")
-      ("start,s",       po::value<std::string>(&startName), "Start point")
-      ("end,e",         po::value<std::string>(&endName),   "End point")
-      ("through,t",     po::value<std::vector<std::string>>(&throughNames),
-       "Through point")
+      ("start,s",       po::value<std::string>(&startName)
+                          ->value_name("name"),
+                        "Start point")
+      ("end,e",         po::value<std::string>(&endName)
+                          ->value_name("name"),
+                        "End point")
+      ("through,t",     po::value<std::vector<std::string>>(&throughNames)
+                          ->value_name("name"),
+                        "Through point")
       ("allpaths",      "Find all paths between two points (exponential time)")
+      ("allfanout",     po::value<size_t>(&maxFanOut)
+                          ->value_name("max")
+                          ->implicit_value(16),
+                        "List the fan out of each register")
       ("netsonly",      "Only display nets in path report")
       ("filenamesonly", "Only display filenames in path report")
       ("compile",       "Compile a netlist graph from Verilog source")
-      ("include,I",     po::value<std::vector<std::string>>()->composing(),
+      ("include,I",     po::value<std::vector<std::string>>()
+                          ->composing()
+                          ->value_name("path"),
                         "include path (only with --compile)")
-      ("define,D",      po::value<std::vector<std::string>>()->composing(),
+      ("define,D",      po::value<std::vector<std::string>>()
+                          ->composing()
+                          ->value_name("path"),
                         "define a preprocessor macro (only with --compile)")
       ("dotfile",       "Dump dotfile of netlist graph")
       ("dumpnames",     "Dump list of names in netlist")
       ("outfile,o",     po::value<std::string>(&outputFilename)
-                          ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME),
+                          ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
+                          ->value_name("filename"),
                         "output file")
       ("debug",         "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
@@ -63,6 +78,7 @@ int main(int argc, char **argv) {
     options.displayHelp   = vm.count("help");
     options.dumpDotfile   = vm.count("dotfile");
     options.dumpNames     = vm.count("dumpnames");
+    options.allFanOut     = vm.count("allfanout");
     options.allPaths      = vm.count("allpaths");
     options.netsOnly      = vm.count("filenamesonly");
     options.filenamesOnly = vm.count("netsonly");
@@ -113,6 +129,13 @@ int main(int argc, char **argv) {
       return 0;
     }
 
+    // Report the fan-out degree for each register.
+    if (options.allFanOut) {
+      auto fanOuts = analyseGraph.getAllFanOutDegrees();
+      analyseGraph.printFanOuts(fanOuts, maxFanOut);
+      return 0;
+    }
+
     // A start or an endpoint must be specified.
     if (startName.empty() && endName.empty()) {
       throw netlist_paths::Exception("no start and/or end point specified");
@@ -122,7 +145,8 @@ int main(int argc, char **argv) {
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for start only");
-      analyseGraph.reportAllFanout(startName);
+      auto paths = analyseGraph.getAllFanOut(startName);
+      analyseGraph.printPathReport(paths);
       return 0;
     }
 
@@ -130,7 +154,8 @@ int main(int argc, char **argv) {
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for end only");
-      analyseGraph.reportAllFanin(endName);
+      auto paths = analyseGraph.getAllFanIn(endName);
+      analyseGraph.printPathReport(paths);
       return 0;
     }
 
@@ -143,12 +168,14 @@ int main(int argc, char **argv) {
 
     // Report all paths between two points.
     if (options.allPaths) {
-      analyseGraph.reportAllPointToPoint();
+      auto paths = analyseGraph.getAllPointToPoint();
+      analyseGraph.printPathReport(paths);
       return 0;
     }
 
-    // Report a paths between two points.
-    analyseGraph.reportAnyPointToPoint();
+    // Report a path between two points.
+    auto path = analyseGraph.getAnyPointToPoint();
+    analyseGraph.printPathReport(path);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";
