@@ -44,6 +44,8 @@ public:
   void printPathReport(const std::vector<Path> &paths) const;
   void printFanOuts(const std::vector<std::pair<VertexDesc, size_t>> &fanOuts,
                     size_t min=2) const;
+  VertexDesc getVertex(const std::string &name,
+                       const std::vector<VertexType> &types) const;
   VertexDesc getStartVertex(const std::string &name) const;
   VertexDesc getEndVertex(const std::string &name) const;
   VertexDesc getMidVertex(const std::string &name) const;

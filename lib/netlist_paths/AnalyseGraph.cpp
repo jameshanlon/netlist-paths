@@ -138,27 +138,38 @@ VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
   return boost::graph_traits<Graph>::null_vertex();
 }
 
+VertexDesc AnalyseGraph::getVertex(const std::string &name,
+                                   const std::vector<VertexType> &types) const {
+  for (auto &type : types) {
+    auto v = getVertexDesc(name, type);
+    if (v != boost::graph_traits<Graph>::null_vertex()) {
+      return v;
+    }
+  }
+  throw Exception(std::string("could not find vertex ")+name);
+}
+
 VertexDesc AnalyseGraph::getStartVertex(const std::string &name) const {
-  if (auto v = getVertexDesc(name, VertexType::REG_SRC)) return v;
-  if (auto v = getVertexDesc(name, VertexType::VAR))     return v;
-  if (auto v = getVertexDesc(name, VertexType::WIRE))    return v;
-  if (auto v = getVertexDesc(name, VertexType::PORT))    return v;
-  throw Exception(std::string("could not find start vertex ")+name);
+  auto types = {VertexType::REG_SRC,
+                VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
 }
 
 VertexDesc AnalyseGraph::getEndVertex(const std::string &name) const {
-  if (auto v = getVertexDesc(name, VertexType::REG_DST)) return v;
-  if (auto v = getVertexDesc(name, VertexType::VAR))     return v;
-  if (auto v = getVertexDesc(name, VertexType::WIRE))    return v;
-  if (auto v = getVertexDesc(name, VertexType::PORT))    return v;
-  throw Exception(std::string("could not find end vertex ")+name);
+  auto types = {VertexType::REG_DST,
+                VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
 }
 
 VertexDesc AnalyseGraph::getMidVertex(const std::string &name) const {
-  if (auto v = getVertexDesc(name, VertexType::VAR))  return v;
-  if (auto v = getVertexDesc(name, VertexType::WIRE)) return v;
-  if (auto v = getVertexDesc(name, VertexType::PORT)) return v;
-  throw Exception(std::string("could not find mid vertex ")+name);
+  auto types = {VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
 }
 
 void AnalyseGraph::dumpPath(const std::vector<VertexDesc> &path) const {
