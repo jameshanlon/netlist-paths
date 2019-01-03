@@ -81,8 +81,8 @@ int main(int argc, char **argv) {
     options.dumpNames     = vm.count("dumpnames");
     options.allFanOut     = vm.count("allfanout");
     options.allPaths      = vm.count("allpaths");
-    options.netsOnly      = vm.count("filenamesonly");
-    options.filenamesOnly = vm.count("netsonly");
+    options.netsOnly      = vm.count("netsonly");
+    options.filenamesOnly = vm.count("filenamesonly");
     options.compile       = vm.count("compile");
     if (options.displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
