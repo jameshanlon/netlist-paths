@@ -12,6 +12,7 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/iteration_macros.hpp>
 #include <boost/graph/reverse_graph.hpp>
+#include <boost/tokenizer.hpp>
 #include "netlist_paths/AnalyseGraph.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
@@ -82,6 +83,67 @@ AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   dp.property("isTop", boost::get(&VertexProperties::isTop, graph));
 }
 
+/// Simplistic but fast implementation of GraphViz file parser.
+bool AnalyseGraph::parseGraphViz(std::istream &in) {
+  std::string line;
+  while (std::getline(in, line)) {
+    auto openBracePos = line.find_first_of('[');
+    auto closeBracePos = line.find_last_of(']');
+    if (openBracePos != std::string::npos &&
+        closeBracePos != std::string::npos){
+      // Vertex.
+      auto v = boost::add_vertex(graph);
+      auto nPos = line.find_first_of('n');
+      std::string vertex = line.substr(nPos+1,
+                                       openBracePos-nPos-1);
+      std::string attributes = line.substr(openBracePos+1,
+                                           closeBracePos-openBracePos-1);
+      //std::cout << "VERTEX " << vertex << "\n";
+      // Attributes.
+      using tokenizer = boost::tokenizer<boost::escaped_list_separator<char>>;
+      tokenizer tokens(attributes, boost::escaped_list_separator<char>("\\", ",", "\""));
+      for (auto &token : tokens) {
+        // Get Key.
+        auto equalsPos = token.find_first_of('=');
+        auto key = token.substr(0, equalsPos);
+        boost::trim_if(key, boost::is_any_of(" \t"));
+        // Get value.
+        auto quoteFirstPos = token.find_first_of('"');
+        auto quoteLastPos = token.find_last_of('"');
+        std::string value;
+        if (quoteFirstPos != std::string::npos &&
+            quoteLastPos != std::string::npos) {
+          value = token.substr(quoteFirstPos+1, quoteLastPos-quoteFirstPos-1);
+        } else {
+          value = token.substr(equalsPos+1);
+        }
+        if (key == "id") {
+          graph[v].id = std::stoi(value);
+        } else if (key == "type") {
+          graph[v].type = boost::lexical_cast<VertexType>(value);
+        } else if (key == "dir") {
+          graph[v].dir = boost::lexical_cast<VertexDirection>(value);
+        } else if (key == "name") {
+          graph[v].name.assign(value);
+        } else if (key == "loc") {
+          graph[v].loc.assign(value);
+        }
+        //std::cout << "  " << key << ": " << value << "\n";
+      }
+    } else if (line.find("->") != std::string::npos) {
+      // Edge.
+      std::vector<std::string> tokens;
+      boost::trim_if(line, boost::is_any_of(" \t"));
+      boost::split(tokens, line, boost::is_any_of(" \t;"), boost::token_compress_on);
+      auto src = static_cast<VertexDesc>(std::stoi(tokens[0].substr(1)));
+      auto dst = static_cast<VertexDesc>(std::stoi(tokens[2].substr(1)));
+      boost::add_edge(src, dst, graph);
+      //std::cout << "EDGE " << src << " -> " << dst << "\n";
+    }
+  }
+  return true;
+}
+
 /// Parse a graph input file and return a list of Vertices and a list of Edges.
 void AnalyseGraph::parseFile(const std::string &filename) {
   DEBUG(std::cout << "Parsing input file\n");
@@ -90,6 +152,7 @@ void AnalyseGraph::parseFile(const std::string &filename) {
     throw Exception("could not open file");
   }
   if (!boost::read_graphviz(infile, graph, dp)) {
+//  if (!parseGraphViz(infile)) {
     throw Exception(std::string("reading graph file: ")+filename);
   }
   // Perform some checks.
