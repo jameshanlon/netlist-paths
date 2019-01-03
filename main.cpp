@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
                           ->value_name("name"),
                         "End point")
       ("through,t",     po::value<std::vector<std::string>>(&throughNames)
+                          ->composing()
                           ->value_name("name"),
                         "Through point")
       ("allpaths",      "Find all paths between two points (exponential time)")
