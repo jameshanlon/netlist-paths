@@ -29,7 +29,7 @@ enum VertexDirection {
 };
 
 struct VertexProperties {
-  int id;
+  unsigned long long id;
   VertexType type;
   VertexDirection dir;
   std::string name;

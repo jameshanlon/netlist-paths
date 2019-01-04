@@ -38,13 +38,13 @@ int main(int argc, char **argv) {
     p.add("input-file", -1);
     genericOptions.add_options()
       ("help,h",        "Display help")
-      ("start,s",       po::value<std::string>(&startName)
+      ("from",          po::value<std::string>(&startName)
                           ->value_name("name"),
                         "Start point")
-      ("end,e",         po::value<std::string>(&endName)
+      ("to",            po::value<std::string>(&endName)
                           ->value_name("name"),
                         "End point")
-      ("through,t",     po::value<std::vector<std::string>>(&throughNames)
+      ("through",       po::value<std::vector<std::string>>(&throughNames)
                           ->composing()
                           ->value_name("name"),
                         "Through point")
@@ -53,8 +53,8 @@ int main(int argc, char **argv) {
                           ->value_name("max")
                           ->implicit_value(16),
                         "List the fan out of each register")
-      ("netsonly",      "Only display nets in path report")
-      ("filenamesonly", "Only display filenames in path report")
+      ("reportlogic",   "Display logic in path report")
+      ("filenames",     "Display full filenames in path report")
       ("compile",       "Compile a netlist graph from Verilog source")
       ("include,I",     po::value<std::vector<std::string>>()
                           ->composing()
@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
                           ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
                           ->value_name("filename"),
                         "output file")
+      ("boostparser",   "Use the boost GraphViz parser")
       ("debug",         "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
@@ -81,9 +82,10 @@ int main(int argc, char **argv) {
     options.dumpNames     = vm.count("dumpnames");
     options.allFanOut     = vm.count("allfanout");
     options.allPaths      = vm.count("allpaths");
-    options.netsOnly      = vm.count("netsonly");
-    options.filenamesOnly = vm.count("filenamesonly");
+    options.reportLogic   = vm.count("reportlogic");
+    options.fullFileNames = vm.count("filenames");
     options.compile       = vm.count("compile");
+    options.boostParser   = vm.count("boostparser");
     if (options.displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";

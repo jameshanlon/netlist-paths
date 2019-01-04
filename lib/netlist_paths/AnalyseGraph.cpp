@@ -83,7 +83,7 @@ AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   dp.property("isTop", boost::get(&VertexProperties::isTop, graph));
 }
 
-/// Simplistic but fast implementation of GraphViz file parser.
+/// Simplistic but fast implementation of the GraphViz file parser.
 bool AnalyseGraph::parseGraphViz(std::istream &in) {
   std::string line;
   while (std::getline(in, line)) {
@@ -96,12 +96,16 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
       auto nPos = line.find_first_of('n');
       std::string vertex = line.substr(nPos+1,
                                        openBracePos-nPos-1);
+      auto vertexNumber = std::stoull(vertex);
+      // Sanity check the format/ordering of the file.
+      assert(boost::num_vertices(graph) == vertexNumber+1);
+      assert(boost::num_edges(graph) == 0);
       std::string attributes = line.substr(openBracePos+1,
                                            closeBracePos-openBracePos-1);
-      //std::cout << "VERTEX " << vertex << "\n";
       // Attributes.
       using tokenizer = boost::tokenizer<boost::escaped_list_separator<char>>;
-      tokenizer tokens(attributes, boost::escaped_list_separator<char>("\\", ",", "\""));
+      tokenizer tokens(attributes,
+                       boost::escaped_list_separator<char>("\\", ",", "\""));
       for (auto &token : tokens) {
         // Get Key.
         auto equalsPos = token.find_first_of('=');
@@ -117,8 +121,11 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
         } else {
           value = token.substr(equalsPos+1);
         }
+        // Set the graph attribute.
         if (key == "id") {
-          graph[v].id = std::stoi(value);
+          auto idNumber = std::stoull(value);
+          assert(vertexNumber == idNumber);
+          graph[v].id = idNumber;
         } else if (key == "type") {
           graph[v].type = boost::lexical_cast<VertexType>(value);
         } else if (key == "dir") {
@@ -128,17 +135,17 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
         } else if (key == "loc") {
           graph[v].loc.assign(value);
         }
-        //std::cout << "  " << key << ": " << value << "\n";
       }
     } else if (line.find("->") != std::string::npos) {
       // Edge.
       std::vector<std::string> tokens;
       boost::trim_if(line, boost::is_any_of(" \t"));
-      boost::split(tokens, line, boost::is_any_of(" \t;"), boost::token_compress_on);
+      boost::split(tokens, line,
+                   boost::is_any_of(" \t;"),
+                   boost::token_compress_on);
       auto src = static_cast<VertexDesc>(std::stoi(tokens[0].substr(1)));
       auto dst = static_cast<VertexDesc>(std::stoi(tokens[2].substr(1)));
       boost::add_edge(src, dst, graph);
-      //std::cout << "EDGE " << src << " -> " << dst << "\n";
     }
   }
   return true;
@@ -151,9 +158,12 @@ void AnalyseGraph::parseFile(const std::string &filename) {
   if (!infile.is_open()) {
     throw Exception("could not open file");
   }
-  if (!boost::read_graphviz(infile, graph, dp)) {
-//  if (!parseGraphViz(infile)) {
-    throw Exception(std::string("reading graph file: ")+filename);
+  if (options.boostParser) {
+    if (!boost::read_graphviz(infile, graph, dp))
+      throw Exception(std::string("reading graph file: ")+filename);
+  } else {
+    if (!parseGraphViz(infile))
+      throw Exception(std::string("reading graph file: ")+filename);
   }
   // Perform some checks.
   BGL_FORALL_VERTICES(v, graph, Graph) {
@@ -324,27 +334,29 @@ void AnalyseGraph::printPathReport(const Path &path) const {
   }
   // Print each vertex on the path.
   for (auto v : path) {
-    if (canIgnore(graph[v].name))
+    if (canIgnore(graph[v].name)) {
       continue;
-    auto srcPath = options.filenamesOnly ? fs::path(graph[v].loc).filename()
-                                         : fs::path(graph[v].loc);
-    if (options.netsOnly) {
+    }
+    auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
+                                         : fs::path(graph[v].loc).filename();
+    if (!options.reportLogic) {
       if (!isLogic(graph[v].type)) {
         std::cout << "  " << std::left
-                  << std::setw(maxNameLength+1) << graph[v].name
+                  << std::setw(static_cast<int>(maxNameLength)+1)
+                  << graph[v].name
                   << srcPath.string() << "\n";
       }
     } else {
       if (isLogic(graph[v].type)) {
         std::cout << "  " << std::left
-                  << std::setw(maxNameLength+1)
+                  << std::setw(static_cast<int>(maxNameLength)+1)
                   << getVertexTypeStr(graph[v].type)
                   << std::setw(VERTEX_TYPE_STR_MAX_LEN)
                   << "LOGIC"
                   << srcPath.string() << "\n";
       } else {
         std::cout << "  " << std::left
-                  << std::setw(maxNameLength+1)
+                  << std::setw(static_cast<int>(maxNameLength)+1)
                   << graph[v].name
                   << std::setw(VERTEX_TYPE_STR_MAX_LEN)
                   << getVertexTypeStr(graph[v].type)

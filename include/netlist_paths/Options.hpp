@@ -14,9 +14,10 @@ struct Options {
   bool dumpNames;
   bool allPaths;
   bool allFanOut;
-  bool netsOnly;
-  bool filenamesOnly;
+  bool reportLogic;
+  bool fullFileNames;
   bool compile;
+  bool boostParser;
   Options() :
       debugMode(false),
       displayHelp(false),
@@ -24,9 +25,10 @@ struct Options {
       dumpNames(false),
       allPaths(false),
       allFanOut(false),
-      netsOnly(false),
-      filenamesOnly(false),
-      compile(false) {}
+      reportLogic(false),
+      fullFileNames(false),
+      compile(false),
+      boostParser(false) {}
 };
 
 } // End netlist_paths namespace.
