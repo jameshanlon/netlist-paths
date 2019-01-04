@@ -30,6 +30,7 @@ BOOST_AUTO_TEST_CASE(parse_input) {
   outFile.close();
   netlist_paths::AnalyseGraph analyseGraph;
   BOOST_CHECK_NO_THROW(analyseGraph.parseFile(outTemp.native()));
+  analyseGraph.checkGraph();
   BOOST_TEST(analyseGraph.getNumVertices() == 3);
   BOOST_TEST(analyseGraph.getNumEdges() == 4);
   fs::remove(outTemp);
@@ -44,6 +45,7 @@ BOOST_AUTO_TEST_CASE(parse_input_boost) {
   outFile.close();
   netlist_paths::AnalyseGraph analyseGraph;
   BOOST_CHECK_NO_THROW(analyseGraph.parseFile(outTemp.native()));
+  analyseGraph.checkGraph();
   BOOST_TEST(analyseGraph.getNumVertices() == 3);
   BOOST_TEST(analyseGraph.getNumEdges() == 4);
   fs::remove(outTemp);

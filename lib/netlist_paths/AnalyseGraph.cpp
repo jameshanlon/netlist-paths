@@ -165,9 +165,18 @@ void AnalyseGraph::parseFile(const std::string &filename) {
     if (!parseGraphViz(infile))
       throw Exception(std::string("reading graph file: ")+filename);
   }
-  // Perform some checks.
+  // Set top vertices.
   BGL_FORALL_VERTICES(v, graph, Graph) {
     graph[v].isTop = netlist_paths::determineIsTop(graph[v].name);
+  }
+  DEBUG(std::cout << "Netlist contains " << boost::num_vertices(graph)
+                  << " vertices and " << boost::num_edges(graph)
+                  << " edges.\n");
+}
+
+/// Perform some checks on the netlist and emit warnings if necessary.
+void AnalyseGraph::checkGraph() const {
+  BGL_FORALL_VERTICES(v, graph, Graph) {
     // Source registers don't have in edges.
     if (graph[v].type == VertexType::REG_SRC) {
       if (boost::in_degree(v, graph) > 0)

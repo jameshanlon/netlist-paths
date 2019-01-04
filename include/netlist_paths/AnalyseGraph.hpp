@@ -39,6 +39,7 @@ public:
   AnalyseGraph();
   bool parseGraphViz(std::istream &in);
   void parseFile(const std::string &filename);
+  void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
   void dumpVertexNames() const;
   void printPathReport(const Path &path) const;
