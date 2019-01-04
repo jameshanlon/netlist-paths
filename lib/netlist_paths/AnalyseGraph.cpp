@@ -89,9 +89,19 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
   while (std::getline(in, line)) {
     auto openBracePos = line.find_first_of('[');
     auto closeBracePos = line.find_last_of(']');
-    if (openBracePos != std::string::npos &&
-        closeBracePos != std::string::npos){
-      // Vertex.
+    // Edges
+    if (line.find("->") != std::string::npos) {
+      std::vector<std::string> tokens;
+      boost::trim_if(line, boost::is_any_of(" \t"));
+      boost::split(tokens, line,
+                   boost::is_any_of(" \t;"),
+                   boost::token_compress_on);
+      auto src = static_cast<VertexDesc>(std::stoull(tokens[0].substr(1)));
+      auto dst = static_cast<VertexDesc>(std::stoull(tokens[2].substr(1)));
+      boost::add_edge(src, dst, graph);
+    // Vertices
+    } else if (openBracePos != std::string::npos &&
+               closeBracePos != std::string::npos) {
       auto v = boost::add_vertex(graph);
       auto nPos = line.find_first_of('n');
       std::string vertex = line.substr(nPos+1,
@@ -136,16 +146,6 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
           graph[v].loc.assign(value);
         }
       }
-    } else if (line.find("->") != std::string::npos) {
-      // Edge.
-      std::vector<std::string> tokens;
-      boost::trim_if(line, boost::is_any_of(" \t"));
-      boost::split(tokens, line,
-                   boost::is_any_of(" \t;"),
-                   boost::token_compress_on);
-      auto src = static_cast<VertexDesc>(std::stoi(tokens[0].substr(1)));
-      auto dst = static_cast<VertexDesc>(std::stoi(tokens[2].substr(1)));
-      boost::add_edge(src, dst, graph);
     }
   }
   return true;
