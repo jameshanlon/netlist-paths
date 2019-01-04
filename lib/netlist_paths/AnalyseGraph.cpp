@@ -436,7 +436,7 @@ getAllFanIn(VertexDesc endVertex) const {
 
 std::vector<Path> AnalyseGraph::
 getAllFanIn(const std::string &endName) const {
-  auto endVertex = getStartVertex(endName);
+  auto endVertex = getEndVertex(endName);
   return getAllFanIn(endVertex);
 }
 
