@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <regex>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -209,11 +210,16 @@ void AnalyseGraph::dumpDotFile(const std::string &outputFilename) const {
 
 VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
                                        VertexType type) const {
+  // Match names ignoring '.' (heirarchical ref) or '_' (flattened name).
+  auto nameRegexStr(name);
+  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
+  std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (graph[v].name == name &&
+    if (std::regex_search(graph[v].name, nameRegex) &&
         graph[v].type == type) {
-      DEBUG(std::cout<<"Vertex "<<graph[v].id<<" matches "<<name
-                     <<" of type "<<getVertexTypeStr(type)<<"\n");
+      DEBUG(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
+                     << " matches "<<name<<" of type "
+                     <<getVertexTypeStr(type)<<"\n");
       return v;
     }
   }
