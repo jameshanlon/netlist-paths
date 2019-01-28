@@ -44,8 +44,6 @@ public:
   void dumpVertexNames() const;
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
-  void printFanOuts(const std::vector<std::pair<VertexDesc, size_t>> &fanOuts,
-                    size_t min=2) const;
   VertexDesc getVertex(const std::string &name,
                        const std::vector<VertexType> &types) const;
   VertexDesc getStartVertex(const std::string &name) const;
@@ -55,9 +53,12 @@ public:
   std::vector<Path> getAllFanOut(const std::string &startName) const;
   std::vector<Path> getAllFanIn(VertexDesc endVertex) const;
   std::vector<Path> getAllFanIn(const std::string &endName) const;
+  unsigned getfanOutDegree(VertexDesc startVertex);
+  unsigned getfanOutDegree(const std::string &startName);
+  unsigned getFanInDegree(VertexDesc endVertex);
+  unsigned getFanInDegree(const std::string &endName);
   Path getAnyPointToPoint() const;
   std::vector<Path> getAllPointToPoint() const;
-  std::vector<std::pair<VertexDesc, size_t>> getAllFanOutDegrees() const;
   std::size_t getNumVertices() const { return boost::num_vertices(graph); }
   std::size_t getNumEdges() const { return boost::num_edges(graph); }
   void addStartpoint(const std::string &name) {

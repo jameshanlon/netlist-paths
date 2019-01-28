@@ -32,6 +32,7 @@ struct VertexProperties {
   unsigned long long id;
   VertexType type;
   VertexDirection dir;
+  unsigned long width;
   std::string name;
   std::string loc;
   bool isTop;

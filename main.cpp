@@ -25,7 +25,6 @@ int main(int argc, char **argv) {
     po::options_description allOptions("All options");
     po::positional_options_description p;
     po::variables_map vm;
-    size_t maxFanOut;
     std::vector<std::string> inputFiles;
     std::string outputFilename;
     std::string startName;
@@ -49,10 +48,8 @@ int main(int argc, char **argv) {
                           ->value_name("name"),
                         "Through point")
       ("allpaths",      "Find all paths between two points (exponential time)")
-      ("allfanout",     po::value<size_t>(&maxFanOut)
-                          ->value_name("max")
-                          ->implicit_value(16),
-                        "List the fan out of each register")
+      ("fanout",        "Determine the fan out degree to bit end points")
+      ("fanin",         "Determine the fan in degree from bit start points")
       ("reportlogic",   "Display logic in path report")
       ("filenames",     "Display full filenames in path report")
       ("compile",       "Compile a netlist graph from Verilog source")
@@ -80,7 +77,8 @@ int main(int argc, char **argv) {
     options.displayHelp   = vm.count("help");
     options.dumpDotfile   = vm.count("dotfile");
     options.dumpNames     = vm.count("dumpnames");
-    options.allFanOut     = vm.count("allfanout");
+    options.fanOutDegree  = vm.count("fanout");
+    options.fanInDegree   = vm.count("fanin");
     options.allPaths      = vm.count("allpaths");
     options.reportLogic   = vm.count("reportlogic");
     options.fullFileNames = vm.count("filenames");
@@ -133,31 +131,36 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    // Report the fan-out degree for each register.
-    if (options.allFanOut) {
-      auto fanOuts = analyseGraph.getAllFanOutDegrees();
-      analyseGraph.printFanOuts(fanOuts, maxFanOut);
-      return 0;
-    }
-
     // A start or an endpoint must be specified.
     if (startName.empty() && endName.empty()) {
       throw netlist_paths::Exception("no start and/or end point specified");
     }
 
-    // Report paths fanning out from startName.
+    // Start only.
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for start only");
+      // Report the fan out degree from startName.
+      if (options.fanOutDegree) {
+         std::cout << analyseGraph.getfanOutDegree(startName) << "\n";
+         return 0;
+      }
+      // Report paths fanning out from startName.
       auto paths = analyseGraph.getAllFanOut(startName);
       analyseGraph.printPathReport(paths);
       return 0;
     }
 
-    // Report paths fanning in to endName.
+    // End only.
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for end only");
+      // Report the fan in degree to endName.
+      if (options.fanInDegree) {
+         std::cout << analyseGraph.getFanInDegree(endName) << "\n";
+         return 0;
+      }
+      // Report paths fanning in to endName.
       auto paths = analyseGraph.getAllFanIn(endName);
       analyseGraph.printPathReport(paths);
       return 0;

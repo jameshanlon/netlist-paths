@@ -13,7 +13,8 @@ struct Options {
   bool dumpDotfile;
   bool dumpNames;
   bool allPaths;
-  bool allFanOut;
+  bool fanOutDegree;
+  bool fanInDegree;
   bool reportLogic;
   bool fullFileNames;
   bool compile;
@@ -24,7 +25,8 @@ struct Options {
       dumpDotfile(false),
       dumpNames(false),
       allPaths(false),
-      allFanOut(false),
+      fanOutDegree(false),
+      fanInDegree(false),
       reportLogic(false),
       fullFileNames(false),
       compile(false),

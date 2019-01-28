@@ -79,6 +79,7 @@ AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   dp.property("id",    boost::get(&VertexProperties::id,    graph));
   dp.property("type",  boost::get(&VertexProperties::type,  graph));
   dp.property("dir",   boost::get(&VertexProperties::dir,   graph));
+  dp.property("width", boost::get(&VertexProperties::width, graph));
   dp.property("name",  boost::get(&VertexProperties::name,  graph));
   dp.property("loc",   boost::get(&VertexProperties::loc,   graph));
   dp.property("isTop", boost::get(&VertexProperties::isTop, graph));
@@ -141,6 +142,8 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
           graph[v].type = boost::lexical_cast<VertexType>(value);
         } else if (key == "dir") {
           graph[v].dir = boost::lexical_cast<VertexDirection>(value);
+        } else if (key == "width") {
+          graph[v].width = std::stoul(value);
         } else if (key == "name") {
           graph[v].name.assign(value);
         } else if (key == "loc") {
@@ -322,12 +325,12 @@ void AnalyseGraph::dumpVertexNames() const {
       continue;
     if (graph[v].dir == VertexDirection::NONE) {
       auto name = std::string(getVertexTypeStr(graph[v].type))+" "
-                    +graph[v].name;
+                    +graph[v].name+" ("+std::to_string(graph[v].width)+")";
       names.insert(name);
     } else {
       auto name = std::string(getVertexTypeStr(graph[v].type))+" "
                     +getVertexDirectionStr(graph[v].dir)+" "
-                    +graph[v].name;
+                    +graph[v].name+" ("+std::to_string(graph[v].width)+")";
       names.insert(name);
     }
   }
@@ -510,33 +513,38 @@ getAllPointToPoint() const {
   return paths;
 }
 
-std::vector<std::pair<VertexDesc, size_t>> AnalyseGraph::
-getAllFanOutDegrees() const {
-  DEBUG(std::cout << "Reporting fan outs of all non-logic vertices\n");
-  using Pair = std::pair<VertexDesc, size_t>;
-  std::vector<Pair> fanOuts;
-  BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (!isLogic(graph[v].type)) {
-       auto fanOut = boost::out_degree(v, graph);
-       fanOuts.push_back(std::make_pair(v, fanOut));
-    }
+/// Return the number of registers a start point fans out to.
+unsigned AnalyseGraph::
+getfanOutDegree(VertexDesc startVertex) {
+  const auto &paths = getAllFanOut(startVertex);
+  unsigned count = 0;
+  for (auto &path : paths) {
+    auto endVertex = path.back();
+    count += graph[endVertex].width;
   }
-  std::sort(std::begin(fanOuts), std::end(fanOuts),
-            [](const Pair &a, const Pair &b) -> bool {
-                return b.second < a.second; });
-  return fanOuts;
+  return count;
 }
 
-void AnalyseGraph::
-printFanOuts(const std::vector<std::pair<VertexDesc, size_t>> &fanOuts,
-             size_t min) const {
-  for (auto pair : fanOuts) {
-    auto v = pair.first;
-    auto degree = pair.second;
-    if (degree >= min) {
-      std::cout << degree
-                << " " << getVertexTypeStr(graph[v].type)
-                << " " << graph[v].name << "\n";
-    }
+unsigned AnalyseGraph::
+getfanOutDegree(const std::string &startName) {
+  auto startVertex = getStartVertex(startName);
+  return getfanOutDegree(startVertex);
+}
+
+/// Return he number of registers that fan into an end point.
+unsigned AnalyseGraph::
+getFanInDegree(VertexDesc endVertex) {
+  const auto &paths = getAllFanIn(endVertex);
+  unsigned count = 0;
+  for (auto &path : paths) {
+    auto startVertex = path.front();
+    count += graph[startVertex].width;
   }
+  return count;
+}
+
+unsigned AnalyseGraph::
+getFanInDegree(const std::string &endName) {
+  auto endVertex = getEndVertex(endName);
+  return getFanInDegree(endVertex);
 }
