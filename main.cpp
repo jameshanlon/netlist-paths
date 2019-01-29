@@ -68,12 +68,14 @@ int main(int argc, char **argv) {
                           ->value_name("filename"),
                         "output file")
       ("boostparser",   "Use the boost GraphViz parser")
-      ("debug",         "Print debugging information");
+      ("verbose,v",     "Print information")
+      ("debug,d",       "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
     options.debugMode     = vm.count("debug") > 0;
+    options.verboseMode   = vm.count("verbose") > 0;
     options.displayHelp   = vm.count("help");
     options.dumpDotfile   = vm.count("dotfile");
     options.dumpNames     = vm.count("dumpnames");

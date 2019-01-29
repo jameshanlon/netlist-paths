@@ -7,7 +7,7 @@
 #define DEBUG(x) do { if (options.debugMode) { x; } } while (false)
 #endif
 
-#define INFO(x) do { if (options.infoMode) { x; } } while (false)
+#define INFO(x) do { if (options.verboseMode) { x; } } while (false)
 
 namespace netlist_paths {
 

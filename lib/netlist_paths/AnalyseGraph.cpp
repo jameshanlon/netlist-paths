@@ -196,6 +196,7 @@ void AnalyseGraph::checkGraph() const {
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
   }
+  // TODO: merge duplicate vertices.
 }
 
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
@@ -415,8 +416,10 @@ getAllFanOut(VertexDesc startVertex) const {
                                 Path(),
                                 startVertex,
                                 static_cast<VertexDesc>(graph[v].id));
-      std::reverse(std::begin(path), std::end(path));
-      paths.push_back(path);
+      if (!path.empty()) {
+        std::reverse(std::begin(path), std::end(path));
+        paths.push_back(path);
+      }
     }
   }
   return paths;
@@ -446,7 +449,9 @@ getAllFanIn(VertexDesc endVertex) const {
                                 Path(),
                                 endVertex,
                                 static_cast<VertexDesc>(graph[v].id));
-      paths.push_back(path);
+      if (!path.empty()) {
+        paths.push_back(path);
+      }
     }
   }
   return paths;
@@ -516,7 +521,7 @@ getAllPointToPoint() const {
 /// Return the number of registers a start point fans out to.
 unsigned AnalyseGraph::
 getfanOutDegree(VertexDesc startVertex) {
-  const auto &paths = getAllFanOut(startVertex);
+  const auto paths = getAllFanOut(startVertex);
   unsigned count = 0;
   for (auto &path : paths) {
     auto endVertex = path.back();
@@ -534,7 +539,7 @@ getfanOutDegree(const std::string &startName) {
 /// Return he number of registers that fan into an end point.
 unsigned AnalyseGraph::
 getFanInDegree(VertexDesc endVertex) {
-  const auto &paths = getAllFanIn(endVertex);
+  const auto paths = getAllFanIn(endVertex);
   unsigned count = 0;
   for (auto &path : paths) {
     auto startVertex = path.front();
