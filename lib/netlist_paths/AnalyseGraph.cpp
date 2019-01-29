@@ -157,7 +157,7 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
 
 /// Parse a graph input file and return a list of Vertices and a list of Edges.
 void AnalyseGraph::parseFile(const std::string &filename) {
-  DEBUG(std::cout << "Parsing input file\n");
+  INFO(std::cout << "Parsing input file\n");
   std::fstream infile(filename);
   if (!infile.is_open()) {
     throw Exception("could not open file");
@@ -173,9 +173,9 @@ void AnalyseGraph::parseFile(const std::string &filename) {
   BGL_FORALL_VERTICES(v, graph, Graph) {
     graph[v].isTop = netlist_paths::determineIsTop(graph[v].name);
   }
-  DEBUG(std::cout << "Netlist contains " << boost::num_vertices(graph)
-                  << " vertices and " << boost::num_edges(graph)
-                  << " edges.\n");
+  INFO(std::cout << "Netlist contains " << boost::num_vertices(graph)
+                 << " vertices and " << boost::num_edges(graph)
+                 << " edges.\n");
 }
 
 /// Perform some checks on the netlist and emit warnings if necessary.
@@ -208,7 +208,7 @@ void AnalyseGraph::dumpDotFile(const std::string &outputFilename) const {
   boost::write_graphviz_dp(outputFile, graph, dp, /*node_id=*/"name");
   outputFile.close();
   // Print command line to generate graph file.
-  DEBUG(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
+  INFO(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
 }
 
 VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
@@ -220,9 +220,9 @@ VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (std::regex_search(graph[v].name, nameRegex) &&
         graph[v].type == type) {
-      DEBUG(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
-                     << " matches "<<name<<" of type "
-                     <<getVertexTypeStr(type)<<"\n");
+      INFO(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
+                    << " matches "<<name<<" of type "
+                    <<getVertexTypeStr(type)<<"\n");
       return v;
     }
   }
@@ -301,18 +301,18 @@ void AnalyseGraph::determineAllPaths(ParentMap &parentMap,
                                      VertexDesc endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
-    DEBUG(std::cout << "FOUND PATH\n");
+    INFO(std::cout << "FOUND PATH\n");
     result.push_back(path);
     return;
   }
-  DEBUG(std::cout<<"length "<<path.size()<<" vertex "<<graph[endVertex].id<<"\n");
-  DEBUG(dumpPath(path));
-  DEBUG(std::cout<<(parentMap[endVertex].empty()?"DEAD END\n":""));
+  INFO(std::cout<<"length "<<path.size()<<" vertex "<<graph[endVertex].id<<"\n");
+  INFO(dumpPath(path));
+  INFO(std::cout<<(parentMap[endVertex].empty()?"DEAD END\n":""));
   for (auto vertex : parentMap[endVertex]) {
     if (std::find(std::begin(path), std::end(path), vertex) == std::end(path)) {
       determineAllPaths(parentMap, result, path, startVertex, vertex);
     } else {
-      DEBUG(std::cout << "CYCLE DETECTED\n");
+      INFO(std::cout << "CYCLE DETECTED\n");
     }
   }
 }
@@ -401,8 +401,8 @@ printPathReport(const std::vector<Path> &paths) const {
 /// Report all paths fanning out from a net/register/port.
 std::vector<Path> AnalyseGraph::
 getAllFanOut(VertexDesc startVertex) const {
-  DEBUG(std::cout << "Performing DFS from "
-                  << graph[startVertex].name << "\n");
+  INFO(std::cout << "Performing DFS from "
+                 << graph[startVertex].name << "\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, false))
@@ -432,8 +432,8 @@ getAllFanOut(const std::string &startName) const {
 std::vector<Path> AnalyseGraph::
 getAllFanIn(VertexDesc endVertex) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
-  DEBUG(std::cout << "Performing DFS in reverse graph from "
-                  << graph[endVertex].name << "\n");
+  INFO(std::cout << "Performing DFS in reverse graph from "
+                 << graph[endVertex].name << "\n");
   ParentMap parentMap;
   boost::depth_first_search(reverseGraph,
       boost::visitor(DfsVisitor(parentMap, false))
@@ -466,14 +466,14 @@ getAnyPointToPoint() const {
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
     auto startVertex = waypoints[i];
     auto endVertex = waypoints[i+1];
-    DEBUG(std::cout << "Performing DFS from "
-                    << graph[startVertex].name << "\n");
+    INFO(std::cout << "Performing DFS from "
+                   << graph[startVertex].name << "\n");
     ParentMap parentMap;
     boost::depth_first_search(graph,
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
-    DEBUG(std::cout << "Determining a path to "
-                    << graph[endVertex].name << "\n");
+    INFO(std::cout << "Determining a path to "
+                   << graph[endVertex].name << "\n");
     auto subPath = determinePath(parentMap,
                                  Path(),
                                  startVertex,
@@ -495,12 +495,12 @@ std::vector<Path> AnalyseGraph::
 getAllPointToPoint() const {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
-  DEBUG(std::cout << "Performing DFS\n");
+  INFO(std::cout << "Performing DFS\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, true))
         .root_vertex(waypoints[0]));
-  DEBUG(std::cout << "Determining all paths\n");
+  INFO(std::cout << "Determining all paths\n");
   std::vector<Path> paths;
   determineAllPaths(parentMap,
                     paths,

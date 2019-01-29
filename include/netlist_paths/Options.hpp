@@ -9,6 +9,7 @@ constexpr const char *DEFAULT_OUTPUT_FILENAME = "netlist";
 
 struct Options {
   bool debugMode;
+  bool infoMode;
   bool displayHelp;
   bool dumpDotfile;
   bool dumpNames;
@@ -21,6 +22,7 @@ struct Options {
   bool boostParser;
   Options() :
       debugMode(false),
+      infoMode(false),
       displayHelp(false),
       dumpDotfile(false),
       dumpNames(false),
