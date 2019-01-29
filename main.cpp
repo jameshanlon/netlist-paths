@@ -117,6 +117,7 @@ int main(int argc, char **argv) {
     if (inputFiles.size() > 1)
       throw netlist_paths::Exception("multiple graph files specified");
     analyseGraph.parseFile(inputFiles.front());
+    analyseGraph.mergeDuplicateVertices();
     analyseGraph.checkGraph();
 
     // Dump dot file.

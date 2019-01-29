@@ -196,7 +196,52 @@ void AnalyseGraph::checkGraph() const {
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
   }
-  // TODO: merge duplicate vertices.
+}
+
+/// Remove duplicate vertices from the graph.
+void AnalyseGraph::mergeDuplicateVertices() {
+  std::vector<VertexDesc> vs;
+  BGL_FORALL_VERTICES(v, graph, Graph) {
+    vs.push_back(v);
+  }
+  // TODO: move into a Vertex class?
+  auto compare = [this](const VertexDesc a, const VertexDesc b) {
+                   if (graph[a].name  < graph[b].name)  return true;
+                   if (graph[b].name  < graph[a].name)  return false;
+                   if (graph[a].type  < graph[b].type)  return true;
+                   if (graph[b].type  < graph[a].type)  return false;
+                   if (graph[a].dir   < graph[b].dir)   return true;
+                   if (graph[b].dir   < graph[a].dir)   return false;
+                   if (graph[a].width < graph[b].width) return true;
+                   if (graph[b].width < graph[a].width) return false;
+                   if (graph[a].loc   < graph[b].loc)   return true;
+                   if (graph[b].loc   < graph[a].loc)   return false;
+                   return false; };
+  auto equal = [this](const VertexDesc a, const VertexDesc b) {
+                 return graph[a].name  == graph[b].name &&
+                        graph[a].type  == graph[b].type &&
+                        graph[a].dir   == graph[b].dir &&
+                        graph[a].width == graph[b].width &&
+                        graph[a].loc   == graph[b].loc; };
+  std::sort(std::begin(vs), std::end(vs), compare);
+  VertexDesc current = vs[0];
+  unsigned count = 0;
+  for (size_t i=1; i<vs.size(); i++) {
+    //std::cout << "VERTEX " << graph[vs[i]].name << "\n";
+    if (!isLogic(graph[vs[i]].type) && equal(vs[i], current)) {
+      //std::cout << "Duplicate!\n";
+      boost::graph_traits<Graph>::adjacency_iterator ai, aiEnd;
+      std::tie(ai, aiEnd) = boost::adjacent_vertices(vs[i], graph);
+      for (auto it = ai; it != aiEnd; ++it) {
+        boost::add_edge(current, *it, graph);
+      }
+      boost::remove_vertex(vs[i], graph);
+      ++count;
+    } else {
+      current = vs[i];
+    }
+  }
+  INFO(std::cout << "Removed " << count << " duplicate vertices\n");
 }
 
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
