@@ -21,9 +21,12 @@ target_link_libraries(netlist-paths
   ${Boost_LIBRARIES}
   ${CMAKE_DL_LIBS} # Required for Boost_DLL
   pthread)
-set(INSTALL_DIR ${CMAKE_BINARY_DIR}/install)
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  # Set default install prefix.
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "..." FORCE)
+endif()
 install(TARGETS netlist-paths
-  DESTINATION ${INSTALL_DIR}/bin)
+        DESTINATION bin)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(lib)
 add_subdirectory(tests)
@@ -31,8 +34,9 @@ add_subdirectory(tests)
 ExternalProject_Add(Verilator
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/verilator
   PREFIX verilator
-  CONFIGURE_COMMAND autoconf && ./configure --prefix=${INSTALL_DIR}
+  CONFIGURE_COMMAND autoconf && ./configure --prefix=<INSTALL_DIR>
   BUILD_COMMAND make
   BUILD_IN_SOURCE 1
   BUILD_ALWAYS 1
+  INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   INSTALL_COMMAND make install)
