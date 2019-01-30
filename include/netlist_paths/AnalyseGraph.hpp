@@ -23,6 +23,9 @@ private:
   boost::dynamic_properties dp;
   std::vector<VertexDesc> waypoints;
 
+  bool vertexCompare(const VertexDesc a, const VertexDesc b) const;
+  bool vertexEqual(const VertexDesc a, const VertexDesc b) const;
+
   VertexDesc getVertexDesc(const std::string &name, VertexType type) const;
   void dumpPath(const Path &path) const;
   Path determinePath(ParentMap &parentMap,
