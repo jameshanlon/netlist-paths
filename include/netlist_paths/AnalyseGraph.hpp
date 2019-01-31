@@ -21,6 +21,7 @@ class AnalyseGraph {
 private:
   Graph graph;
   boost::dynamic_properties dp;
+  std::string topName;
   std::vector<VertexDesc> waypoints;
 
   bool vertexCompare(const VertexDesc a, const VertexDesc b) const;

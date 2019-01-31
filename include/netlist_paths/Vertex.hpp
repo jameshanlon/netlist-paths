@@ -49,6 +49,14 @@ inline bool determineIsTop(const std::string &name) {
   return tokens.size() < 3;
 }
 
+inline std::string expandName(const std::string &topName,
+                              const std::string &name) {
+  // Add prefix to top-level names that are missing it.
+  if (name.find(topName) == std::string::npos)
+    return std::string() + topName + "." + name;
+  return name;
+}
+
 inline bool isSrcReg(VertexType type) {
   return type == VertexType::REG_SRC;
 }

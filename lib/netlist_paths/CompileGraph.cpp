@@ -41,6 +41,6 @@ int CompileGraph::run(const std::vector<std::string> &includes,
   std::stringstream ss;
   for (auto &arg : args)
     ss << arg << " ";
-  DEBUG(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
+  INFO(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
   return bp::system(verilatorExe, bp::args(args));
 }

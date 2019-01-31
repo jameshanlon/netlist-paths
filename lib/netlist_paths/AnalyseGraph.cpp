@@ -76,17 +76,19 @@ namespace boost {
 
 AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   // Initialise dynamic propery maps for the graph.
-  dp.property("id",    boost::get(&VertexProperties::id,    graph));
-  dp.property("type",  boost::get(&VertexProperties::type,  graph));
-  dp.property("dir",   boost::get(&VertexProperties::dir,   graph));
-  dp.property("width", boost::get(&VertexProperties::width, graph));
-  dp.property("name",  boost::get(&VertexProperties::name,  graph));
-  dp.property("loc",   boost::get(&VertexProperties::loc,   graph));
-  dp.property("isTop", boost::get(&VertexProperties::isTop, graph));
+  dp.property("id",        boost::get(&VertexProperties::id,         graph));
+  dp.property("type",      boost::get(&VertexProperties::type,       graph));
+  dp.property("dir",       boost::get(&VertexProperties::dir,        graph));
+  dp.property("width",     boost::get(&VertexProperties::width,      graph));
+  dp.property("name",      boost::get(&VertexProperties::name,       graph));
+  dp.property("loc",       boost::get(&VertexProperties::loc,        graph));
+  dp.property("isTop",     boost::get(&VertexProperties::isTop,      graph));
 }
 
 bool AnalyseGraph::vertexCompare(const VertexDesc a,
                                  const VertexDesc b) const {
+  // Top level ports can appear with and without heirarchical paths,
+  // canonicalise their path to merge these vertices as duplicates.
   if (graph[a].name  < graph[b].name)  return true;
   if (graph[b].name  < graph[a].name)  return false;
   if (graph[a].type  < graph[b].type)  return true;
@@ -115,8 +117,17 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
   while (std::getline(in, line)) {
     auto openBracePos = line.find_first_of('[');
     auto closeBracePos = line.find_last_of(']');
+    // Declaration
+    if (line.find("digraph") != std::string::npos &&
+        boost::num_vertices(graph) == 0) {
+      std::vector<std::string> tokens;
+      boost::trim_if(line, boost::is_any_of(" \t"));
+      boost::split(tokens, line,
+                   boost::is_any_of(" \t;"),
+                   boost::token_compress_on);
+      topName.assign(tokens[1]);
     // Edges
-    if (line.find("->") != std::string::npos) {
+    } else if (line.find("->") != std::string::npos) {
       std::vector<std::string> tokens;
       boost::trim_if(line, boost::is_any_of(" \t"));
       boost::split(tokens, line,
@@ -169,7 +180,7 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
         } else if (key == "width") {
           graph[v].width = std::stoul(value);
         } else if (key == "name") {
-          graph[v].name.assign(value);
+          graph[v].name.assign(expandName(topName, value));
         } else if (key == "loc") {
           graph[v].loc.assign(value);
         }
@@ -187,6 +198,7 @@ void AnalyseGraph::parseFile(const std::string &filename) {
     throw Exception("could not open file");
   }
   if (options.boostParser) {
+    // FIXME: this does not set topName from the digraph declaration.
     if (!boost::read_graphviz(infile, graph, dp))
       throw Exception(std::string("reading graph file: ")+filename);
   } else {
@@ -215,11 +227,8 @@ void AnalyseGraph::mergeDuplicateVertices() {
   for (size_t i=1; i<vs.size(); i++) {
     if (!isLogic(graph[vs[i]].type) && vertexEqual(vs[i], current)) {
       //std::cout << "DUPLICATE VERTEX " << graph[vs[i]].name << "\n";
-      boost::graph_traits<Graph>::adjacency_iterator ai, aiEnd;
-      std::tie(ai, aiEnd) = boost::adjacent_vertices(vs[i], graph);
-      for (auto it = ai; it != aiEnd; ++it) {
-        boost::add_edge(current, *it, graph);
-      }
+      BGL_FORALL_ADJ(vs[i], v, graph, Graph)
+        boost::add_edge(current, v, graph);
       boost::remove_vertex(vs[i], graph);
       ++count;
     } else {
@@ -273,7 +282,7 @@ VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
         graph[v].type == type) {
       INFO(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
                     << " matches "<<name<<" of type "
-                    <<getVertexTypeStr(type)<<"\n");
+                    << getVertexTypeStr(type)<<"\n");
       return v;
     }
   }
