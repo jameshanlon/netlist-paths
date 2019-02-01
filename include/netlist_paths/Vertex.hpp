@@ -36,6 +36,7 @@ struct VertexProperties {
   std::string name;
   std::string loc;
   bool isTop;
+  bool deleted;
 };
 
 // Vertex helper fuctions.
@@ -57,33 +58,37 @@ inline std::string expandName(const std::string &topName,
   return name;
 }
 
-inline bool isSrcReg(VertexType type) {
-  return type == VertexType::REG_SRC;
+inline bool isSrcReg(const VertexProperties &p) {
+  return !p.deleted &&
+         p.type == VertexType::REG_SRC;
 }
 
-inline bool isLogic(VertexType type) {
-  return type == VertexType::LOGIC ||
-         type == VertexType::ASSIGN ||
-         type == VertexType::ASSIGNW ||
-         type == VertexType::ALWAYS ||
-         type == VertexType::INITIAL;
+inline bool isLogic(const VertexProperties &p) {
+  return p.type == VertexType::LOGIC ||
+         p.type == VertexType::ASSIGN ||
+         p.type == VertexType::ASSIGNW ||
+         p.type == VertexType::ALWAYS ||
+         p.type == VertexType::INITIAL;
 }
 
-inline bool isStartPoint(VertexType type, VertexDirection dir, bool isTop) {
-  return type == VertexType::REG_SRC ||
-         (dir == VertexDirection::INPUT && isTop) ||
-         (dir == VertexDirection::INOUT && isTop);
+inline bool isStartPoint(const VertexProperties &p) {
+  return !p.deleted &&
+         (p.type == VertexType::REG_SRC ||
+          (p.dir == VertexDirection::INPUT && p.isTop) ||
+          (p.dir == VertexDirection::INOUT && p.isTop));
 }
 
-inline bool isEndPoint(VertexType type, VertexDirection dir, bool isTop) {
-  return type == VertexType::REG_DST ||
-         (dir == VertexDirection::OUTPUT && isTop) ||
-         (dir == VertexDirection::INOUT && isTop);
+inline bool isEndPoint(const VertexProperties &p) {
+  return !p.deleted &&
+         (p.type == VertexType::REG_DST ||
+          (p.dir == VertexDirection::OUTPUT && p.isTop) ||
+          (p.dir == VertexDirection::INOUT && p.isTop));
 }
 
-inline bool isReg(VertexType type) {
-  return type == VertexType::REG_DST ||
-         type == VertexType::REG_SRC;
+inline bool isReg(const VertexProperties &p) {
+  return p.deleted &&
+         (p.type == VertexType::REG_DST ||
+          p.type == VertexType::REG_SRC);
 }
 
 inline bool canIgnore(const std::string &name) {

@@ -76,39 +76,41 @@ namespace boost {
 
 AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   // Initialise dynamic propery maps for the graph.
-  dp.property("id",        boost::get(&VertexProperties::id,         graph));
-  dp.property("type",      boost::get(&VertexProperties::type,       graph));
-  dp.property("dir",       boost::get(&VertexProperties::dir,        graph));
-  dp.property("width",     boost::get(&VertexProperties::width,      graph));
-  dp.property("name",      boost::get(&VertexProperties::name,       graph));
-  dp.property("loc",       boost::get(&VertexProperties::loc,        graph));
-  dp.property("isTop",     boost::get(&VertexProperties::isTop,      graph));
+  dp.property("id",      boost::get(&VertexProperties::id,      graph));
+  dp.property("type",    boost::get(&VertexProperties::type,    graph));
+  dp.property("dir",     boost::get(&VertexProperties::dir,     graph));
+  dp.property("width",   boost::get(&VertexProperties::width,   graph));
+  dp.property("name",    boost::get(&VertexProperties::name,    graph));
+  dp.property("loc",     boost::get(&VertexProperties::loc,     graph));
+  dp.property("isTop",   boost::get(&VertexProperties::isTop,   graph));
+  dp.property("deleted", boost::get(&VertexProperties::deleted, graph));
 }
 
 bool AnalyseGraph::vertexCompare(const VertexDesc a,
                                  const VertexDesc b) const {
-  // Top level ports can appear with and without heirarchical paths,
-  // canonicalise their path to merge these vertices as duplicates.
-  if (graph[a].name  < graph[b].name)  return true;
-  if (graph[b].name  < graph[a].name)  return false;
-  if (graph[a].type  < graph[b].type)  return true;
-  if (graph[b].type  < graph[a].type)  return false;
-  if (graph[a].dir   < graph[b].dir)   return true;
-  if (graph[b].dir   < graph[a].dir)   return false;
-  if (graph[a].width < graph[b].width) return true;
-  if (graph[b].width < graph[a].width) return false;
-  if (graph[a].loc   < graph[b].loc)   return true;
-  if (graph[b].loc   < graph[a].loc)   return false;
+  if (graph[a].deleted < graph[b].deleted) return true;
+  if (graph[b].deleted < graph[a].deleted) return false;
+  if (graph[a].name    < graph[b].name)    return true;
+  if (graph[b].name    < graph[a].name)    return false;
+  if (graph[a].type    < graph[b].type)    return true;
+  if (graph[b].type    < graph[a].type)    return false;
+  if (graph[a].dir     < graph[b].dir)     return true;
+  if (graph[b].dir     < graph[a].dir)     return false;
+  if (graph[a].width   < graph[b].width)   return true;
+  if (graph[b].width   < graph[a].width)   return false;
+  if (graph[a].loc     < graph[b].loc)     return true;
+  if (graph[b].loc     < graph[a].loc)     return false;
   return false;
 }
 
 bool AnalyseGraph::vertexEqual(const VertexDesc a,
                                const VertexDesc b) const {
-  return graph[a].name  == graph[b].name &&
-         graph[a].type  == graph[b].type &&
-         graph[a].dir   == graph[b].dir &&
-         graph[a].width == graph[b].width &&
-         graph[a].loc   == graph[b].loc;
+  return graph[a].name    == graph[b].name &&
+         graph[a].type    == graph[b].type &&
+         graph[a].dir     == graph[b].dir &&
+         graph[a].width   == graph[b].width &&
+         graph[a].loc     == graph[b].loc &&
+         graph[a].deleted == graph[b].deleted;
 }
 
 /// Simplistic but fast implementation of the GraphViz file parser.
@@ -180,6 +182,8 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
         } else if (key == "width") {
           graph[v].width = std::stoul(value);
         } else if (key == "name") {
+          // Top level ports can appear with and without heirarchical paths,
+          // canonicalise their path to merge these vertices as duplicates.
           graph[v].name.assign(expandName(topName, value));
         } else if (key == "loc") {
           graph[v].loc.assign(value);
@@ -205,8 +209,9 @@ void AnalyseGraph::parseFile(const std::string &filename) {
     if (!parseGraphViz(infile))
       throw Exception(std::string("reading graph file: ")+filename);
   }
-  // Set top vertices.
+  // Initialse other attributes.
   BGL_FORALL_VERTICES(v, graph, Graph) {
+    graph[v].deleted = false;
     graph[v].isTop = netlist_paths::determineIsTop(graph[v].name);
   }
   INFO(std::cout << "Netlist contains " << boost::num_vertices(graph)
@@ -218,18 +223,26 @@ void AnalyseGraph::parseFile(const std::string &filename) {
 /// vertex to its neighbours.
 void AnalyseGraph::mergeDuplicateVertices() {
   std::vector<VertexDesc> vs;
-  BGL_FORALL_VERTICES(v, graph, Graph) vs.push_back(v);
-  std::sort(std::begin(vs), std::end(vs),
-            [this](const VertexDesc a, const VertexDesc b) {
-              return vertexCompare(a, b); });
+  BGL_FORALL_VERTICES(v, graph, Graph) {
+    if (!isLogic(graph[v]))
+      vs.push_back(v);
+  }
+  auto compare = [this](const VertexDesc a, const VertexDesc b) {
+                       return vertexCompare(a, b); };
+  std::sort(std::begin(vs), std::end(vs), compare);
   VertexDesc current = vs[0];
   unsigned count = 0;
   for (size_t i=1; i<vs.size(); i++) {
-    if (!isLogic(graph[vs[i]].type) && vertexEqual(vs[i], current)) {
+    if (vertexEqual(vs[i], current)) {
       //std::cout << "DUPLICATE VERTEX " << graph[vs[i]].name << "\n";
-      BGL_FORALL_ADJ(vs[i], v, graph, Graph)
+      BGL_FORALL_ADJ(vs[i], v, graph, Graph) {
         boost::add_edge(current, v, graph);
-      boost::remove_vertex(vs[i], graph);
+        boost::remove_edge(vs[i], v, graph);
+      }
+      // We mark duplicate vertices as deleted since it is expensive to remove
+      // them from the graph as vertices are stored in a vecS. Using a listS
+      // is less performant.
+      graph[vs[i]].deleted = true;
       ++count;
     } else {
       current = vs[i];
@@ -255,6 +268,39 @@ void AnalyseGraph::checkGraph() const {
     }
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
+  }
+}
+
+/// Dump unique names of vars/regs/wires in the netlist for searching.
+void AnalyseGraph::dumpVertexNames() const {
+  std::vector<VertexDesc> vs;
+  // Collect vertices.
+  BGL_FORALL_VERTICES(v, graph, Graph) {
+    if (!isLogic(graph[v]) &&
+        !isSrcReg(graph[v]) &&
+        !graph[v].deleted) {
+      vs.push_back(v);
+    }
+  }
+  // Sort them.
+  auto compare = [this](const VertexDesc a, const VertexDesc b) {
+                   return vertexCompare(a, b); };
+  std::sort(vs.begin(), vs.end(), compare);
+  // Print the output.
+  int maxWidth = maxNameLength(vs) + 1;
+  std::cout << std::left << std::setw(maxWidth) << "Name"
+            << std::left << std::setw(10)       << "Type"
+            << std::left << std::setw(10)       << "Direction"
+            << std::left << std::setw(10)       << "Width"
+                                   << "Location\n";
+  for (auto v : vs) {
+    auto type = getVertexTypeStr(graph[v].type);
+    std::cout << std::left << std::setw(maxWidth) << graph[v].name
+              << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
+              << std::left << std::setw(10)       << getVertexDirectionStr(graph[v].dir)
+              << std::left << std::setw(10)       << graph[v].width
+                                                  << graph[v].loc
+              << "\n";
   }
 }
 
@@ -325,7 +371,7 @@ VertexDesc AnalyseGraph::getMidVertex(const std::string &name) const {
 
 void AnalyseGraph::dumpPath(const std::vector<VertexDesc> &path) const {
   for (auto v : path) {
-    if (!isLogic(graph[v].type)) {
+    if (!isLogic(graph[v])) {
       std::cout << "  " << graph[v].name << "\n";
     }
   }
@@ -377,39 +423,20 @@ void AnalyseGraph::determineAllPaths(ParentMap &parentMap,
   }
 }
 
-/// Dump unique names of vars/regs/wires in the netlist for searching.
-void AnalyseGraph::dumpVertexNames() const {
-  std::unordered_set<std::string> names;
-  BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (isLogic(graph[v].type))
+/// Determine the max length of a name.
+int AnalyseGraph::maxNameLength(const Path &path) const {
+  size_t maxLength = 0;
+  for (auto v : path) {
+    if (canIgnore(graph[v].name))
       continue;
-    if (graph[v].dir == VertexDirection::NONE) {
-      auto name = std::string(getVertexTypeStr(graph[v].type))+" "
-                    +graph[v].name+" ("+std::to_string(graph[v].width)+")";
-      names.insert(name);
-    } else {
-      auto name = std::string(getVertexTypeStr(graph[v].type))+" "
-                    +getVertexDirectionStr(graph[v].dir)+" "
-                    +graph[v].name+" ("+std::to_string(graph[v].width)+")";
-      names.insert(name);
-    }
+    maxLength = std::max(maxLength, graph[v].name.size());
   }
-  std::vector<std::string> sortedNames(names.begin(), names.end());
-  std::sort(sortedNames.begin(), sortedNames.end());
-  for (auto &name : sortedNames) {
-    std::cout << std::setw(8) << name << "\n";
-  }
+  return static_cast<int>(maxLength);
 }
 
 /// Pretty print a path (some sequence of vertices).
 void AnalyseGraph::printPathReport(const Path &path) const {
-  // Determine the max length of a name.
-  size_t maxNameLength = 0;
-  for (auto v : path) {
-    if (canIgnore(graph[v].name))
-      continue;
-    maxNameLength = std::max(maxNameLength, graph[v].name.size());
-  }
+  int maxWidth = maxNameLength(path) + 1;
   // Print each vertex on the path.
   for (auto v : path) {
     if (canIgnore(graph[v].name)) {
@@ -418,23 +445,23 @@ void AnalyseGraph::printPathReport(const Path &path) const {
     auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
                                          : fs::path(graph[v].loc).filename();
     if (!options.reportLogic) {
-      if (!isLogic(graph[v].type)) {
+      if (!isLogic(graph[v])) {
         std::cout << "  " << std::left
-                  << std::setw(static_cast<int>(maxNameLength)+1)
+                  << std::setw(maxWidth)
                   << graph[v].name
                   << srcPath.string() << "\n";
       }
     } else {
-      if (isLogic(graph[v].type)) {
+      if (isLogic(graph[v])) {
         std::cout << "  " << std::left
-                  << std::setw(static_cast<int>(maxNameLength)+1)
+                  << std::setw(maxWidth)
                   << getVertexTypeStr(graph[v].type)
                   << std::setw(VERTEX_TYPE_STR_MAX_LEN)
                   << "LOGIC"
                   << srcPath.string() << "\n";
       } else {
         std::cout << "  " << std::left
-                  << std::setw(static_cast<int>(maxNameLength)+1)
+                  << std::setw(maxWidth)
                   << graph[v].name
                   << std::setw(VERTEX_TYPE_STR_MAX_LEN)
                   << getVertexTypeStr(graph[v].type)
@@ -470,7 +497,7 @@ getAllFanOut(VertexDesc startVertex) const {
   // Check for a path between startPoint and each register.
   std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (isEndPoint(graph[v].type, graph[v].dir, graph[v].isTop)) {
+    if (isEndPoint(graph[v])) {
       auto path = determinePath(parentMap,
                                 Path(),
                                 startVertex,
@@ -503,7 +530,7 @@ getAllFanIn(VertexDesc endVertex) const {
   // Check for a path between endPoint and each register.
   std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (isStartPoint(graph[v].type, graph[v].dir, graph[v].isTop)) {
+    if (isStartPoint(graph[v])) {
       auto path = determinePath(parentMap,
                                 Path(),
                                 endVertex,

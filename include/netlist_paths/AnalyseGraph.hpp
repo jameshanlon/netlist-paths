@@ -46,6 +46,7 @@ public:
   void mergeDuplicateVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
+  int maxNameLength(const Path &path) const;
   void dumpVertexNames() const;
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
