@@ -17,7 +17,6 @@ configure_file(definitions.hpp.in
                definitions.hpp)
 
 add_test_exe(TestCompileGraph compile_graph.cpp)
-add_test_exe(TestAnalyseGraph analyse_graph.cpp)
 
 # Pytest
 

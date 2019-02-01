@@ -11,7 +11,7 @@ module mux2
     unique case (i_sel)
     1'b0:    o_res = i_op_a;
     1'b1:    o_res = i_op_b;
-    default: o_res = {p_width{1'bx}}
+    default: o_res = {p_width{1'bx}};
     endcase
   end
 

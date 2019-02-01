@@ -2,6 +2,7 @@
 #define TESTS_DEFINITIONS_HPP
 
 constexpr const char *installPrefix = "${CMAKE_BINARY_DIR}/install/bin";
+constexpr const char *testPrefix = "${CMAKE_SOURCE_DIR}/tests";
 
 #endif // TESTS_DEFINITIONS_HPP
 
