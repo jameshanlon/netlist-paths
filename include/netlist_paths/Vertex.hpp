@@ -91,10 +91,11 @@ inline bool isReg(const VertexProperties &p) {
           p.type == VertexType::REG_SRC);
 }
 
-inline bool canIgnore(const std::string &name) {
+inline bool canIgnore(const VertexProperties &p) {
   // Ignore variables Verilator has introduced.
-  return name.find("__Vdly") != std::string::npos ||
-         name.find("__Vcell") != std::string::npos;
+  return p.name.find("__Vdly") != std::string::npos ||
+         p.name.find("__Vcell") != std::string::npos ||
+         p.name.find("__Vconc") != std::string::npos;
 }
 
 inline VertexType getVertexType(const std::string &type) {

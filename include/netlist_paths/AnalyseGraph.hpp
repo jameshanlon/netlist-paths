@@ -47,7 +47,8 @@ public:
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
   int maxNameLength(const Path &path) const;
-  void dumpVertexNames() const;
+  std::vector<VertexDesc> getNames() const;
+  void printNames(std::vector<VertexDesc> &names) const;
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
   VertexDesc getVertex(const std::string &name,
@@ -76,6 +77,8 @@ public:
   void addWaypoint(const std::string &name) {
     waypoints.push_back(getMidVertex(name));
   }
+  void clearWaypoints() { waypoints.clear(); }
+  const std::string &getVertexName(VertexDesc vertex) const { return graph[vertex].name; }
 };
 
 } // End namespace.

@@ -130,7 +130,8 @@ int main(int argc, char **argv) {
 
     // Dump netlist names.
     if (options.dumpNames) {
-      analyseGraph.dumpVertexNames();
+      auto vertices = analyseGraph.getNames();
+      analyseGraph.printNames(vertices);
       return 0;
     }
 

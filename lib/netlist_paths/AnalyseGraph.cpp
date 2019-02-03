@@ -272,12 +272,13 @@ void AnalyseGraph::checkGraph() const {
 }
 
 /// Dump unique names of vars/regs/wires in the netlist for searching.
-void AnalyseGraph::dumpVertexNames() const {
+std::vector<VertexDesc> AnalyseGraph::getNames() const {
   std::vector<VertexDesc> vs;
   // Collect vertices.
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (!isLogic(graph[v]) &&
         !isSrcReg(graph[v]) &&
+        !canIgnore(graph[v]) &&
         !graph[v].deleted) {
       vs.push_back(v);
     }
@@ -286,14 +287,18 @@ void AnalyseGraph::dumpVertexNames() const {
   auto compare = [this](const VertexDesc a, const VertexDesc b) {
                    return vertexCompare(a, b); };
   std::sort(vs.begin(), vs.end(), compare);
+  return vs;
+}
+
+void AnalyseGraph::printNames(std::vector<VertexDesc> &names) const {
   // Print the output.
-  int maxWidth = maxNameLength(vs) + 1;
+  int maxWidth = maxNameLength(names) + 1;
   std::cout << std::left << std::setw(maxWidth) << "Name"
             << std::left << std::setw(10)       << "Type"
             << std::left << std::setw(10)       << "Direction"
             << std::left << std::setw(10)       << "Width"
                                    << "Location\n";
-  for (auto v : vs) {
+  for (auto v : names) {
     auto type = getVertexTypeStr(graph[v].type);
     std::cout << std::left << std::setw(maxWidth) << graph[v].name
               << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
@@ -427,7 +432,7 @@ void AnalyseGraph::determineAllPaths(ParentMap &parentMap,
 int AnalyseGraph::maxNameLength(const Path &path) const {
   size_t maxLength = 0;
   for (auto v : path) {
-    if (canIgnore(graph[v].name))
+    if (canIgnore(graph[v]))
       continue;
     maxLength = std::max(maxLength, graph[v].name.size());
   }
@@ -439,9 +444,8 @@ void AnalyseGraph::printPathReport(const Path &path) const {
   int maxWidth = maxNameLength(path) + 1;
   // Print each vertex on the path.
   for (auto v : path) {
-    if (canIgnore(graph[v].name)) {
+    if (canIgnore(graph[v]))
       continue;
-    }
     auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
                                          : fs::path(graph[v].loc).filename();
     if (!options.reportLogic) {
