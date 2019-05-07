@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
                           ->value_name("name"),
                         "Through point")
       ("allpaths",      "Find all paths between two points (exponential time)")
+      ("startpoints",   "Only report start points")
+      ("endpoints",     "Only report end points")
       ("fanout",        "Determine the fan out degree to bit end points")
       ("fanin",         "Determine the fan in degree from bit start points")
       ("reportlogic",   "Display logic in path report")
@@ -76,16 +78,18 @@ int main(int argc, char **argv) {
                   options(allOptions).positional(p).run(), vm);
     options.debugMode     = vm.count("debug") > 0;
     options.verboseMode   = vm.count("verbose") > 0;
-    options.displayHelp   = vm.count("help");
-    options.dumpDotfile   = vm.count("dotfile");
-    options.dumpNames     = vm.count("dumpnames");
-    options.fanOutDegree  = vm.count("fanout");
-    options.fanInDegree   = vm.count("fanin");
-    options.allPaths      = vm.count("allpaths");
-    options.reportLogic   = vm.count("reportlogic");
-    options.fullFileNames = vm.count("filenames");
-    options.compile       = vm.count("compile");
-    options.boostParser   = vm.count("boostparser");
+    options.displayHelp   = vm.count("help") > 0;
+    options.dumpDotfile   = vm.count("dotfile") > 0;
+    options.dumpNames     = vm.count("dumpnames") > 0;
+    options.fanOutDegree  = vm.count("fanout") > 0;
+    options.fanInDegree   = vm.count("fanin") > 0;
+    options.allPaths      = vm.count("allpaths") > 0;
+    options.startPoints   = vm.count("startpoints") > 0;
+    options.endPoints     = vm.count("endpoints") > 0;
+    options.reportLogic   = vm.count("reportlogic") > 0;
+    options.fullFileNames = vm.count("filenames") > 0;
+    options.compile       = vm.count("compile") > 0;
+    options.boostParser   = vm.count("boostparser") > 0;
     if (options.displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
@@ -144,10 +148,19 @@ int main(int argc, char **argv) {
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for start only");
-      // Report the fan out degree from startName.
       if (options.fanOutDegree) {
-         std::cout << analyseGraph.getfanOutDegree(startName) << "\n";
-         return 0;
+        // Report the fan out degree from startName.
+        std::cout << analyseGraph.getfanOutDegree(startName) << "\n";
+        return 0;
+      } else if (options.endPoints) {
+        // Report the end points.
+        auto paths = analyseGraph.getAllFanOut(startName);
+        netlist_paths::Path fanOutEndPoints;
+        for (auto &path : paths) {
+          fanOutEndPoints.push_back(path.back());
+        }
+        analyseGraph.printPathReport(fanOutEndPoints);
+        return 0;
       }
       // Report paths fanning out from startName.
       auto paths = analyseGraph.getAllFanOut(startName);
@@ -159,10 +172,17 @@ int main(int argc, char **argv) {
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for end only");
-      // Report the fan in degree to endName.
       if (options.fanInDegree) {
-         std::cout << analyseGraph.getFanInDegree(endName) << "\n";
-         return 0;
+        // Report the fan in degree to endName.
+        std::cout << analyseGraph.getFanInDegree(endName) << "\n";
+        return 0;
+      } else if (options.startPoints) {
+        // Report the start points.
+        auto paths = analyseGraph.getAllFanIn(endName);
+        for (auto &path : paths) {
+          analyseGraph.printPathReport({path.front()});
+        }
+        return 0;
       }
       // Report paths fanning in to endName.
       auto paths = analyseGraph.getAllFanIn(endName);

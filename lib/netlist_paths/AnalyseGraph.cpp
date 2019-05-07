@@ -297,14 +297,16 @@ void AnalyseGraph::printNames(std::vector<VertexDesc> &names) const {
             << std::left << std::setw(10)       << "Type"
             << std::left << std::setw(10)       << "Direction"
             << std::left << std::setw(10)       << "Width"
-                                   << "Location\n";
+                                                << "Location\n";
   for (auto v : names) {
     auto type = getVertexTypeStr(graph[v].type);
+    auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
+                                         : fs::path(graph[v].loc).filename();
     std::cout << std::left << std::setw(maxWidth) << graph[v].name
               << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
               << std::left << std::setw(10)       << getVertexDirectionStr(graph[v].dir)
               << std::left << std::setw(10)       << graph[v].width
-                                                  << graph[v].loc
+                                                  << srcPath.string()
               << "\n";
   }
 }

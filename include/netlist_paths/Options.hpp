@@ -14,6 +14,8 @@ struct Options {
   bool dumpDotfile;
   bool dumpNames;
   bool allPaths;
+  bool startPoints;
+  bool endPoints;
   bool fanOutDegree;
   bool fanInDegree;
   bool reportLogic;
@@ -27,6 +29,8 @@ struct Options {
       dumpDotfile(false),
       dumpNames(false),
       allPaths(false),
+      startPoints(false),
+      endPoints(false),
       fanOutDegree(false),
       fanInDegree(false),
       reportLogic(false),
