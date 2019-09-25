@@ -11,7 +11,7 @@
 
 namespace netlist_paths {
 
-}; // End namespace.
+} // End namespace.
 
 #endif // NETLIST_PATHS_UTILITIES_HPP
 

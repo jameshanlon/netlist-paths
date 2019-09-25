@@ -180,7 +180,8 @@ int main(int argc, char **argv) {
         // Report the start points.
         auto paths = analyseGraph.getAllFanIn(endName);
         for (auto &path : paths) {
-          analyseGraph.printPathReport({path.front()});
+           const netlist_paths::Path newPath = {path.front()};
+           analyseGraph.printPathReport(newPath);
         }
         return 0;
       }
