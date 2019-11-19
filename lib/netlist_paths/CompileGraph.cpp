@@ -15,12 +15,12 @@ using namespace netlist_paths;
 CompileGraph::CompileGraph() {
   // Locate the Verilator binary relative to this program.
   fs::path programLocation = boost::dll::program_location().parent_path();
-  verilatorExe = programLocation / fs::path("verilator_bin");
+  verilatorExe = programLocation / fs::path("np-verilator_bin");
 }
 
 CompileGraph::CompileGraph(const std::string &binLocation) {
   // Use a specific location to find Verilator.
-  verilatorExe = fs::path(binLocation) / fs::path("verilator_bin");
+  verilatorExe = fs::path(binLocation) / fs::path("np-verilator_bin");
 }
 
 /// Use Verilator to compile a graph of the flattened Verilog netlist.

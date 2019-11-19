@@ -40,3 +40,10 @@ ExternalProject_Add(Verilator
   BUILD_ALWAYS 1
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   INSTALL_COMMAND make install)
+# Rename Verilator binaries to differentiate from other installed versions.
+ExternalProject_Add_Step(Verilator add_executable_prefix
+  COMMAND ${CMAKE_COMMAND}
+            -DEXECUTABLE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/bin
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/add_executable_prefix.cmake
+  COMMENT "Adding Verilator executable prefix"
+  ALWAYS 1)
