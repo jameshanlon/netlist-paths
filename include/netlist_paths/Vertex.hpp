@@ -18,7 +18,8 @@ enum VertexType {
   REG_DST,
   VAR,
   WIRE,
-  PORT
+  PORT,
+  CFUNC
 };
 
 enum VertexDirection {
@@ -109,6 +110,7 @@ inline VertexType getVertexType(const std::string &type) {
   else if (type == "VAR")     return VertexType::VAR;
   else if (type == "WIRE")    return VertexType::WIRE;
   else if (type == "PORT")    return VertexType::PORT;
+  else if (type == "CFUNC")   return VertexType::CFUNC;
   else {
     throw Exception(std::string("unexpected vertex type: ")+type);
   }
@@ -126,6 +128,7 @@ inline const char *getVertexTypeStr(VertexType type) {
     case VertexType::VAR:     return "VAR";
     case VertexType::WIRE:    return "WIRE";
     case VertexType::PORT:    return "PORT";
+    case VertexType::CFUNC:   return "CFUNC";
     default:                  return "UNKNOWN";
   }
 }
