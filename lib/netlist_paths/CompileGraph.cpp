@@ -6,7 +6,7 @@
 #include <boost/process.hpp>
 #include "netlist_paths/CompileGraph.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/utilities.hpp"
+#include "netlist_paths/Debug.hpp"
 
 namespace bp = boost::process;
 

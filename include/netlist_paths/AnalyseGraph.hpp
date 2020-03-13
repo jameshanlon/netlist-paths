@@ -7,6 +7,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include "netlist_paths/Vertex.hpp"
 
+char const* greet();
+
 namespace netlist_paths {
 
 using Graph = boost::adjacency_list<boost::vecS,

@@ -2,25 +2,34 @@ cmake_minimum_required(VERSION 3.12.0)
 project(netlist-paths)
 include(ExternalProject)
 enable_testing()
-set(Boost_USE_STATIC_LIBS ON)
+#set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)
+find_package(Python REQUIRED COMPONENTS
+             Interpreter
+             Development)
 find_package(Boost 1.68.0 REQUIRED COMPONENTS
              graph
              regex
              program_options
              system
              filesystem
+             python
              unit_test_framework)
+message(STATUS "Python_LIBRARIES    = ${Python_LIBRARIES}")
+message(STATUS "Python_EXECUTABLE   = ${Python_EXECUTABLE}")
+message(STATUS "Python_INCLUDE_DIRS = ${Python_INCLUDE_DIRS}")
+message(STATUS "Boost_INCLUDE_DIRS  = ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARIES     = ${Boost_LIBRARIES}")
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS}
+                    ${Python_INCLUDE_DIRS})
 add_executable(netlist-paths main.cpp)
 target_compile_options(netlist-paths PUBLIC -Wall -pedantic -march=native)
 target_link_libraries(netlist-paths
-  netlist_paths
-  ${Boost_LIBRARIES}
-  ${CMAKE_DL_LIBS} # Required for Boost_DLL
-  pthread)
+    netlist_paths_static)
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # Set default install prefix.
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "..." FORCE)

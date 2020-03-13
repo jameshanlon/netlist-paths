@@ -17,7 +17,11 @@
 #include "netlist_paths/AnalyseGraph.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/utilities.hpp"
+#include "netlist_paths/Debug.hpp"
+
+char const* greet() {
+  return "hello, world";
+}
 
 namespace fs = boost::filesystem;
 using namespace netlist_paths;
@@ -201,7 +205,7 @@ void AnalyseGraph::parseFile(const std::string &filename) {
   if (!infile.is_open()) {
     throw Exception("could not open file");
   }
-  if (options.boostParser) {
+  if (netlist_paths::options.boostParser) {
     // FIXME: this does not set topName from the digraph declaration.
     if (!boost::read_graphviz(infile, graph, dp))
       throw Exception(std::string("reading graph file: ")+filename);
@@ -300,8 +304,8 @@ void AnalyseGraph::printNames(std::vector<VertexDesc> &names) const {
                                                 << "Location\n";
   for (auto v : names) {
     auto type = getVertexTypeStr(graph[v].type);
-    auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
-                                         : fs::path(graph[v].loc).filename();
+    auto srcPath = netlist_paths::options.fullFileNames ? fs::path(graph[v].loc)
+                                                        : fs::path(graph[v].loc).filename();
     std::cout << std::left << std::setw(maxWidth) << graph[v].name
               << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
               << std::left << std::setw(10)       << getVertexDirectionStr(graph[v].dir)
@@ -448,9 +452,9 @@ void AnalyseGraph::printPathReport(const Path &path) const {
   for (auto v : path) {
     if (canIgnore(graph[v]))
       continue;
-    auto srcPath = options.fullFileNames ? fs::path(graph[v].loc)
-                                         : fs::path(graph[v].loc).filename();
-    if (!options.reportLogic) {
+    auto srcPath = netlist_paths::options.fullFileNames ? fs::path(graph[v].loc)
+                                                        : fs::path(graph[v].loc).filename();
+    if (!netlist_paths::options.reportLogic) {
       if (!isLogic(graph[v])) {
         std::cout << "  " << std::left
                   << std::setw(maxWidth)

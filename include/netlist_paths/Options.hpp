@@ -23,8 +23,8 @@ struct Options {
   bool compile;
   bool boostParser;
   Options() :
-      debugMode(false),
-      verboseMode(false),
+      debugMode(true),
+      verboseMode(true),
       displayHelp(false),
       dumpDotfile(false),
       dumpNames(false),
@@ -39,8 +39,8 @@ struct Options {
       boostParser(false) {}
 };
 
-} // End netlist_paths namespace.
-
 extern netlist_paths::Options options;
+
+} // End netlist_paths namespace.
 
 #endif // NETLIST_PATHS_OPTIONS_HPP

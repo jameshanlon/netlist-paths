@@ -1,5 +1,8 @@
 #define BOOST_TEST_MODULE compile_graph
 
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+
 #include <fstream>
 #include <iostream>
 #include <string>

@@ -10,12 +10,10 @@
 #include "netlist_paths/CompileGraph.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/utilities.hpp"
+#include "netlist_paths/Debug.hpp"
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
-
-netlist_paths::Options options;
 
 int main(int argc, char **argv) {
   try {
@@ -76,21 +74,21 @@ int main(int argc, char **argv) {
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
-    options.debugMode     = vm.count("debug") > 0;
-    options.verboseMode   = vm.count("verbose") > 0;
-    options.displayHelp   = vm.count("help") > 0;
-    options.dumpDotfile   = vm.count("dotfile") > 0;
-    options.dumpNames     = vm.count("dumpnames") > 0;
-    options.fanOutDegree  = vm.count("fanout") > 0;
-    options.fanInDegree   = vm.count("fanin") > 0;
-    options.allPaths      = vm.count("allpaths") > 0;
-    options.startPoints   = vm.count("startpoints") > 0;
-    options.endPoints     = vm.count("endpoints") > 0;
-    options.reportLogic   = vm.count("reportlogic") > 0;
-    options.fullFileNames = vm.count("filenames") > 0;
-    options.compile       = vm.count("compile") > 0;
-    options.boostParser   = vm.count("boostparser") > 0;
-    if (options.displayHelp) {
+    netlist_paths::options.debugMode     = vm.count("debug") > 0;
+    netlist_paths::options.verboseMode   = vm.count("verbose") > 0;
+    netlist_paths::options.displayHelp   = vm.count("help") > 0;
+    netlist_paths::options.dumpDotfile   = vm.count("dotfile") > 0;
+    netlist_paths::options.dumpNames     = vm.count("dumpnames") > 0;
+    netlist_paths::options.fanOutDegree  = vm.count("fanout") > 0;
+    netlist_paths::options.fanInDegree   = vm.count("fanin") > 0;
+    netlist_paths::options.allPaths      = vm.count("allpaths") > 0;
+    netlist_paths::options.startPoints   = vm.count("startpoints") > 0;
+    netlist_paths::options.endPoints     = vm.count("endpoints") > 0;
+    netlist_paths::options.reportLogic   = vm.count("reportlogic") > 0;
+    netlist_paths::options.fullFileNames = vm.count("filenames") > 0;
+    netlist_paths::options.compile       = vm.count("compile") > 0;
+    netlist_paths::options.boostParser   = vm.count("boostparser") > 0;
+    if (netlist_paths::options.displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
       std::cout << genericOptions << "\n";
@@ -99,7 +97,7 @@ int main(int argc, char **argv) {
     notify(vm);
 
     // Call Verilator to produce graph file.
-    if (options.compile) {
+    if (netlist_paths::options.compile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
          outputFilename += ".graph";
       auto includes = vm.count("include")
@@ -125,7 +123,7 @@ int main(int argc, char **argv) {
     analyseGraph.checkGraph();
 
     // Dump dot file.
-    if (options.dumpDotfile) {
+    if (netlist_paths::options.dumpDotfile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
          outputFilename += ".dot";
       analyseGraph.dumpDotFile(outputFilename);
@@ -133,7 +131,7 @@ int main(int argc, char **argv) {
     }
 
     // Dump netlist names.
-    if (options.dumpNames) {
+    if (netlist_paths::options.dumpNames) {
       auto vertices = analyseGraph.getNames();
       analyseGraph.printNames(vertices);
       return 0;
@@ -148,11 +146,11 @@ int main(int argc, char **argv) {
     if (!startName.empty() && endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for start only");
-      if (options.fanOutDegree) {
+      if (netlist_paths::options.fanOutDegree) {
         // Report the fan out degree from startName.
         std::cout << analyseGraph.getfanOutDegree(startName) << "\n";
         return 0;
-      } else if (options.endPoints) {
+      } else if (netlist_paths::options.endPoints) {
         // Report the end points.
         auto paths = analyseGraph.getAllFanOut(startName);
         netlist_paths::Path fanOutEndPoints;
@@ -172,11 +170,11 @@ int main(int argc, char **argv) {
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
         throw netlist_paths::Exception("through points not supported for end only");
-      if (options.fanInDegree) {
+      if (netlist_paths::options.fanInDegree) {
         // Report the fan in degree to endName.
         std::cout << analyseGraph.getFanInDegree(endName) << "\n";
         return 0;
-      } else if (options.startPoints) {
+      } else if (netlist_paths::options.startPoints) {
         // Report the start points.
         auto paths = analyseGraph.getAllFanIn(endName);
         for (auto &path : paths) {
@@ -199,7 +197,7 @@ int main(int argc, char **argv) {
     analyseGraph.addEndpoint(endName);
 
     // Report all paths between two points.
-    if (options.allPaths) {
+    if (netlist_paths::options.allPaths) {
       auto paths = analyseGraph.getAllPointToPoint();
       analyseGraph.printPathReport(paths);
       return 0;
@@ -214,3 +212,4 @@ int main(int argc, char **argv) {
     return 1;
   }
 }
+
