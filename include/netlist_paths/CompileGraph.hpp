@@ -20,6 +20,8 @@ public:
           const std::vector<std::string> &defines,
           const std::vector<std::string> &inputFiles,
           const std::string &outputFile) const;
+  int run(const std::string& inputFile,
+          const std::string& outputFile) const;
 };
 
 } // End namespace.

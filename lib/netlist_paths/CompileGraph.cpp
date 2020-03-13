@@ -44,3 +44,9 @@ int CompileGraph::run(const std::vector<std::string> &includes,
   INFO(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
   return bp::system(verilatorExe, bp::args(args));
 }
+
+/// A specialistion of run used for testing.
+int CompileGraph::run(const std::string& inputFile, const std::string& outputFile) const {
+  auto inputFiles = {inputFile};
+  return run({}, {}, inputFiles, outputFile);
+}

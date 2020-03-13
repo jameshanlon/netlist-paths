@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12.0)
 project(netlist-paths)
 include(ExternalProject)
-enable_testing()
 #set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Python REQUIRED COMPONENTS
@@ -21,24 +20,23 @@ message(STATUS "Python_INCLUDE_DIRS = ${Python_INCLUDE_DIRS}")
 message(STATUS "Boost_INCLUDE_DIRS  = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARIES     = ${Boost_LIBRARIES}")
 
+# CXX compiler
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-include_directories(${Boost_INCLUDE_DIRS}
-                    ${Python_INCLUDE_DIRS})
-add_executable(netlist-paths main.cpp)
-target_compile_options(netlist-paths PUBLIC -Wall -pedantic -march=native)
-target_link_libraries(netlist-paths
-    netlist_paths_static)
+add_compile_options(-Wall -pedantic -march=native)
+
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # Set default install prefix.
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "..." FORCE)
 endif()
-install(TARGETS netlist-paths
-        DESTINATION bin)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_subdirectory(lib)
-add_subdirectory(tests)
+
+include_directories(${Boost_INCLUDE_DIRS}
+                    ${Python_INCLUDE_DIRS}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+enable_testing()
+
 # Verilator
 ExternalProject_Add(Verilator
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/verilator
@@ -49,6 +47,7 @@ ExternalProject_Add(Verilator
   BUILD_ALWAYS 1
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   INSTALL_COMMAND make install)
+
 # Rename Verilator binaries to differentiate from other installed versions.
 ExternalProject_Add_Step(Verilator add_executable_prefix
   COMMAND ${CMAKE_COMMAND}
@@ -56,3 +55,7 @@ ExternalProject_Add_Step(Verilator add_executable_prefix
             -P ${CMAKE_CURRENT_SOURCE_DIR}/add_executable_prefix.cmake
   COMMENT "Adding Verilator executable prefix"
   ALWAYS 1)
+
+add_subdirectory(lib)
+add_subdirectory(tools)
+add_subdirectory(tests)

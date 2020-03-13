@@ -8,7 +8,7 @@ Install dependencies:
 ```
 C/C++ compiler
 CMake (minimum 3.12.0)
-Boost
+Boost (minimum 1.68.0)
 ```
 Install Verilator dependencies:
 ```
@@ -23,6 +23,7 @@ git submodule update --init --recursive
 mkdir Debug
 cd Debug
 cmake .. -DCMAKE_BUILD_TYPE=Debug
-make -j8 install
-ctest
+make -j8
+make install
+ctest . --verbose
 ```

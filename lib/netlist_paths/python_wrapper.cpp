@@ -7,9 +7,11 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   using namespace boost::python;
   using namespace netlist_paths;
 
+  int (CompileGraph::*run)(const std::string&, const std::string&) const = &CompileGraph::run;
+
   class_<CompileGraph>("CompileGraph")
     .def(init<const std::string&>())
-    .def("run", &CompileGraph::run);
+    .def("run", run);
 
   class_<AnalyseGraph>("AnalyseGraph")
     .def("parseFile", &AnalyseGraph::parseFile);
