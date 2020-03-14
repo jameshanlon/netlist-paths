@@ -1,5 +1,5 @@
 #include <boost/python.hpp>
-#include "netlist_paths/AnalyseGraph.hpp"
+#include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/CompileGraph.hpp"
 
 BOOST_PYTHON_MODULE(py_netlist_paths)
@@ -13,6 +13,6 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def(init<const std::string&>())
     .def("run", run);
 
-  class_<AnalyseGraph>("AnalyseGraph")
-    .def("parseFile", &AnalyseGraph::parseFile);
+  class_<Netlist>("Netlist")
+    .def("parseFile", &Netlist::parseFile);
 }

@@ -6,7 +6,7 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include "netlist_paths/AnalyseGraph.hpp"
+#include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/CompileGraph.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
@@ -113,27 +113,27 @@ int main(int argc, char **argv) {
                               outputFilename);
     }
 
-    netlist_paths::AnalyseGraph analyseGraph;
+    netlist_paths::Netlist netlist;
 
     // Parse the input file.
     if (inputFiles.size() > 1)
       throw netlist_paths::Exception("multiple graph files specified");
-    analyseGraph.parseFile(inputFiles.front());
-    analyseGraph.mergeDuplicateVertices();
-    analyseGraph.checkGraph();
+    netlist.parseFile(inputFiles.front());
+    netlist.mergeDuplicateVertices();
+    netlist.checkGraph();
 
     // Dump dot file.
     if (netlist_paths::options.dumpDotfile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
          outputFilename += ".dot";
-      analyseGraph.dumpDotFile(outputFilename);
+      netlist.dumpDotFile(outputFilename);
       return 0;
     }
 
     // Dump netlist names.
     if (netlist_paths::options.dumpNames) {
-      auto vertices = analyseGraph.getNames();
-      analyseGraph.printNames(vertices);
+      auto vertices = netlist.getNames();
+      netlist.printNames(vertices);
       return 0;
     }
 
@@ -148,21 +148,21 @@ int main(int argc, char **argv) {
         throw netlist_paths::Exception("through points not supported for start only");
       if (netlist_paths::options.fanOutDegree) {
         // Report the fan out degree from startName.
-        std::cout << analyseGraph.getfanOutDegree(startName) << "\n";
+	std::cout << netlist.getfanOutDegree(startName) << "\n";
         return 0;
       } else if (netlist_paths::options.endPoints) {
         // Report the end points.
-        auto paths = analyseGraph.getAllFanOut(startName);
+	auto paths = netlist.getAllFanOut(startName);
         netlist_paths::Path fanOutEndPoints;
         for (auto &path : paths) {
           fanOutEndPoints.push_back(path.back());
         }
-        analyseGraph.printPathReport(fanOutEndPoints);
+	netlist.printPathReport(fanOutEndPoints);
         return 0;
       }
       // Report paths fanning out from startName.
-      auto paths = analyseGraph.getAllFanOut(startName);
-      analyseGraph.printPathReport(paths);
+      auto paths = netlist.getAllFanOut(startName);
+      netlist.printPathReport(paths);
       return 0;
     }
 
@@ -172,40 +172,40 @@ int main(int argc, char **argv) {
         throw netlist_paths::Exception("through points not supported for end only");
       if (netlist_paths::options.fanInDegree) {
         // Report the fan in degree to endName.
-        std::cout << analyseGraph.getFanInDegree(endName) << "\n";
+	std::cout << netlist.getFanInDegree(endName) << "\n";
         return 0;
       } else if (netlist_paths::options.startPoints) {
         // Report the start points.
-        auto paths = analyseGraph.getAllFanIn(endName);
+	auto paths = netlist.getAllFanIn(endName);
         for (auto &path : paths) {
            const netlist_paths::Path newPath = {path.front()};
-           analyseGraph.printPathReport(newPath);
+	   netlist.printPathReport(newPath);
         }
         return 0;
       }
       // Report paths fanning in to endName.
-      auto paths = analyseGraph.getAllFanIn(endName);
-      analyseGraph.printPathReport(paths);
+      auto paths = netlist.getAllFanIn(endName);
+      netlist.printPathReport(paths);
       return 0;
     }
 
     // Compile path waypoints.
-    analyseGraph.addStartpoint(startName);
+    netlist.addStartpoint(startName);
     for (auto &throughName : throughNames) {
-      analyseGraph.addWaypoint(throughName);
+      netlist.addWaypoint(throughName);
     }
-    analyseGraph.addEndpoint(endName);
+    netlist.addEndpoint(endName);
 
     // Report all paths between two points.
     if (netlist_paths::options.allPaths) {
-      auto paths = analyseGraph.getAllPointToPoint();
-      analyseGraph.printPathReport(paths);
+      auto paths = netlist.getAllPointToPoint();
+      netlist.printPathReport(paths);
       return 0;
     }
 
     // Report a path between two points.
-    auto path = analyseGraph.getAnyPointToPoint();
-    analyseGraph.printPathReport(path);
+    auto path = netlist.getAnyPointToPoint();
+    netlist.printPathReport(path);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";

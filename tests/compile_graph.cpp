@@ -10,7 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 #include "netlist_paths/CompileGraph.hpp"
-#include "netlist_paths/AnalyseGraph.hpp"
+#include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/Options.hpp"
 #include "tests/definitions.hpp"
 
@@ -20,7 +20,7 @@ netlist_paths::Options options;
 
 struct TestContext {
   TestContext() {}
-  netlist_paths::AnalyseGraph analyseGraph;
+  netlist_paths::Netlist netlist;
   void compile(const std::string &inFilename) {
     auto testPath = fs::path(testPrefix) / inFilename;
     std::vector<std::string> includes = {};
@@ -32,34 +32,34 @@ struct TestContext {
                      defines,
                      inputFiles,
                      outTemp.native());
-    analyseGraph.parseFile(outTemp.native());
-    analyseGraph.mergeDuplicateVertices();
-    analyseGraph.checkGraph();
+    netlist.parseFile(outTemp.native());
+    netlist.mergeDuplicateVertices();
+    netlist.checkGraph();
     fs::remove(outTemp);
   }
   /// Check all names are unique.
   void uniqueNames() {
-    auto vertices = analyseGraph.getNames();
+    auto vertices = netlist.getNames();
     std::vector<std::string> names;
     for (auto v : vertices)
-      names.push_back(analyseGraph.getVertexName(v));
+      names.push_back(netlist.getVertexName(v));
     auto last = std::unique(std::begin(names), std::end(names));
     names.erase(last, std::end(names));
     BOOST_TEST(vertices.size() == names.size());
   }
   /// Check all names are qualified with the top module name.
   void qualifiedNames(const char *topName) {
-    for (auto v : analyseGraph.getNames()) {
-      BOOST_TEST(boost::starts_with(analyseGraph.getVertexName(v), topName));
+    for (auto v : netlist.getNames()) {
+      BOOST_TEST(boost::starts_with(netlist.getVertexName(v), topName));
     }
   }
   /// Check if a path exists.
   bool pathExists(const std::string &start,
                   const std::string &end) {
-    analyseGraph.clearWaypoints();
-    analyseGraph.addStartpoint(start);
-    analyseGraph.addEndpoint(end);
-    auto path = analyseGraph.getAnyPointToPoint();
+    netlist.clearWaypoints();
+    netlist.addStartpoint(start);
+    netlist.addEndpoint(end);
+    auto path = netlist.getAnyPointToPoint();
     return !path.empty();
   }
 };

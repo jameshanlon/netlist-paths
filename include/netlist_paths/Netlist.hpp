@@ -1,5 +1,5 @@
-#ifndef NETLIST_PATHS_ANALYSE_GRAPH_HPP
-#define NETLIST_PATHS_ANALYSE_GRAPH_HPP
+#ifndef NETLIST_PATHS_NETLIST_HPP
+#define NETLIST_PATHS_NETLIST_HPP
 
 #include <string>
 #include <vector>
@@ -7,19 +7,17 @@
 #include <boost/graph/adjacency_list.hpp>
 #include "netlist_paths/Vertex.hpp"
 
-char const* greet();
-
 namespace netlist_paths {
 
 using Graph = boost::adjacency_list<boost::vecS,
-                                    boost::vecS,
-                                    boost::bidirectionalS,
-                                    VertexProperties>;
+				    boost::vecS,
+				    boost::bidirectionalS,
+				    VertexProperties>;
 using VertexDesc = boost::graph_traits<Graph>::vertex_descriptor;
 using ParentMap = std::map<VertexDesc, std::vector<VertexDesc>>;
 using Path = std::vector<VertexDesc>;
 
-class AnalyseGraph {
+class Netlist {
 private:
   Graph graph;
   boost::dynamic_properties dp;
@@ -32,17 +30,17 @@ private:
   VertexDesc getVertexDesc(const std::string &name, VertexType type) const;
   void dumpPath(const Path &path) const;
   Path determinePath(ParentMap &parentMap,
-                     Path path,
-                     VertexDesc startVertexId,
-                     VertexDesc endVertexId) const;
+		     Path path,
+		     VertexDesc startVertexId,
+		     VertexDesc endVertexId) const;
   void determineAllPaths(ParentMap &parentMap,
-                         std::vector<Path> &result,
-                         Path path,
-                         VertexDesc startVertex,
-                         VertexDesc endVertex) const;
+			 std::vector<Path> &result,
+			 Path path,
+			 VertexDesc startVertex,
+			 VertexDesc endVertex) const;
 
 public:
-  AnalyseGraph();
+  Netlist();
   bool parseGraphViz(std::istream &in);
   void parseFile(const std::string &filename);
   void mergeDuplicateVertices();
@@ -54,7 +52,7 @@ public:
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
   VertexDesc getVertex(const std::string &name,
-                       const std::vector<VertexType> &types) const;
+		       const std::vector<VertexType> &types) const;
   VertexDesc getStartVertex(const std::string &name) const;
   VertexDesc getEndVertex(const std::string &name) const;
   VertexDesc getMidVertex(const std::string &name) const;
@@ -85,4 +83,4 @@ public:
 
 } // End namespace.
 
-#endif // NETLIST_PATHS_ANALYSE_GRAPH_HPP
+#endif // NETLIST_PATHS_NETLIST_HPP

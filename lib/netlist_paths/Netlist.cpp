@@ -14,14 +14,10 @@
 #include <boost/graph/iteration_macros.hpp>
 #include <boost/graph/reverse_graph.hpp>
 #include <boost/tokenizer.hpp>
-#include "netlist_paths/AnalyseGraph.hpp"
+#include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/Debug.hpp"
-
-char const* greet() {
-  return "hello, world";
-}
 
 namespace fs = boost::filesystem;
 using namespace netlist_paths;
@@ -78,7 +74,7 @@ namespace boost {
   }
 } // End boost namespace.
 
-AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
+Netlist::Netlist() : dp(boost::ignore_other_properties) {
   // Initialise dynamic propery maps for the graph.
   dp.property("id",      boost::get(&VertexProperties::id,      graph));
   dp.property("type",    boost::get(&VertexProperties::type,    graph));
@@ -90,8 +86,8 @@ AnalyseGraph::AnalyseGraph() : dp(boost::ignore_other_properties) {
   dp.property("deleted", boost::get(&VertexProperties::deleted, graph));
 }
 
-bool AnalyseGraph::vertexCompare(const VertexDesc a,
-                                 const VertexDesc b) const {
+bool Netlist::vertexCompare(const VertexDesc a,
+				 const VertexDesc b) const {
   if (graph[a].deleted < graph[b].deleted) return true;
   if (graph[b].deleted < graph[a].deleted) return false;
   if (graph[a].name    < graph[b].name)    return true;
@@ -107,91 +103,91 @@ bool AnalyseGraph::vertexCompare(const VertexDesc a,
   return false;
 }
 
-bool AnalyseGraph::vertexEqual(const VertexDesc a,
-                               const VertexDesc b) const {
+bool Netlist::vertexEqual(const VertexDesc a,
+			       const VertexDesc b) const {
   return graph[a].name    == graph[b].name &&
-         graph[a].type    == graph[b].type &&
-         graph[a].dir     == graph[b].dir &&
-         graph[a].width   == graph[b].width &&
-         graph[a].loc     == graph[b].loc &&
-         graph[a].deleted == graph[b].deleted;
+	 graph[a].type    == graph[b].type &&
+	 graph[a].dir     == graph[b].dir &&
+	 graph[a].width   == graph[b].width &&
+	 graph[a].loc     == graph[b].loc &&
+	 graph[a].deleted == graph[b].deleted;
 }
 
 /// Simplistic but fast implementation of the GraphViz file parser.
-bool AnalyseGraph::parseGraphViz(std::istream &in) {
+bool Netlist::parseGraphViz(std::istream &in) {
   std::string line;
   while (std::getline(in, line)) {
     auto openBracePos = line.find_first_of('[');
     auto closeBracePos = line.find_last_of(']');
     // Declaration
     if (line.find("digraph") != std::string::npos &&
-        boost::num_vertices(graph) == 0) {
+	boost::num_vertices(graph) == 0) {
       std::vector<std::string> tokens;
       boost::trim_if(line, boost::is_any_of(" \t"));
       boost::split(tokens, line,
-                   boost::is_any_of(" \t;"),
-                   boost::token_compress_on);
+		   boost::is_any_of(" \t;"),
+		   boost::token_compress_on);
       topName.assign(tokens[1]);
     // Edges
     } else if (line.find("->") != std::string::npos) {
       std::vector<std::string> tokens;
       boost::trim_if(line, boost::is_any_of(" \t"));
       boost::split(tokens, line,
-                   boost::is_any_of(" \t;"),
-                   boost::token_compress_on);
+		   boost::is_any_of(" \t;"),
+		   boost::token_compress_on);
       auto src = static_cast<VertexDesc>(std::stoull(tokens[0].substr(1)));
       auto dst = static_cast<VertexDesc>(std::stoull(tokens[2].substr(1)));
       boost::add_edge(src, dst, graph);
     // Vertices
     } else if (openBracePos != std::string::npos &&
-               closeBracePos != std::string::npos) {
+	       closeBracePos != std::string::npos) {
       auto v = boost::add_vertex(graph);
       auto nPos = line.find_first_of('n');
       std::string vertex = line.substr(nPos+1,
-                                       openBracePos-nPos-1);
+				       openBracePos-nPos-1);
       auto vertexNumber = std::stoull(vertex);
       // Sanity check the format/ordering of the file.
       assert(boost::num_vertices(graph) == vertexNumber+1);
       assert(boost::num_edges(graph) == 0);
       std::string attributes = line.substr(openBracePos+1,
-                                           closeBracePos-openBracePos-1);
+					   closeBracePos-openBracePos-1);
       // Attributes.
       using tokenizer = boost::tokenizer<boost::escaped_list_separator<char>>;
       tokenizer tokens(attributes,
-                       boost::escaped_list_separator<char>("\\", ",", "\""));
+		       boost::escaped_list_separator<char>("\\", ",", "\""));
       for (auto &token : tokens) {
-        // Get Key.
-        auto equalsPos = token.find_first_of('=');
-        auto key = token.substr(0, equalsPos);
-        boost::trim_if(key, boost::is_any_of(" \t"));
-        // Get value.
-        auto quoteFirstPos = token.find_first_of('"');
-        auto quoteLastPos = token.find_last_of('"');
-        std::string value;
-        if (quoteFirstPos != std::string::npos &&
-            quoteLastPos != std::string::npos) {
-          value = token.substr(quoteFirstPos+1, quoteLastPos-quoteFirstPos-1);
-        } else {
-          value = token.substr(equalsPos+1);
-        }
-        // Set the graph attribute.
-        if (key == "id") {
-          auto idNumber = std::stoull(value);
-          assert(vertexNumber == idNumber);
-          graph[v].id = idNumber;
-        } else if (key == "type") {
-          graph[v].type = boost::lexical_cast<VertexType>(value);
-        } else if (key == "dir") {
-          graph[v].dir = boost::lexical_cast<VertexDirection>(value);
-        } else if (key == "width") {
-          graph[v].width = std::stoul(value);
-        } else if (key == "name") {
-          // Top level ports can appear with and without heirarchical paths,
-          // canonicalise their path to merge these vertices as duplicates.
-          graph[v].name.assign(expandName(topName, value));
-        } else if (key == "loc") {
-          graph[v].loc.assign(value);
-        }
+	// Get Key.
+	auto equalsPos = token.find_first_of('=');
+	auto key = token.substr(0, equalsPos);
+	boost::trim_if(key, boost::is_any_of(" \t"));
+	// Get value.
+	auto quoteFirstPos = token.find_first_of('"');
+	auto quoteLastPos = token.find_last_of('"');
+	std::string value;
+	if (quoteFirstPos != std::string::npos &&
+	    quoteLastPos != std::string::npos) {
+	  value = token.substr(quoteFirstPos+1, quoteLastPos-quoteFirstPos-1);
+	} else {
+	  value = token.substr(equalsPos+1);
+	}
+	// Set the graph attribute.
+	if (key == "id") {
+	  auto idNumber = std::stoull(value);
+	  assert(vertexNumber == idNumber);
+	  graph[v].id = idNumber;
+	} else if (key == "type") {
+	  graph[v].type = boost::lexical_cast<VertexType>(value);
+	} else if (key == "dir") {
+	  graph[v].dir = boost::lexical_cast<VertexDirection>(value);
+	} else if (key == "width") {
+	  graph[v].width = std::stoul(value);
+	} else if (key == "name") {
+	  // Top level ports can appear with and without heirarchical paths,
+	  // canonicalise their path to merge these vertices as duplicates.
+	  graph[v].name.assign(expandName(topName, value));
+	} else if (key == "loc") {
+	  graph[v].loc.assign(value);
+	}
       }
     }
   }
@@ -199,7 +195,7 @@ bool AnalyseGraph::parseGraphViz(std::istream &in) {
 }
 
 /// Parse a graph input file and return a list of Vertices and a list of Edges.
-void AnalyseGraph::parseFile(const std::string &filename) {
+void Netlist::parseFile(const std::string &filename) {
   INFO(std::cout << "Parsing input file\n");
   std::fstream infile(filename);
   if (!infile.is_open()) {
@@ -219,20 +215,20 @@ void AnalyseGraph::parseFile(const std::string &filename) {
     graph[v].isTop = netlist_paths::determineIsTop(graph[v].name);
   }
   INFO(std::cout << "Netlist contains " << boost::num_vertices(graph)
-                 << " vertices and " << boost::num_edges(graph)
-                 << " edges\n");
+		 << " vertices and " << boost::num_edges(graph)
+		 << " edges\n");
 }
 
 /// Remove duplicate vertices from the graph by sorting them comparing each
 /// vertex to its neighbours.
-void AnalyseGraph::mergeDuplicateVertices() {
+void Netlist::mergeDuplicateVertices() {
   std::vector<VertexDesc> vs;
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (!isLogic(graph[v]))
       vs.push_back(v);
   }
   auto compare = [this](const VertexDesc a, const VertexDesc b) {
-                       return vertexCompare(a, b); };
+		       return vertexCompare(a, b); };
   std::sort(std::begin(vs), std::end(vs), compare);
   VertexDesc current = vs[0];
   unsigned count = 0;
@@ -240,8 +236,8 @@ void AnalyseGraph::mergeDuplicateVertices() {
     if (vertexEqual(vs[i], current)) {
       //std::cout << "DUPLICATE VERTEX " << graph[vs[i]].name << "\n";
       BGL_FORALL_ADJ(vs[i], v, graph, Graph) {
-        boost::add_edge(current, v, graph);
-        boost::remove_edge(vs[i], v, graph);
+	boost::add_edge(current, v, graph);
+	boost::remove_edge(vs[i], v, graph);
       }
       // We mark duplicate vertices as deleted since it is expensive to remove
       // them from the graph as vertices are stored in a vecS. Using a listS
@@ -256,19 +252,19 @@ void AnalyseGraph::mergeDuplicateVertices() {
 }
 
 /// Perform some checks on the netlist and emit warnings if necessary.
-void AnalyseGraph::checkGraph() const {
+void Netlist::checkGraph() const {
   BGL_FORALL_VERTICES(v, graph, Graph) {
     // Source registers don't have in edges.
     if (graph[v].type == VertexType::REG_SRC) {
       if (boost::in_degree(v, graph) > 0)
-         std::cout << "Warning: source reg " << graph[v].name
-                   << " (" << graph[v].id << ") has in edges" << "\n";
+	 std::cout << "Warning: source reg " << graph[v].name
+		   << " (" << graph[v].id << ") has in edges" << "\n";
     }
     // Destination registers don't have out edges.
     if (graph[v].type == VertexType::REG_DST) {
       if (boost::out_degree(v, graph) > 0)
-        std::cout << "Warning: destination reg " << graph[v].name
-                  << " (" << graph[v].id << ") has out edges"<<"\n";
+	std::cout << "Warning: destination reg " << graph[v].name
+		  << " (" << graph[v].id << ") has out edges"<<"\n";
     }
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
@@ -276,47 +272,47 @@ void AnalyseGraph::checkGraph() const {
 }
 
 /// Dump unique names of vars/regs/wires in the netlist for searching.
-std::vector<VertexDesc> AnalyseGraph::getNames() const {
+std::vector<VertexDesc> Netlist::getNames() const {
   std::vector<VertexDesc> vs;
   // Collect vertices.
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (!isLogic(graph[v]) &&
-        !isSrcReg(graph[v]) &&
-        !canIgnore(graph[v]) &&
-        !graph[v].deleted) {
+	!isSrcReg(graph[v]) &&
+	!canIgnore(graph[v]) &&
+	!graph[v].deleted) {
       vs.push_back(v);
     }
   }
   // Sort them.
   auto compare = [this](const VertexDesc a, const VertexDesc b) {
-                   return vertexCompare(a, b); };
+		   return vertexCompare(a, b); };
   std::sort(vs.begin(), vs.end(), compare);
   return vs;
 }
 
-void AnalyseGraph::printNames(std::vector<VertexDesc> &names) const {
+void Netlist::printNames(std::vector<VertexDesc> &names) const {
   // Print the output.
   int maxWidth = maxNameLength(names) + 1;
   std::cout << std::left << std::setw(maxWidth) << "Name"
-            << std::left << std::setw(10)       << "Type"
-            << std::left << std::setw(10)       << "Direction"
-            << std::left << std::setw(10)       << "Width"
-                                                << "Location\n";
+	    << std::left << std::setw(10)       << "Type"
+	    << std::left << std::setw(10)       << "Direction"
+	    << std::left << std::setw(10)       << "Width"
+						<< "Location\n";
   for (auto v : names) {
     auto type = getVertexTypeStr(graph[v].type);
     auto srcPath = netlist_paths::options.fullFileNames ? fs::path(graph[v].loc)
-                                                        : fs::path(graph[v].loc).filename();
+							: fs::path(graph[v].loc).filename();
     std::cout << std::left << std::setw(maxWidth) << graph[v].name
-              << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
-              << std::left << std::setw(10)       << getVertexDirectionStr(graph[v].dir)
-              << std::left << std::setw(10)       << graph[v].width
-                                                  << srcPath.string()
-              << "\n";
+	      << std::left << std::setw(10)       << (std::string(type) == "REG_DST" ? "REG" : type)
+	      << std::left << std::setw(10)       << getVertexDirectionStr(graph[v].dir)
+	      << std::left << std::setw(10)       << graph[v].width
+						  << srcPath.string()
+	      << "\n";
   }
 }
 
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
-void AnalyseGraph::dumpDotFile(const std::string &outputFilename) const {
+void Netlist::dumpDotFile(const std::string &outputFilename) const {
   std::ofstream outputFile(outputFilename);
   if (!outputFile.is_open()) {
     throw Exception(std::string("unable to open ")+outputFilename);
@@ -328,26 +324,26 @@ void AnalyseGraph::dumpDotFile(const std::string &outputFilename) const {
   INFO(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
 }
 
-VertexDesc AnalyseGraph::getVertexDesc(const std::string &name,
-                                       VertexType type) const {
+VertexDesc Netlist::getVertexDesc(const std::string &name,
+				       VertexType type) const {
   // Match names ignoring '.' (heirarchical ref) or '_' (flattened name).
   auto nameRegexStr(name);
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
   std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (std::regex_search(graph[v].name, nameRegex) &&
-        graph[v].type == type) {
+	graph[v].type == type) {
       INFO(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
-                    << " matches "<<name<<" of type "
-                    << getVertexTypeStr(type)<<"\n");
+		    << " matches "<<name<<" of type "
+		    << getVertexTypeStr(type)<<"\n");
       return v;
     }
   }
   return boost::graph_traits<Graph>::null_vertex();
 }
 
-VertexDesc AnalyseGraph::getVertex(const std::string &name,
-                                   const std::vector<VertexType> &types) const {
+VertexDesc Netlist::getVertex(const std::string &name,
+				   const std::vector<VertexType> &types) const {
   for (auto &type : types) {
     auto v = getVertexDesc(name, type);
     if (v != boost::graph_traits<Graph>::null_vertex()) {
@@ -357,30 +353,30 @@ VertexDesc AnalyseGraph::getVertex(const std::string &name,
   throw Exception(std::string("could not find vertex ")+name);
 }
 
-VertexDesc AnalyseGraph::getStartVertex(const std::string &name) const {
+VertexDesc Netlist::getStartVertex(const std::string &name) const {
   auto types = {VertexType::REG_SRC,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
+		VertexType::VAR,
+		VertexType::WIRE,
+		VertexType::PORT};
   return getVertex(name, types);
 }
 
-VertexDesc AnalyseGraph::getEndVertex(const std::string &name) const {
+VertexDesc Netlist::getEndVertex(const std::string &name) const {
   auto types = {VertexType::REG_DST,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
+		VertexType::VAR,
+		VertexType::WIRE,
+		VertexType::PORT};
   return getVertex(name, types);
 }
 
-VertexDesc AnalyseGraph::getMidVertex(const std::string &name) const {
+VertexDesc Netlist::getMidVertex(const std::string &name) const {
   auto types = {VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
+		VertexType::WIRE,
+		VertexType::PORT};
   return getVertex(name, types);
 }
 
-void AnalyseGraph::dumpPath(const std::vector<VertexDesc> &path) const {
+void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
   for (auto v : path) {
     if (!isLogic(graph[v])) {
       std::cout << "  " << graph[v].name << "\n";
@@ -390,10 +386,10 @@ void AnalyseGraph::dumpPath(const std::vector<VertexDesc> &path) const {
 
 /// Given the tree structure from a DFS, traverse the tree from leaf to root to
 /// return a path.
-Path AnalyseGraph::determinePath(ParentMap &parentMap,
-                                 Path path,
-                                 VertexDesc startVertex,
-                                 VertexDesc endVertex) const {
+Path Netlist::determinePath(ParentMap &parentMap,
+				 Path path,
+				 VertexDesc startVertex,
+				 VertexDesc endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
     return path;
@@ -403,19 +399,19 @@ Path AnalyseGraph::determinePath(ParentMap &parentMap,
   assert(parentMap[endVertex].size() == 1);
   auto nextVertex = parentMap[endVertex].front();
   assert(std::find(std::begin(path),
-                   std::end(path),
-                   nextVertex) == std::end(path));
+		   std::end(path),
+		   nextVertex) == std::end(path));
   return determinePath(parentMap, path, startVertex, nextVertex);
 }
 
 /// Determine all paths between a start and an end point.
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
-void AnalyseGraph::determineAllPaths(ParentMap &parentMap,
-                                     std::vector<Path> &result,
-                                     Path path,
-                                     VertexDesc startVertex,
-                                     VertexDesc endVertex) const {
+void Netlist::determineAllPaths(ParentMap &parentMap,
+				     std::vector<Path> &result,
+				     Path path,
+				     VertexDesc startVertex,
+				     VertexDesc endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
     INFO(std::cout << "FOUND PATH\n");
@@ -435,7 +431,7 @@ void AnalyseGraph::determineAllPaths(ParentMap &parentMap,
 }
 
 /// Determine the max length of a name.
-int AnalyseGraph::maxNameLength(const Path &path) const {
+int Netlist::maxNameLength(const Path &path) const {
   size_t maxLength = 0;
   for (auto v : path) {
     if (canIgnore(graph[v]))
@@ -446,43 +442,43 @@ int AnalyseGraph::maxNameLength(const Path &path) const {
 }
 
 /// Pretty print a path (some sequence of vertices).
-void AnalyseGraph::printPathReport(const Path &path) const {
+void Netlist::printPathReport(const Path &path) const {
   int maxWidth = maxNameLength(path) + 1;
   // Print each vertex on the path.
   for (auto v : path) {
     if (canIgnore(graph[v]))
       continue;
     auto srcPath = netlist_paths::options.fullFileNames ? fs::path(graph[v].loc)
-                                                        : fs::path(graph[v].loc).filename();
+							: fs::path(graph[v].loc).filename();
     if (!netlist_paths::options.reportLogic) {
       if (!isLogic(graph[v])) {
-        std::cout << "  " << std::left
-                  << std::setw(maxWidth)
-                  << graph[v].name
-                  << srcPath.string() << "\n";
+	std::cout << "  " << std::left
+		  << std::setw(maxWidth)
+		  << graph[v].name
+		  << srcPath.string() << "\n";
       }
     } else {
       if (isLogic(graph[v])) {
-        std::cout << "  " << std::left
-                  << std::setw(maxWidth)
-                  << getVertexTypeStr(graph[v].type)
-                  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
-                  << "LOGIC"
-                  << srcPath.string() << "\n";
+	std::cout << "  " << std::left
+		  << std::setw(maxWidth)
+		  << getVertexTypeStr(graph[v].type)
+		  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
+		  << "LOGIC"
+		  << srcPath.string() << "\n";
       } else {
-        std::cout << "  " << std::left
-                  << std::setw(maxWidth)
-                  << graph[v].name
-                  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
-                  << getVertexTypeStr(graph[v].type)
-                  << srcPath.string() << "\n";
+	std::cout << "  " << std::left
+		  << std::setw(maxWidth)
+		  << graph[v].name
+		  << std::setw(VERTEX_TYPE_STR_MAX_LEN)
+		  << getVertexTypeStr(graph[v].type)
+		  << srcPath.string() << "\n";
       }
     }
   }
 }
 
 /// Print a collection of paths.
-void AnalyseGraph::
+void Netlist::
 printPathReport(const std::vector<Path> &paths) const {
   int pathCount = 0;
   for (auto &path : paths) {
@@ -496,71 +492,71 @@ printPathReport(const std::vector<Path> &paths) const {
 }
 
 /// Report all paths fanning out from a net/register/port.
-std::vector<Path> AnalyseGraph::
+std::vector<Path> Netlist::
 getAllFanOut(VertexDesc startVertex) const {
   INFO(std::cout << "Performing DFS from "
-                 << graph[startVertex].name << "\n");
+		 << graph[startVertex].name << "\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, false))
-        .root_vertex(startVertex));
+	.root_vertex(startVertex));
   // Check for a path between startPoint and each register.
   std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (isEndPoint(graph[v])) {
       auto path = determinePath(parentMap,
-                                Path(),
-                                startVertex,
-                                static_cast<VertexDesc>(graph[v].id));
+				Path(),
+				startVertex,
+				static_cast<VertexDesc>(graph[v].id));
       if (!path.empty()) {
-        std::reverse(std::begin(path), std::end(path));
-        paths.push_back(path);
+	std::reverse(std::begin(path), std::end(path));
+	paths.push_back(path);
       }
     }
   }
   return paths;
 }
 
-std::vector<Path> AnalyseGraph::
+std::vector<Path> Netlist::
 getAllFanOut(const std::string &startName) const {
   auto startVertex = getStartVertex(startName);
   return getAllFanOut(startVertex);
 }
 
 /// Report all paths fanning into a net/register/port.
-std::vector<Path> AnalyseGraph::
+std::vector<Path> Netlist::
 getAllFanIn(VertexDesc endVertex) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
   INFO(std::cout << "Performing DFS in reverse graph from "
-                 << graph[endVertex].name << "\n");
+		 << graph[endVertex].name << "\n");
   ParentMap parentMap;
   boost::depth_first_search(reverseGraph,
       boost::visitor(DfsVisitor(parentMap, false))
-        .root_vertex(endVertex));
+	.root_vertex(endVertex));
   // Check for a path between endPoint and each register.
   std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (isStartPoint(graph[v])) {
       auto path = determinePath(parentMap,
-                                Path(),
-                                endVertex,
-                                static_cast<VertexDesc>(graph[v].id));
+				Path(),
+				endVertex,
+				static_cast<VertexDesc>(graph[v].id));
       if (!path.empty()) {
-        paths.push_back(path);
+	paths.push_back(path);
       }
     }
   }
   return paths;
 }
 
-std::vector<Path> AnalyseGraph::
+std::vector<Path> Netlist::
 getAllFanIn(const std::string &endName) const {
   auto endVertex = getEndVertex(endName);
   return getAllFanIn(endVertex);
 }
 
 /// Report a single path between a set of named points.
-Path AnalyseGraph::
+Path Netlist::
 getAnyPointToPoint() const {
   std::vector<VertexDesc> path;
   // Construct the path between each adjacent waypoints.
@@ -568,21 +564,21 @@ getAnyPointToPoint() const {
     auto startVertex = waypoints[i];
     auto endVertex = waypoints[i+1];
     INFO(std::cout << "Performing DFS from "
-                   << graph[startVertex].name << "\n");
+		   << graph[startVertex].name << "\n");
     ParentMap parentMap;
     boost::depth_first_search(graph,
-        boost::visitor(DfsVisitor(parentMap, false))
-          .root_vertex(startVertex));
+	boost::visitor(DfsVisitor(parentMap, false))
+	  .root_vertex(startVertex));
     INFO(std::cout << "Determining a path to "
-                   << graph[endVertex].name << "\n");
+		   << graph[endVertex].name << "\n");
     auto subPath = determinePath(parentMap,
-                                 Path(),
-                                 startVertex,
-                                 endVertex);
+				 Path(),
+				 startVertex,
+				 endVertex);
     if (subPath.empty()) {
-        throw Exception(std::string("no path from ")
-                            +graph[startVertex].name+" to "
-                            +graph[endVertex].name);
+	throw Exception(std::string("no path from ")
+			    +graph[startVertex].name+" to "
+			    +graph[endVertex].name);
     }
     std::reverse(std::begin(subPath), std::end(subPath));
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
@@ -592,7 +588,7 @@ getAnyPointToPoint() const {
 }
 
 /// Report all paths between start and end points.
-std::vector<Path> AnalyseGraph::
+std::vector<Path> Netlist::
 getAllPointToPoint() const {
   if (waypoints.size() > 2)
     throw Exception("through points not supported for all paths");
@@ -600,14 +596,14 @@ getAllPointToPoint() const {
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, true))
-        .root_vertex(waypoints[0]));
+	.root_vertex(waypoints[0]));
   INFO(std::cout << "Determining all paths\n");
   std::vector<Path> paths;
   determineAllPaths(parentMap,
-                    paths,
-                    Path(),
-                    waypoints[0],
-                    waypoints[1]);
+		    paths,
+		    Path(),
+		    waypoints[0],
+		    waypoints[1]);
   for (auto &path : paths) {
     std::reverse(std::begin(path), std::end(path));
   }
@@ -615,7 +611,7 @@ getAllPointToPoint() const {
 }
 
 /// Return the number of registers a start point fans out to.
-unsigned AnalyseGraph::
+unsigned Netlist::
 getfanOutDegree(VertexDesc startVertex) {
   const auto paths = getAllFanOut(startVertex);
   unsigned count = 0;
@@ -626,14 +622,14 @@ getfanOutDegree(VertexDesc startVertex) {
   return count;
 }
 
-unsigned AnalyseGraph::
+unsigned Netlist::
 getfanOutDegree(const std::string &startName) {
   auto startVertex = getStartVertex(startName);
   return getfanOutDegree(startVertex);
 }
 
 /// Return he number of registers that fan into an end point.
-unsigned AnalyseGraph::
+unsigned Netlist::
 getFanInDegree(VertexDesc endVertex) {
   const auto paths = getAllFanIn(endVertex);
   unsigned count = 0;
@@ -644,7 +640,7 @@ getFanInDegree(VertexDesc endVertex) {
   return count;
 }
 
-unsigned AnalyseGraph::
+unsigned Netlist::
 getFanInDegree(const std::string &endName) {
   auto endVertex = getEndVertex(endName);
   return getFanInDegree(endVertex);

@@ -8,5 +8,5 @@ comp = py_netlist_paths.CompileGraph(defs.INSTALL_PREFIX)
 print (os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv'))
 comp.run(os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv'), 'netlist.graph')
 
-graph = py_netlist_paths.AnalyseGraph()
+graph = py_netlist_paths.Netlist()
 graph.parseFile('netlist.graph')

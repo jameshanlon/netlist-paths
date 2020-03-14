@@ -2,7 +2,7 @@
 # distributions are expecting this.
 add_library(netlist_paths_shared SHARED
   CompileGraph.cpp
-  AnalyseGraph.cpp
+  Netlist.cpp
   Options.cpp)
 target_include_directories(netlist_paths_shared PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -16,7 +16,7 @@ target_link_libraries(netlist_paths_shared
 # Compile a static version of the library to link with the command-line tool.
 add_library(netlist_paths_static STATIC
   CompileGraph.cpp
-  AnalyseGraph.cpp
+  Netlist.cpp
   Options.cpp)
 target_include_directories(netlist_paths_static PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
