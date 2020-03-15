@@ -21,6 +21,7 @@ netlist_paths::Options options;
 struct TestContext {
   TestContext() {}
   netlist_paths::Netlist netlist;
+  /// Compile a test and create a netlist object.
   void compile(const std::string &inFilename) {
     auto testPath = fs::path(testPrefix) / inFilename;
     std::vector<std::string> includes = {};
@@ -29,9 +30,9 @@ struct TestContext {
     netlist_paths::CompileGraph compileGraph(installPrefix);
     auto outTemp = fs::unique_path();
     compileGraph.run(includes,
-                     defines,
-                     inputFiles,
-                     outTemp.native());
+		     defines,
+		     inputFiles,
+		     outTemp.native());
     netlist.parseFile(outTemp.native());
     netlist.mergeDuplicateVertices();
     netlist.checkGraph();
@@ -55,7 +56,7 @@ struct TestContext {
   }
   /// Check if a path exists.
   bool pathExists(const std::string &start,
-                  const std::string &end) {
+		  const std::string &end) {
     netlist.clearWaypoints();
     netlist.addStartpoint(start);
     netlist.addEndpoint(end);

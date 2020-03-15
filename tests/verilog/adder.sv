@@ -1,4 +1,4 @@
-module adder 
+module adder
   #(
     parameter p_width = 32
   )(
