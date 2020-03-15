@@ -1,12 +1,13 @@
-import pytest
-import definitions as defs
-import subprocess
 import os
+import pytest
+import subprocess
+import definitions as defs
 
 NETLIST_PATHS=os.path.join(defs.INSTALL_PREFIX, 'netlist-paths')
 
 def run(args):
     return subprocess.check_output([NETLIST_PATHS]+args)
 
-def test_fsm(tmpdir):
-    run(['--compile', os.path.join(defs.TEST_SRC_PREFIX, 'fsm.sv')])
+def test_adder(tmpdir):
+    run(['--compile', os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv')])
+

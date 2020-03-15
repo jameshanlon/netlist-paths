@@ -9,6 +9,8 @@ Install dependencies:
 C/C++ compiler
 CMake (minimum 3.12.0)
 Boost (minimum 1.68.0)
+Python
+pytest
 ```
 Install Verilator dependencies:
 ```
