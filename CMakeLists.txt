@@ -54,6 +54,7 @@ ExternalProject_Add_Step(Verilator add_executable_prefix
             -DEXECUTABLE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/bin
             -P ${CMAKE_CURRENT_SOURCE_DIR}/add_executable_prefix.cmake
   COMMENT "Adding Verilator executable prefix"
+  DEPENDEES mkdir update patch download configure build install
   ALWAYS 1)
 
 add_subdirectory(lib)
