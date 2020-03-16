@@ -101,3 +101,17 @@ BOOST_FIXTURE_TEST_CASE(mux2, TestContext) {
   uniqueNames();
   qualifiedNames("mux2");
 }
+
+BOOST_FIXTURE_TEST_CASE(pipeline, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline.sv"));
+  uniqueNames();
+  qualifiedNames("pipeline");
+  BOOST_TEST(pathExists("pipeline.g_pipestage[0].u_pipestage.data_q", "pipeline.g_pipestage[1].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[1].u_pipestage.data_q", "pipeline.g_pipestage[2].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[2].u_pipestage.data_q", "pipeline.g_pipestage[3].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[3].u_pipestage.data_q", "pipeline.g_pipestage[4].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[4].u_pipestage.data_q", "pipeline.g_pipestage[5].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[5].u_pipestage.data_q", "pipeline.g_pipestage[6].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage[6].u_pipestage.data_q", "pipeline.g_pipestage[7].u_pipestage.data_q"));
+}
+

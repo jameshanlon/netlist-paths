@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <unordered_set>
 #include <regex>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -326,9 +327,12 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
 
 VertexDesc Netlist::getVertexDesc(const std::string &name,
 				       VertexType type) const {
-  // Match names ignoring '.' (heirarchical ref) or '_' (flattened name).
   auto nameRegexStr(name);
+  // Match names ignoring '.' (heirarchical ref) or '_' (flattened name).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
+  // Escape square brackets [ ... ].
+  boost::replace_all(nameRegexStr, "[", "\\[");
+  boost::replace_all(nameRegexStr, "]", "\\]");
   std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (std::regex_search(graph[v].name, nameRegex) &&
