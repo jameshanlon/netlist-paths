@@ -13,6 +13,9 @@ class TestTool(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_netlist_paths_bin(self):
+        self.assertTrue(os.path.exists(NETLIST_PATHS))
+
     def test_adder(self):
         self.assertEqual(run(['--compile', os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv')]), 0)
 

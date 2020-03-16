@@ -10,6 +10,9 @@ class TeastPyWrapper(unittest.TestCase):
     def setUp(self):
         pass
 
+    def test_verilator_bin(self):
+        self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))
+
     def test_adder(self):
         comp = py_netlist_paths.CompileGraph(defs.INSTALL_PREFIX)
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv'), 'netlist.graph')
