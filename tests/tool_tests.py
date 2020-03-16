@@ -1,13 +1,20 @@
 import os
-import pytest
 import subprocess
+import unittest
 import definitions as defs
 
 NETLIST_PATHS=os.path.join(defs.INSTALL_PREFIX, 'netlist-paths')
 
 def run(args):
-    return subprocess.check_output([NETLIST_PATHS]+args)
+    return subprocess.check_call([NETLIST_PATHS]+args)
 
-def test_adder(tmpdir):
-    run(['--compile', os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv')])
+class TestTool(unittest.TestCase):
 
+    def setUp(self):
+        pass
+
+    def test_adder(self):
+        self.assertEqual(run(['--compile', os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv')]), 0)
+
+if __name__ == '__main__':
+    unittest.main()

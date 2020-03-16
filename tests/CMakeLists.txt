@@ -30,7 +30,7 @@ configure_file(py_wrapper_tests.py
                COPYONLY)
 
 add_test(NAME py_wrapper_tests.py
-         COMMAND ${Python_EXECUTABLE} -m pytest py_wrapper_tests.py)
+         COMMAND ${Python_EXECUTABLE} -m unittest py_wrapper_tests.py)
 
 # Command-line tool tests.
 
@@ -39,5 +39,5 @@ configure_file(tool_tests.py
                COPYONLY)
 
 add_test(NAME tool_tests.py
-         COMMAND ${Python_EXECUTABLE} -m pytest tool_tests.py)
+         COMMAND ${Python_EXECUTABLE} -m unittest tool_tests.py)
 
