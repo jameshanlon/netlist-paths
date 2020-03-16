@@ -13,6 +13,9 @@ target_link_libraries(netlist_paths_shared
   ${CMAKE_DL_LIBS} # Required for Boost_DLL
   pthread)
 
+install(TARGETS netlist_paths_shared
+	      DESTINATION lib)
+
 # Compile a static version of the library to link with the command-line tool.
 add_library(netlist_paths_static STATIC
   CompileGraph.cpp
