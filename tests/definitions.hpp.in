@@ -1,7 +1,7 @@
 #ifndef TESTS_DEFINITIONS_HPP
 #define TESTS_DEFINITIONS_HPP
 
-constexpr const char *installPrefix = "${CMAKE_BINARY_DIR}/install/bin";
+constexpr const char *installPrefix = "${CMAKE_INSTALL_PREFIX}/bin";
 constexpr const char *testPrefix = "${CMAKE_SOURCE_DIR}/tests/verilog";
 
 #endif // TESTS_DEFINITIONS_HPP
