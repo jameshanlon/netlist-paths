@@ -1,4 +1,4 @@
 [submodule "verilator"]
 	path = verilator
-	url = https://github.com/jameshanlon/verilator.git 
+	url = ssh://cgit@siliphab.eng.graphcore.ai/diffusion/VERILATOR/verilator.git
 	branch = dump-netlist-graph
