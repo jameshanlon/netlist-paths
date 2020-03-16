@@ -37,3 +37,6 @@ target_include_directories(py_netlist_paths PRIVATE
   ${Boost_INCLUDE_DIRS}
   ${Python_INCLUDE_DIRS})
 set_target_properties(py_netlist_paths PROPERTIES PREFIX "")
+
+install(TARGETS py_netlist_paths
+	      DESTINATION lib)
