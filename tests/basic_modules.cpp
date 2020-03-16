@@ -30,9 +30,9 @@ struct TestContext {
     netlist_paths::CompileGraph compileGraph(installPrefix);
     auto outTemp = fs::unique_path();
     compileGraph.run(includes,
-		     defines,
-		     inputFiles,
-		     outTemp.native());
+         defines,
+         inputFiles,
+         outTemp.native());
     netlist.parseFile(outTemp.native());
     netlist.mergeDuplicateVertices();
     netlist.checkGraph();
@@ -54,15 +54,8 @@ struct TestContext {
       BOOST_TEST(boost::starts_with(netlist.getVertexName(v), topName));
     }
   }
-  /// Check if a path exists.
   bool pathExists(const std::string &start,
-		  const std::string &end) {
-    netlist.clearWaypoints();
-    netlist.addStartpoint(start);
-    netlist.addEndpoint(end);
-    auto path = netlist.getAnyPointToPoint();
-    return !path.empty();
-  }
+                  const std::string &end) { return netlist.pathExists(start, end); }
 };
 
 BOOST_FIXTURE_TEST_CASE(adder, TestContext) {

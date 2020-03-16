@@ -10,9 +10,9 @@
 namespace netlist_paths {
 
 using Graph = boost::adjacency_list<boost::vecS,
-				    boost::vecS,
-				    boost::bidirectionalS,
-				    VertexProperties>;
+                                    boost::vecS,
+                                    boost::bidirectionalS,
+                                    VertexProperties>;
 using VertexDesc = boost::graph_traits<Graph>::vertex_descriptor;
 using ParentMap = std::map<VertexDesc, std::vector<VertexDesc>>;
 using Path = std::vector<VertexDesc>;
@@ -30,14 +30,14 @@ private:
   VertexDesc getVertexDesc(const std::string &name, VertexType type) const;
   void dumpPath(const Path &path) const;
   Path determinePath(ParentMap &parentMap,
-		     Path path,
-		     VertexDesc startVertexId,
-		     VertexDesc endVertexId) const;
+                     Path path,
+                     VertexDesc startVertexId,
+                     VertexDesc endVertexId) const;
   void determineAllPaths(ParentMap &parentMap,
-			 std::vector<Path> &result,
-			 Path path,
-			 VertexDesc startVertex,
-			 VertexDesc endVertex) const;
+                         std::vector<Path> &result,
+                         Path path,
+                         VertexDesc startVertex,
+                         VertexDesc endVertex) const;
 
 public:
   Netlist();
@@ -52,7 +52,9 @@ public:
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
   VertexDesc getVertex(const std::string &name,
-		       const std::vector<VertexType> &types) const;
+                       const std::vector<VertexType> &types) const;
+  VertexDesc getVertexExcept(const std::string &name,
+                             const std::vector<VertexType> &types) const;
   VertexDesc getStartVertex(const std::string &name) const;
   VertexDesc getEndVertex(const std::string &name) const;
   VertexDesc getMidVertex(const std::string &name) const;
@@ -79,6 +81,10 @@ public:
   }
   void clearWaypoints() { waypoints.clear(); }
   const std::string &getVertexName(VertexDesc vertex) const { return graph[vertex].name; }
+  bool regExists(const std::string &name) const {
+    return getVertex(name, {VertexType::REG_SRC, VertexType::REG_DST}) != boost::graph_traits<Graph>::null_vertex();
+  }
+  bool pathExists(const std::string &start, const std::string &end);
 };
 
 } // End namespace.

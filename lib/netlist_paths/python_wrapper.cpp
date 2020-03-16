@@ -14,5 +14,6 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("run", run);
 
   class_<Netlist>("Netlist")
-    .def("parseFile", &Netlist::parseFile);
+    .def("parse_file", &Netlist::parseFile)
+    .def("reg_exists", &Netlist::regExists);
 }

@@ -346,15 +346,27 @@ VertexDesc Netlist::getVertexDesc(const std::string &name,
   return boost::graph_traits<Graph>::null_vertex();
 }
 
+/// Return a vertex with a given name and types.
 VertexDesc Netlist::getVertex(const std::string &name,
-                                   const std::vector<VertexType> &types) const {
+                              const std::vector<VertexType> &types) const {
   for (auto &type : types) {
     auto v = getVertexDesc(name, type);
     if (v != boost::graph_traits<Graph>::null_vertex()) {
       return v;
     }
   }
-  throw Exception(std::string("could not find vertex ")+name);
+  return boost::graph_traits<Graph>::null_vertex();
+}
+
+/// As above but throw an exception if the vertex is not found.
+VertexDesc Netlist::getVertexExcept(const std::string &name,
+                                    const std::vector<VertexType> &types) const {
+  auto vertex = getVertex(name, types);
+  if (vertex == boost::graph_traits<Graph>::null_vertex()) {
+    throw Exception(std::string("could not find vertex ")+name);
+  } else {
+    return vertex;
+  }
 }
 
 VertexDesc Netlist::getStartVertex(const std::string &name) const {
@@ -362,7 +374,7 @@ VertexDesc Netlist::getStartVertex(const std::string &name) const {
                 VertexType::VAR,
                 VertexType::WIRE,
                 VertexType::PORT};
-  return getVertex(name, types);
+  return getVertexExcept(name, types);
 }
 
 VertexDesc Netlist::getEndVertex(const std::string &name) const {
@@ -370,14 +382,14 @@ VertexDesc Netlist::getEndVertex(const std::string &name) const {
                 VertexType::VAR,
                 VertexType::WIRE,
                 VertexType::PORT};
-  return getVertex(name, types);
+  return getVertexExcept(name, types);
 }
 
 VertexDesc Netlist::getMidVertex(const std::string &name) const {
   auto types = {VertexType::VAR,
                 VertexType::WIRE,
                 VertexType::PORT};
-  return getVertex(name, types);
+  return getVertexExcept(name, types);
 }
 
 void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
@@ -648,4 +660,14 @@ unsigned Netlist::
 getFanInDegree(const std::string &endName) {
   auto endVertex = getEndVertex(endName);
   return getFanInDegree(endVertex);
+}
+
+/// Check if a path exists between two points.
+bool Netlist::
+pathExists(const std::string &start, const std::string &end) {
+  clearWaypoints();
+  addStartpoint(start);
+  addEndpoint(end);
+  auto path = getAnyPointToPoint();
+  return !path.empty();
 }

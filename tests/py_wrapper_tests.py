@@ -9,5 +9,13 @@ def test_adder():
     comp = py_netlist_paths.CompileGraph(defs.INSTALL_PREFIX)
     comp.run(os.path.join(defs.TEST_SRC_PREFIX, 'adder.sv'), 'netlist.graph')
     graph = py_netlist_paths.Netlist()
-    graph.parseFile('netlist.graph')
+    graph.parse_file('netlist.graph')
+
+def test_counter():
+    comp = py_netlist_paths.CompileGraph(defs.INSTALL_PREFIX)
+    comp.run(os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv'), 'netlist.graph')
+    graph = py_netlist_paths.Netlist()
+    graph.parse_file('netlist.graph')
+    assert graph.reg_exists('counter_q')
+    assert not graph.reg_exists('foo')
 
