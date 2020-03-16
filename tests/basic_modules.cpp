@@ -58,6 +58,11 @@ struct TestContext {
                   const std::string &end) { return netlist.pathExists(start, end); }
 };
 
+BOOST_FIXTURE_TEST_CASE(verilator, TestContext) {
+  // Check the Verilator binary exists.
+  BOOST_ASSERT(boost::filesystem::exists(installPrefix));
+}
+
 BOOST_FIXTURE_TEST_CASE(adder, TestContext) {
   BOOST_CHECK_NO_THROW(compile("adder.sv"));
   uniqueNames();
