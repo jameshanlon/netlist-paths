@@ -328,13 +328,10 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
 VertexDesc Netlist::getVertexDesc(const std::string &name,
                                        VertexType type) const {
   auto nameRegexStr(name);
-  // Match names ignoring '/' (when supplying a heirarchical ref)
-  // or '_' (when supplying a flattened name).
+  // Ignoring '/' (when supplying a heirarchical ref).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
+  // Or '_' (when supplying a flattened name).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
-  // Escape square brackets [ ... ].
-  boost::replace_all(nameRegexStr, "[", "\\[");
-  boost::replace_all(nameRegexStr, "]", "\\]");
   std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (std::regex_search(graph[v].name, nameRegex) &&

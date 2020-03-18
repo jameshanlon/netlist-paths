@@ -111,21 +111,21 @@ BOOST_FIXTURE_TEST_CASE(pipeline, TestContext) {
   uniqueNames();
   qualifiedNames("pipeline");
   // Registers
-  BOOST_TEST(netlist.regExists("pipeline.g_pipestage[0].u_pipestage.data_q")); // Hier dot
-  BOOST_TEST(netlist.regExists("pipeline/g_pipestage[0]/u_pipestage/data_q")); // Hier slash
-  BOOST_TEST(netlist.regExists("pipeline_g_pipestage[0]_u_pipestage_data_q")); // Flat
-  BOOST_TEST(netlist.regExists("pipeline/g_pipestage[0]_u_pipestage_data_q")); // Mixed
-  BOOST_TEST(netlist.regExists("g_pipestage[0]/u_pipestage_data_q")); // Mixed
+  BOOST_TEST(netlist.regExists("pipeline.g_pipestage\\[0\\].u_pipestage.data_q")); // Hier dot
+  BOOST_TEST(netlist.regExists("pipeline/g_pipestage\\[0\\]/u_pipestage/data_q")); // Hier slash
+  BOOST_TEST(netlist.regExists("pipeline_g_pipestage\\[0\\]_u_pipestage_data_q")); // Flat
+  BOOST_TEST(netlist.regExists("pipeline/g_pipestage\\[0\\]_u_pipestage_data_q")); // Mixed
+  BOOST_TEST(netlist.regExists("g_pipestage\\[0\\]/u_pipestage_data_q")); // Mixed
   // Regexes
   BOOST_TEST(netlist.regExists("pipeline/.*/u_pipestage_data_q"));
   BOOST_TEST(netlist.regExists("pipeline/.*/data_q"));
   // Paths
-  BOOST_TEST(pathExists("pipeline.g_pipestage[0].u_pipestage.data_q", "pipeline.g_pipestage[1].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[1].u_pipestage.data_q", "pipeline.g_pipestage[2].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[2].u_pipestage.data_q", "pipeline.g_pipestage[3].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[3].u_pipestage.data_q", "pipeline.g_pipestage[4].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[4].u_pipestage.data_q", "pipeline.g_pipestage[5].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[5].u_pipestage.data_q", "pipeline.g_pipestage[6].u_pipestage.data_q"));
-  BOOST_TEST(pathExists("pipeline.g_pipestage[6].u_pipestage.data_q", "pipeline.g_pipestage[7].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[0\\].u_pipestage.data_q", "pipeline.g_pipestage\\[1\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[1\\].u_pipestage.data_q", "pipeline.g_pipestage\\[2\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[2\\].u_pipestage.data_q", "pipeline.g_pipestage\\[3\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[3\\].u_pipestage.data_q", "pipeline.g_pipestage\\[4\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[4\\].u_pipestage.data_q", "pipeline.g_pipestage\\[5\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[5\\].u_pipestage.data_q", "pipeline.g_pipestage\\[6\\].u_pipestage.data_q"));
+  BOOST_TEST(pathExists("pipeline.g_pipestage\\[6\\].u_pipestage.data_q", "pipeline.g_pipestage\\[7\\].u_pipestage.data_q"));
 }
 
