@@ -81,6 +81,12 @@ BOOST_FIXTURE_TEST_CASE(counter, TestContext) {
   BOOST_CHECK_NO_THROW(compile("counter.sv"));
   uniqueNames();
   qualifiedNames("counter");
+  // Registers.
+  BOOST_TEST(netlist.regExists("counter/counter_q"));
+  BOOST_TEST(netlist.regExists("counter_counter_q"));
+  // Regex register.
+  BOOST_TEST(netlist.regExists("counter_q"));
+  // Paths
   BOOST_TEST(pathExists("counter.i_clk", "counter.counter_q"));
   BOOST_TEST(pathExists("counter.i_rst", "counter.counter_q"));
   BOOST_TEST(pathExists("counter.counter_q", "counter.o_count"));
@@ -104,6 +110,16 @@ BOOST_FIXTURE_TEST_CASE(pipeline, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline.sv"));
   uniqueNames();
   qualifiedNames("pipeline");
+  // Registers
+  BOOST_TEST(netlist.regExists("pipeline.g_pipestage[0].u_pipestage.data_q")); // Hier dot
+  BOOST_TEST(netlist.regExists("pipeline/g_pipestage[0]/u_pipestage/data_q")); // Hier slash
+  BOOST_TEST(netlist.regExists("pipeline_g_pipestage[0]_u_pipestage_data_q")); // Flat
+  BOOST_TEST(netlist.regExists("pipeline/g_pipestage[0]_u_pipestage_data_q")); // Mixed
+  BOOST_TEST(netlist.regExists("g_pipestage[0]/u_pipestage_data_q")); // Mixed
+  // Regexes
+  BOOST_TEST(netlist.regExists("pipeline/.*/u_pipestage_data_q"));
+  BOOST_TEST(netlist.regExists("pipeline/.*/data_q"));
+  // Paths
   BOOST_TEST(pathExists("pipeline.g_pipestage[0].u_pipestage.data_q", "pipeline.g_pipestage[1].u_pipestage.data_q"));
   BOOST_TEST(pathExists("pipeline.g_pipestage[1].u_pipestage.data_q", "pipeline.g_pipestage[2].u_pipestage.data_q"));
   BOOST_TEST(pathExists("pipeline.g_pipestage[2].u_pipestage.data_q", "pipeline.g_pipestage[3].u_pipestage.data_q"));

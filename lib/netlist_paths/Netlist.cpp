@@ -328,8 +328,10 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
 VertexDesc Netlist::getVertexDesc(const std::string &name,
                                        VertexType type) const {
   auto nameRegexStr(name);
-  // Match names ignoring '.' (heirarchical ref) or '_' (flattened name).
+  // Match names ignoring '/' (when supplying a heirarchical ref)
+  // or '_' (when supplying a flattened name).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
+  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
   // Escape square brackets [ ... ].
   boost::replace_all(nameRegexStr, "[", "\\[");
   boost::replace_all(nameRegexStr, "]", "\\]");
