@@ -326,7 +326,8 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
 }
 
 VertexDesc Netlist::getVertexDesc(const std::string &name,
-                                       VertexType type) const {
+                                  VertexType type) const {
+  // FIXME: create a list of candidate vertices, rather than iterating all vertices.
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
@@ -347,7 +348,8 @@ VertexDesc Netlist::getVertexDesc(const std::string &name,
 
 /// Return a vertex with a given name and types.
 VertexDesc Netlist::getVertex(const std::string &name,
-                              const std::vector<VertexType> &types) const {
+                              const std::vector<VertexType> &types) const noexcept {
+  // FIXME: this outer loop is inefficient, pass a type-checking function as an argument instead.
   for (auto &type : types) {
     auto v = getVertexDesc(name, type);
     if (v != boost::graph_traits<Graph>::null_vertex()) {
@@ -357,10 +359,40 @@ VertexDesc Netlist::getVertex(const std::string &name,
   return boost::graph_traits<Graph>::null_vertex();
 }
 
-/// As above but throw an exception if the vertex is not found.
-VertexDesc Netlist::getVertexExcept(const std::string &name,
-                                    const std::vector<VertexType> &types) const {
-  auto vertex = getVertex(name, types);
+VertexDesc Netlist::getStartVertex(const std::string &name) const noexcept {
+  // FIXME: this should also enforce VertexType::isStartPoint
+  auto types = {VertexType::REG_SRC,
+                VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
+}
+
+VertexDesc Netlist::getEndVertex(const std::string &name) const noexcept {
+  // FIXME: this should also enforce VertexType::isEndPoint
+  auto types = {VertexType::REG_DST,
+                VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
+}
+
+VertexDesc Netlist::getMidVertex(const std::string &name) const noexcept {
+  auto types = {VertexType::REG_SRC,
+                VertexType::VAR,
+                VertexType::WIRE,
+                VertexType::PORT};
+  return getVertex(name, types);
+}
+
+VertexDesc Netlist::getRegVertex(const std::string &name) const noexcept {
+  auto types = {VertexType::REG_SRC,
+                VertexType::REG_DST};
+  return getVertex(name, types);
+}
+
+VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {
+  auto vertex = getStartVertex(name);
   if (vertex == boost::graph_traits<Graph>::null_vertex()) {
     throw Exception(std::string("could not find vertex ")+name);
   } else {
@@ -368,27 +400,22 @@ VertexDesc Netlist::getVertexExcept(const std::string &name,
   }
 }
 
-VertexDesc Netlist::getStartVertex(const std::string &name) const {
-  auto types = {VertexType::REG_SRC,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertexExcept(name, types);
+VertexDesc Netlist::getEndVertexExcept(const std::string &name) const {
+  auto vertex = getEndVertex(name);
+  if (vertex == boost::graph_traits<Graph>::null_vertex()) {
+    throw Exception(std::string("could not find vertex ")+name);
+  } else {
+    return vertex;
+  }
 }
 
-VertexDesc Netlist::getEndVertex(const std::string &name) const {
-  auto types = {VertexType::REG_DST,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertexExcept(name, types);
-}
-
-VertexDesc Netlist::getMidVertex(const std::string &name) const {
-  auto types = {VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertexExcept(name, types);
+VertexDesc Netlist::getMidVertexExcept(const std::string &name) const {
+  auto vertex = getMidVertex(name);
+  if (vertex == boost::graph_traits<Graph>::null_vertex()) {
+    throw Exception(std::string("could not find vertex ")+name);
+  } else {
+    return vertex;
+  }
 }
 
 void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
@@ -534,7 +561,7 @@ getAllFanOut(VertexDesc startVertex) const {
 
 std::vector<Path> Netlist::
 getAllFanOut(const std::string &startName) const {
-  auto startVertex = getStartVertex(startName);
+  auto startVertex = getStartVertexExcept(startName);
   return getAllFanOut(startVertex);
 }
 
@@ -566,7 +593,7 @@ getAllFanIn(VertexDesc endVertex) const {
 
 std::vector<Path> Netlist::
 getAllFanIn(const std::string &endName) const {
-  auto endVertex = getEndVertex(endName);
+  auto endVertex = getEndVertexExcept(endName);
   return getAllFanIn(endVertex);
 }
 
@@ -639,7 +666,7 @@ getfanOutDegree(VertexDesc startVertex) {
 
 unsigned Netlist::
 getfanOutDegree(const std::string &startName) {
-  auto startVertex = getStartVertex(startName);
+  auto startVertex = getStartVertexExcept(startName);
   return getfanOutDegree(startVertex);
 }
 
@@ -657,7 +684,7 @@ getFanInDegree(VertexDesc endVertex) {
 
 unsigned Netlist::
 getFanInDegree(const std::string &endName) {
-  auto endVertex = getEndVertex(endName);
+  auto endVertex = getEndVertexExcept(endName);
   return getFanInDegree(endVertex);
 }
 

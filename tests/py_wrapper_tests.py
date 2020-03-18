@@ -24,8 +24,17 @@ class TeastPyWrapper(unittest.TestCase):
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv'), 'netlist.graph')
         graph = py_netlist_paths.Netlist()
         graph.parse_file('netlist.graph')
+        # Register can be start or end point.
         self.assertTrue(graph.reg_exists('counter_q'))
+        self.assertTrue(graph.startpoint_exists('counter_q'))
+        self.assertTrue(graph.endpoint_exists('counter_q'))
+        # Output port can be endpoint only.
+        self.assertFalse(graph.reg_exists('counter.o_count'))
+        self.assertTrue(graph.endpoint_exists('counter.o_count'))
+        # A name that doesn't exist.
         self.assertFalse(graph.reg_exists('foo'))
+        self.assertFalse(graph.startpoint_exists('foo'))
+        self.assertFalse(graph.endpoint_exists('foo'))
 
 if __name__ == '__main__':
     unittest.main()

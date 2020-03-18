@@ -52,12 +52,14 @@ public:
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
   VertexDesc getVertex(const std::string &name,
-                       const std::vector<VertexType> &types) const;
-  VertexDesc getVertexExcept(const std::string &name,
-                             const std::vector<VertexType> &types) const;
-  VertexDesc getStartVertex(const std::string &name) const;
-  VertexDesc getEndVertex(const std::string &name) const;
-  VertexDesc getMidVertex(const std::string &name) const;
+                       const std::vector<VertexType> &types) const noexcept;
+  VertexDesc getStartVertex(const std::string &name) const noexcept;
+  VertexDesc getEndVertex(const std::string &name) const noexcept;
+  VertexDesc getMidVertex(const std::string &name) const noexcept;
+  VertexDesc getRegVertex(const std::string &name) const noexcept;
+  VertexDesc getStartVertexExcept(const std::string &name) const;
+  VertexDesc getEndVertexExcept(const std::string &name) const;
+  VertexDesc getMidVertexExcept(const std::string &name) const;
   std::vector<Path> getAllFanOut(VertexDesc startVertex) const;
   std::vector<Path> getAllFanOut(const std::string &startName) const;
   std::vector<Path> getAllFanIn(VertexDesc endVertex) const;
@@ -81,8 +83,14 @@ public:
   }
   void clearWaypoints() { waypoints.clear(); }
   const std::string &getVertexName(VertexDesc vertex) const { return graph[vertex].name; }
-  bool regExists(const std::string &name) const {
-    return getVertex(name, {VertexType::REG_SRC, VertexType::REG_DST}) != boost::graph_traits<Graph>::null_vertex();
+  bool startpointExists(const std::string &name) const noexcept {
+    return getStartVertex(name) != boost::graph_traits<Graph>::null_vertex();
+  }
+  bool endpointExists(const std::string &name) const noexcept {
+    return getEndVertex(name) != boost::graph_traits<Graph>::null_vertex();
+  }
+  bool regExists(const std::string &name) const noexcept {
+    return getRegVertex(name) != boost::graph_traits<Graph>::null_vertex();
   }
   bool pathExists(const std::string &start, const std::string &end);
 };
