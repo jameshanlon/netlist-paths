@@ -72,6 +72,12 @@ inline bool isLogic(const VertexProperties &p) {
          p.type == VertexType::INITIAL;
 }
 
+inline bool isReg(const VertexProperties &p) {
+  return !p.deleted &&
+         (p.type == VertexType::REG_DST ||
+          p.type == VertexType::REG_SRC);
+}
+
 inline bool isStartPoint(const VertexProperties &p) {
   return !p.deleted &&
          (p.type == VertexType::REG_SRC ||
@@ -86,10 +92,11 @@ inline bool isEndPoint(const VertexProperties &p) {
           (p.dir == VertexDirection::INOUT && p.isTop));
 }
 
-inline bool isReg(const VertexProperties &p) {
-  return p.deleted &&
-         (p.type == VertexType::REG_DST ||
-          p.type == VertexType::REG_SRC);
+inline bool isMidPoint(const VertexProperties &p) {
+  return !p.deleted &&
+         (p.type == VertexType::VAR ||
+          p.type == VertexType::WIRE ||
+          p.type == VertexType::PORT);
 }
 
 inline bool canIgnore(const VertexProperties &p) {

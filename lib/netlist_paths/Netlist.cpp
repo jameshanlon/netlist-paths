@@ -325,8 +325,9 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
   INFO(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
 }
 
+/// Lookup a vertex using a regex pattern and function specifying a type.
 VertexDesc Netlist::getVertexDesc(const std::string &name,
-                                  VertexType type) const {
+                                  bool matchVertex (const VertexProperties &p)) const {
   // FIXME: create a list of candidate vertices, rather than iterating all vertices.
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
@@ -335,60 +336,13 @@ VertexDesc Netlist::getVertexDesc(const std::string &name,
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
   std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
-    if (std::regex_search(graph[v].name, nameRegex) &&
-        graph[v].type == type) {
-      INFO(std::cout<<"Vertex "<<graph[v].id<<" "<<graph[v].name
-                    << " matches "<<name<<" of type "
-                    << getVertexTypeStr(type)<<"\n");
-      return v;
+    if (matchVertex(graph[v])) {
+      if (std::regex_search(graph[v].name, nameRegex)) {
+        return v;
+      }
     }
   }
   return boost::graph_traits<Graph>::null_vertex();
-}
-
-/// Return a vertex with a given name and types.
-VertexDesc Netlist::getVertex(const std::string &name,
-                              const std::vector<VertexType> &types) const noexcept {
-  // FIXME: this outer loop is inefficient, pass a type-checking function as an argument instead.
-  for (auto &type : types) {
-    auto v = getVertexDesc(name, type);
-    if (v != boost::graph_traits<Graph>::null_vertex()) {
-      return v;
-    }
-  }
-  return boost::graph_traits<Graph>::null_vertex();
-}
-
-VertexDesc Netlist::getStartVertex(const std::string &name) const noexcept {
-  // FIXME: this should also enforce VertexType::isStartPoint
-  auto types = {VertexType::REG_SRC,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertex(name, types);
-}
-
-VertexDesc Netlist::getEndVertex(const std::string &name) const noexcept {
-  // FIXME: this should also enforce VertexType::isEndPoint
-  auto types = {VertexType::REG_DST,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertex(name, types);
-}
-
-VertexDesc Netlist::getMidVertex(const std::string &name) const noexcept {
-  auto types = {VertexType::REG_SRC,
-                VertexType::VAR,
-                VertexType::WIRE,
-                VertexType::PORT};
-  return getVertex(name, types);
-}
-
-VertexDesc Netlist::getRegVertex(const std::string &name) const noexcept {
-  auto types = {VertexType::REG_SRC,
-                VertexType::REG_DST};
-  return getVertex(name, types);
 }
 
 VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {

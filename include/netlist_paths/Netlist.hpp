@@ -27,7 +27,8 @@ private:
   bool vertexCompare(const VertexDesc a, const VertexDesc b) const;
   bool vertexEqual(const VertexDesc a, const VertexDesc b) const;
 
-  VertexDesc getVertexDesc(const std::string &name, VertexType type) const;
+  VertexDesc getVertexDesc(const std::string &name,
+                           bool matchVertex (const VertexProperties &p)) const;
   void dumpPath(const Path &path) const;
   Path determinePath(ParentMap &parentMap,
                      Path path,
@@ -51,12 +52,18 @@ public:
   void printNames(std::vector<VertexDesc> &names) const;
   void printPathReport(const Path &path) const;
   void printPathReport(const std::vector<Path> &paths) const;
-  VertexDesc getVertex(const std::string &name,
-                       const std::vector<VertexType> &types) const noexcept;
-  VertexDesc getStartVertex(const std::string &name) const noexcept;
-  VertexDesc getEndVertex(const std::string &name) const noexcept;
-  VertexDesc getMidVertex(const std::string &name) const noexcept;
-  VertexDesc getRegVertex(const std::string &name) const noexcept;
+  VertexDesc getStartVertex(const std::string &name) const {
+    return getVertexDesc(name, isStartPoint);
+  }
+  VertexDesc getEndVertex(const std::string &name) const {
+    return getVertexDesc(name, isEndPoint);
+  }
+  VertexDesc getMidVertex(const std::string &name) const {
+    return getVertexDesc(name, isMidPoint);
+  }
+  VertexDesc getRegVertex(const std::string &name) const {
+    return getVertexDesc(name, isReg);
+  }
   VertexDesc getStartVertexExcept(const std::string &name) const;
   VertexDesc getEndVertexExcept(const std::string &name) const;
   VertexDesc getMidVertexExcept(const std::string &name) const;
