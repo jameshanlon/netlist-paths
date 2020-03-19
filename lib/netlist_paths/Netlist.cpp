@@ -345,6 +345,7 @@ VertexDesc Netlist::getVertexDesc(const std::string &name,
   return boost::graph_traits<Graph>::null_vertex();
 }
 
+// FIXME: Move exception logic into tool.
 VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {
   auto vertex = getStartVertex(name);
   if (vertex == boost::graph_traits<Graph>::null_vertex()) {
@@ -354,6 +355,7 @@ VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {
   }
 }
 
+// FIXME: Move exception logic into tool.
 VertexDesc Netlist::getEndVertexExcept(const std::string &name) const {
   auto vertex = getEndVertex(name);
   if (vertex == boost::graph_traits<Graph>::null_vertex()) {
@@ -363,6 +365,7 @@ VertexDesc Netlist::getEndVertexExcept(const std::string &name) const {
   }
 }
 
+// FIXME: Move exception logic into tool.
 VertexDesc Netlist::getMidVertexExcept(const std::string &name) const {
   auto vertex = getMidVertex(name);
   if (vertex == boost::graph_traits<Graph>::null_vertex()) {
@@ -572,9 +575,8 @@ getAnyPointToPoint() const {
                                  startVertex,
                                  endVertex);
     if (subPath.empty()) {
-        throw Exception(std::string("no path from ")
-                            +graph[startVertex].name+" to "
-                            +graph[endVertex].name);
+      // No path exists.
+      return Path();
     }
     std::reverse(std::begin(subPath), std::end(subPath));
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
@@ -586,8 +588,7 @@ getAnyPointToPoint() const {
 /// Report all paths between start and end points.
 std::vector<Path> Netlist::
 getAllPointToPoint() const {
-  if (waypoints.size() > 2)
-    throw Exception("through points not supported for all paths");
+  assert(waypoints.size() > 2 && "invlalid waypoints");
   INFO(std::cout << "Performing DFS\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,
@@ -646,8 +647,16 @@ getFanInDegree(const std::string &endName) {
 bool Netlist::
 pathExists(const std::string &start, const std::string &end) {
   clearWaypoints();
-  addStartpoint(start);
-  addEndpoint(end);
+  // Check that the start and end points exist.
+  auto startPoint = getStartVertex(start);
+  auto endPoint = getEndVertex(end);
+  if (startPoint == boost::graph_traits<Graph>::null_vertex() ||
+      endPoint == boost::graph_traits<Graph>::null_vertex()) {
+    return false;
+  }
+  // Check the path exists.
+  waypoints.push_back(startPoint);
+  waypoints.push_back(endPoint);
   auto path = getAnyPointToPoint();
   return !path.empty();
 }

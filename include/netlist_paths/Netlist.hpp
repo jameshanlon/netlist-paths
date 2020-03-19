@@ -88,6 +88,7 @@ public:
   void addWaypoint(const std::string &name) {
     waypoints.push_back(getMidVertex(name));
   }
+  std::size_t numWaypoints() const { return waypoints.size(); }
   void clearWaypoints() { waypoints.clear(); }
   const std::string &getVertexName(VertexDesc vertex) const { return graph[vertex].name; }
   bool startpointExists(const std::string &name) const noexcept {

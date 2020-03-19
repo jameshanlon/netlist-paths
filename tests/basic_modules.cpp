@@ -73,6 +73,7 @@ BOOST_FIXTURE_TEST_CASE(adder, TestContext) {
   for (auto s : startPoints) {
     for (auto e : endPoints) {
       BOOST_TEST(pathExists(s, e));
+      BOOST_TEST(!pathExists(e, s));
     }
   }
 }
@@ -90,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE(counter, TestContext) {
   BOOST_TEST(pathExists("counter.i_clk", "counter.counter_q"));
   BOOST_TEST(pathExists("counter.i_rst", "counter.counter_q"));
   BOOST_TEST(pathExists("counter.counter_q", "counter.o_count"));
-  BOOST_CHECK_THROW(pathExists("counter.counter_q", "counter.o_wrap"), netlist_paths::Exception);
+  BOOST_TEST(!pathExists("counter.counter_q", "counter.o_wrap"));
   // TODO: check --from o_counter has no fan out paths
 }
 
@@ -128,4 +129,3 @@ BOOST_FIXTURE_TEST_CASE(pipeline, TestContext) {
   BOOST_TEST(pathExists("pipeline.g_pipestage\\[5\\].u_pipestage.data_q", "pipeline.g_pipestage\\[6\\].u_pipestage.data_q"));
   BOOST_TEST(pathExists("pipeline.g_pipestage\\[6\\].u_pipestage.data_q", "pipeline.g_pipestage\\[7\\].u_pipestage.data_q"));
 }
-

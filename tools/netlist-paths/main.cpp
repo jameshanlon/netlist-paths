@@ -36,15 +36,15 @@ int main(int argc, char **argv) {
     genericOptions.add_options()
       ("help,h",        "Display help")
       ("from",          po::value<std::string>(&startName)
-			  ->value_name("name"),
-			"Start point")
+                          ->value_name("name"),
+                        "Start point")
       ("to",            po::value<std::string>(&endName)
-			  ->value_name("name"),
-			"End point")
+                          ->value_name("name"),
+                        "End point")
       ("through",       po::value<std::vector<std::string>>(&throughNames)
-			  ->composing()
-			  ->value_name("name"),
-			"Through point")
+                          ->composing()
+                          ->value_name("name"),
+                        "Through point")
       ("allpaths",      "Find all paths between two points (exponential time)")
       ("startpoints",   "Only report start points")
       ("endpoints",     "Only report end points")
@@ -54,26 +54,26 @@ int main(int argc, char **argv) {
       ("filenames",     "Display full filenames in path report")
       ("compile",       "Compile a netlist graph from Verilog source")
       ("include,I",     po::value<std::vector<std::string>>()
-			  ->composing()
-			  ->value_name("path"),
-			"include path (only with --compile)")
+                          ->composing()
+                          ->value_name("path"),
+                        "include path (only with --compile)")
       ("define,D",      po::value<std::vector<std::string>>()
-			  ->composing()
-			  ->value_name("path"),
-			"define a preprocessor macro (only with --compile)")
+                          ->composing()
+                          ->value_name("path"),
+                        "define a preprocessor macro (only with --compile)")
       ("dotfile",       "Dump dotfile of netlist graph")
       ("dumpnames",     "Dump list of names in netlist")
       ("outfile,o",     po::value<std::string>(&outputFilename)
-			  ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
-			  ->value_name("filename"),
-			"output file")
+                          ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
+                          ->value_name("filename"),
+                        "output file")
       ("boostparser",   "Use the boost GraphViz parser")
       ("verbose,v",     "Print information")
       ("debug,d",       "Print debugging information");
     allOptions.add(genericOptions).add(hiddenOptions);
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
-		  options(allOptions).positional(p).run(), vm);
+                  options(allOptions).positional(p).run(), vm);
     netlist_paths::options.debugMode     = vm.count("debug") > 0;
     netlist_paths::options.verboseMode   = vm.count("verbose") > 0;
     netlist_paths::options.displayHelp   = vm.count("help") > 0;
@@ -99,18 +99,18 @@ int main(int argc, char **argv) {
     // Call Verilator to produce graph file.
     if (netlist_paths::options.compile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
-	 outputFilename += ".graph";
+         outputFilename += ".graph";
       auto includes = vm.count("include")
-			? vm["include"].as<std::vector<std::string>>()
-			: std::vector<std::string>{};
+                        ? vm["include"].as<std::vector<std::string>>()
+                        : std::vector<std::string>{};
       auto defines = vm.count("define")
-			? vm["define"].as<std::vector<std::string>>()
-			: std::vector<std::string>{};
+                        ? vm["define"].as<std::vector<std::string>>()
+                        : std::vector<std::string>{};
       netlist_paths::CompileGraph compileGraph;
       return compileGraph.run(includes,
-			      defines,
-			      inputFiles,
-			      outputFilename);
+                              defines,
+                              inputFiles,
+                              outputFilename);
     }
 
     netlist_paths::Netlist netlist;
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
     // Dump dot file.
     if (netlist_paths::options.dumpDotfile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
-	 outputFilename += ".dot";
+         outputFilename += ".dot";
       netlist.dumpDotFile(outputFilename);
       return 0;
     }
@@ -144,21 +144,22 @@ int main(int argc, char **argv) {
 
     // Start only.
     if (!startName.empty() && endName.empty()) {
-      if (!throughNames.empty())
-	throw netlist_paths::Exception("through points not supported for start only");
+      if (!throughNames.empty()) {
+        throw netlist_paths::Exception("through points not supported for start only");
+      }
       if (netlist_paths::options.fanOutDegree) {
-	// Report the fan out degree from startName.
-	std::cout << netlist.getfanOutDegree(startName) << "\n";
-	return 0;
+        // Report the fan out degree from startName.
+        std::cout << netlist.getfanOutDegree(startName) << "\n";
+        return 0;
       } else if (netlist_paths::options.endPoints) {
-	// Report the end points.
-	auto paths = netlist.getAllFanOut(startName);
-	netlist_paths::Path fanOutEndPoints;
-	for (auto &path : paths) {
-	  fanOutEndPoints.push_back(path.back());
-	}
-	netlist.printPathReport(fanOutEndPoints);
-	return 0;
+        // Report the end points.
+        auto paths = netlist.getAllFanOut(startName);
+        netlist_paths::Path fanOutEndPoints;
+        for (auto &path : paths) {
+          fanOutEndPoints.push_back(path.back());
+        }
+        netlist.printPathReport(fanOutEndPoints);
+        return 0;
       }
       // Report paths fanning out from startName.
       auto paths = netlist.getAllFanOut(startName);
@@ -169,19 +170,19 @@ int main(int argc, char **argv) {
     // End only.
     if (startName.empty() && !endName.empty()) {
       if (!throughNames.empty())
-	throw netlist_paths::Exception("through points not supported for end only");
+        throw netlist_paths::Exception("through points not supported for end only");
       if (netlist_paths::options.fanInDegree) {
-	// Report the fan in degree to endName.
-	std::cout << netlist.getFanInDegree(endName) << "\n";
-	return 0;
+        // Report the fan in degree to endName.
+        std::cout << netlist.getFanInDegree(endName) << "\n";
+        return 0;
       } else if (netlist_paths::options.startPoints) {
-	// Report the start points.
-	auto paths = netlist.getAllFanIn(endName);
-	for (auto &path : paths) {
-	   const netlist_paths::Path newPath = {path.front()};
-	   netlist.printPathReport(newPath);
-	}
-	return 0;
+        // Report the start points.
+        auto paths = netlist.getAllFanIn(endName);
+        for (auto &path : paths) {
+           const netlist_paths::Path newPath = {path.front()};
+           netlist.printPathReport(newPath);
+        }
+        return 0;
       }
       // Report paths fanning in to endName.
       auto paths = netlist.getAllFanIn(endName);
@@ -198,6 +199,9 @@ int main(int argc, char **argv) {
 
     // Report all paths between two points.
     if (netlist_paths::options.allPaths) {
+      if (netlist.numWaypoints() > 2) {
+        throw netlist_paths::Exception("through points not supported for all paths");
+      }
       auto paths = netlist.getAllPointToPoint();
       netlist.printPathReport(paths);
       return 0;
@@ -205,6 +209,9 @@ int main(int argc, char **argv) {
 
     // Report a path between two points.
     auto path = netlist.getAnyPointToPoint();
+    if (path.empty()) {
+      throw netlist_paths::Exception(std::string("no path between points"));
+    }
     netlist.printPathReport(path);
     return 0;
   } catch (std::exception& e) {
