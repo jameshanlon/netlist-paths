@@ -107,8 +107,8 @@ BOOST_FIXTURE_TEST_CASE(mux2, TestContext) {
   qualifiedNames("mux2");
 }
 
-BOOST_FIXTURE_TEST_CASE(pipeline, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("pipeline.sv"));
+BOOST_FIXTURE_TEST_CASE(pipeline_module, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   uniqueNames();
   qualifiedNames("pipeline");
   // Registers
