@@ -14,7 +14,7 @@ target_link_libraries(netlist_paths_shared
   pthread)
 
 install(TARGETS netlist_paths_shared
-	      DESTINATION lib)
+        DESTINATION lib)
 
 # Compile a static version of the library to link with the command-line tool.
 add_library(netlist_paths_static STATIC
@@ -42,4 +42,4 @@ target_include_directories(py_netlist_paths PRIVATE
 set_target_properties(py_netlist_paths PROPERTIES PREFIX "")
 
 install(TARGETS py_netlist_paths
-	      DESTINATION lib)
+        DESTINATION lib)

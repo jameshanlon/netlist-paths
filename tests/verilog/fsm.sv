@@ -35,13 +35,13 @@ module fsm
     unique case (1'b1)
       state_q.state.idle,
       state_q.state.waiting:
-	if (i_start)
-	  next_state = BUSY;
+        if (i_start)
+          next_state = BUSY;
       state_q.state.busy: begin
-	if (i_wait)
-	  next_state = WAIT;
-	if (i_finish)
-	  next_state = IDLE;
+        if (i_wait)
+          next_state = WAIT;
+        if (i_finish)
+          next_state = IDLE;
       end
     endcase
   end
