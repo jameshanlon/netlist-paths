@@ -54,8 +54,9 @@ inline bool determineIsTop(const std::string &name) {
 inline std::string expandName(const std::string &topName,
                               const std::string &name) {
   // Add prefix to top-level names that are missing it.
-  if (name.find(topName) == std::string::npos)
+  if (name.rfind(topName + ".", 0) == std::string::npos) {
     return std::string() + topName + "." + name;
+  }
   return name;
 }
 
