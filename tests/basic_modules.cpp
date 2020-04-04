@@ -129,3 +129,13 @@ BOOST_FIXTURE_TEST_CASE(pipeline_module, TestContext) {
   BOOST_TEST(pathExists("pipeline.g_pipestage\\[5\\].u_pipestage.data_q", "pipeline.g_pipestage\\[6\\].u_pipestage.data_q"));
   BOOST_TEST(pathExists("pipeline.g_pipestage\\[6\\].u_pipestage.data_q", "pipeline.g_pipestage\\[7\\].u_pipestage.data_q"));
 }
+
+BOOST_FIXTURE_TEST_CASE(vlvbound, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("vlvbound.sv"));
+  // Test that the inlined tasks do not share a merged VlVbound node.
+  // See https://www.veripool.org/boards/3/topics/2619
+  BOOST_TEST( pathExists("i_foo_current", "o_foo_inactive"));
+  BOOST_TEST( pathExists("i_foo_next",    "o_next_foo_inactive"));
+  BOOST_TEST(!pathExists("i_foo_current", "o_next_foo_inactive"));
+  BOOST_TEST(!pathExists("i_foo_next",    "o_foo_inactive"));
+}
