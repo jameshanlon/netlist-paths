@@ -11,7 +11,7 @@ module counter
   logic [width-1:0] counter;
   logic             co;
 
-  assign {co, counter} = counter + 1;
+  assign {co, counter} = counter_q + 1;
   assign o_count = counter_q;
   assign o_wrap = co;
 

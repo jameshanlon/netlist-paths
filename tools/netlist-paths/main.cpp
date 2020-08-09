@@ -6,13 +6,12 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include "netlist_paths/Netlist.hpp"
-#include "netlist_paths/CompileGraph.hpp"
+#include "netlist_paths/NetlistPaths.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/Debug.hpp"
+#include "netlist_paths/RunVerilator.hpp"
 
-namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
 int main(int argc, char **argv) {
@@ -106,113 +105,113 @@ int main(int argc, char **argv) {
       auto defines = vm.count("define")
                         ? vm["define"].as<std::vector<std::string>>()
                         : std::vector<std::string>{};
-      netlist_paths::CompileGraph compileGraph;
+      netlist_paths::RunVerilator compileGraph;
       return compileGraph.run(includes,
                               defines,
                               inputFiles,
                               outputFilename);
     }
 
-    netlist_paths::Netlist netlist;
-
     // Parse the input file.
-    if (inputFiles.size() > 1)
-      throw netlist_paths::Exception("multiple graph files specified");
-    netlist.parseFile(inputFiles.front());
-    netlist.mergeDuplicateVertices();
-    netlist.checkGraph();
+    if (inputFiles.size() > 1) {
+      throw netlist_paths::Exception("multiple XML files specified");
+    }
+    auto netlistPaths = netlist_paths::NetlistPaths(inputFiles.front());
 
     // Dump dot file.
     if (netlist_paths::options.dumpDotfile) {
-      if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
+      if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME) {
          outputFilename += ".dot";
-      netlist.dumpDotFile(outputFilename);
-      return 0;
-    }
-
-    // Dump netlist names.
-    if (netlist_paths::options.dumpNames) {
-      auto vertices = netlist.getNames();
-      netlist.printNames(vertices);
-      return 0;
-    }
-
-    // A start or an endpoint must be specified.
-    if (startName.empty() && endName.empty()) {
-      throw netlist_paths::Exception("no start and/or end point specified");
-    }
-
-    // Start only.
-    if (!startName.empty() && endName.empty()) {
-      if (!throughNames.empty()) {
-        throw netlist_paths::Exception("through points not supported for start only");
       }
-      if (netlist_paths::options.fanOutDegree) {
-        // Report the fan out degree from startName.
-        std::cout << netlist.getfanOutDegree(startName) << "\n";
-        return 0;
-      } else if (netlist_paths::options.endPoints) {
-        // Report the end points.
-        auto paths = netlist.getAllFanOut(startName);
-        netlist_paths::Path fanOutEndPoints;
-        for (auto &path : paths) {
-          fanOutEndPoints.push_back(path.back());
-        }
-        netlist.printPathReport(fanOutEndPoints);
-        return 0;
-      }
-      // Report paths fanning out from startName.
-      auto paths = netlist.getAllFanOut(startName);
-      netlist.printPathReport(paths);
+      netlistPaths.dumpDotFile(outputFilename);
       return 0;
     }
 
-    // End only.
-    if (startName.empty() && !endName.empty()) {
-      if (!throughNames.empty())
-        throw netlist_paths::Exception("through points not supported for end only");
-      if (netlist_paths::options.fanInDegree) {
-        // Report the fan in degree to endName.
-        std::cout << netlist.getFanInDegree(endName) << "\n";
-        return 0;
-      } else if (netlist_paths::options.startPoints) {
-        // Report the start points.
-        auto paths = netlist.getAllFanIn(endName);
-        for (auto &path : paths) {
-           const netlist_paths::Path newPath = {path.front()};
-           netlist.printPathReport(newPath);
-        }
-        return 0;
-      }
-      // Report paths fanning in to endName.
-      auto paths = netlist.getAllFanIn(endName);
-      netlist.printPathReport(paths);
-      return 0;
-    }
-
-    // Compile path waypoints.
-    netlist.addStartpoint(startName);
-    for (auto &throughName : throughNames) {
-      netlist.addWaypoint(throughName);
-    }
-    netlist.addEndpoint(endName);
-
-    // Report all paths between two points.
-    if (netlist_paths::options.allPaths) {
-      if (netlist.numWaypoints() > 2) {
-        throw netlist_paths::Exception("through points not supported for all paths");
-      }
-      auto paths = netlist.getAllPointToPoint();
-      netlist.printPathReport(paths);
-      return 0;
-    }
-
-    // Report a path between two points.
-    auto path = netlist.getAnyPointToPoint();
-    if (path.empty()) {
-      throw netlist_paths::Exception(std::string("no path between points"));
-    }
-    netlist.printPathReport(path);
+//    // Dump netlist names.
+//    if (netlist_paths::options.dumpNames) {
+//      auto vertices = netlist.getNames();
+//      netlist.printNames(vertices);
+//      return 0;
+//    }
+//
+//    return 0; // TEMPORARY EARLY EXIT
+//
+//    // A start or an endpoint must be specified.
+//    if (startName.empty() && endName.empty()) {
+//      throw netlist_paths::Exception("no start and/or end point specified");
+//    }
+//
+//    // Start only.
+//    if (!startName.empty() && endName.empty()) {
+//      if (!throughNames.empty()) {
+//        throw netlist_paths::Exception("through points not supported for start only");
+//      }
+//      if (netlist_paths::options.fanOutDegree) {
+//        // Report the fan out degree from startName.
+//        std::cout << netlist.getfanOutDegree(startName) << "\n";
+//        return 0;
+//      } else if (netlist_paths::options.endPoints) {
+//        // Report the end points.
+//        auto paths = netlist.getAllFanOut(startName);
+//        netlist_paths::Path fanOutEndPoints;
+//        for (auto &path : paths) {
+//          fanOutEndPoints.push_back(path.back());
+//        }
+//        netlist.printPathReport(fanOutEndPoints);
+//        return 0;
+//      }
+//      // Report paths fanning out from startName.
+//      auto paths = netlist.getAllFanOut(startName);
+//      netlist.printPathReport(paths);
+//      return 0;
+//    }
+//
+//    // End only.
+//    if (startName.empty() && !endName.empty()) {
+//      if (!throughNames.empty())
+//        throw netlist_paths::Exception("through points not supported for end only");
+//      if (netlist_paths::options.fanInDegree) {
+//        // Report the fan in degree to endName.
+//        std::cout << netlist.getFanInDegree(endName) << "\n";
+//        return 0;
+//      } else if (netlist_paths::options.startPoints) {
+//        // Report the start points.
+//        auto paths = netlist.getAllFanIn(endName);
+//        for (auto &path : paths) {
+//           const netlist_paths::Path newPath = {path.front()};
+//           netlist.printPathReport(newPath);
+//        }
+//        return 0;
+//      }
+//      // Report paths fanning in to endName.
+//      auto paths = netlist.getAllFanIn(endName);
+//      netlist.printPathReport(paths);
+//      return 0;
+//    }
+//
+//    // Compile path waypoints.
+//    netlist.addStartpoint(startName);
+//    for (auto &throughName : throughNames) {
+//      netlist.addWaypoint(throughName);
+//    }
+//    netlist.addEndpoint(endName);
+//
+//    // Report all paths between two points.
+//    if (netlist_paths::options.allPaths) {
+//      if (netlist.numWaypoints() > 2) {
+//        throw netlist_paths::Exception("through points not supported for all paths");
+//      }
+//      auto paths = netlist.getAllPointToPoint();
+//      netlist.printPathReport(paths);
+//      return 0;
+//    }
+//
+//    // Report a path between two points.
+//    auto path = netlist.getAnyPointToPoint();
+//    if (path.empty()) {
+//      throw netlist_paths::Exception(std::string("no path between points"));
+//    }
+//    netlist.printPathReport(path);
     return 0;
   } catch (std::exception& e) {
     std::cerr << "Error: " << e.what() << "\n";

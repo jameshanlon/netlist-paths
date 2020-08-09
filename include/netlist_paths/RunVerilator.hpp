@@ -1,5 +1,5 @@
-#ifndef NETLIST_PATHS_COMPILE_GRAPH_HPP
-#define NETLIST_PATHS_COMPILE_GRAPH_HPP
+#ifndef NETLIST_PATHS_RUN_VERILATOR_HPP
+#define NETLIST_PATHS_RUN_VERILATOR_HPP
 
 #include <vector>
 #include <string>
@@ -9,13 +9,13 @@ namespace fs = boost::filesystem;
 
 namespace netlist_paths {
 
-class CompileGraph {
+class RunVerilator {
 private:
   fs::path verilatorExe;
 
 public:
-  CompileGraph();
-  CompileGraph(const std::string &verilatorLocation);
+  RunVerilator();
+  RunVerilator(const std::string &verilatorLocation);
   int run(const std::vector<std::string> &includes,
           const std::vector<std::string> &defines,
           const std::vector<std::string> &inputFiles,
@@ -26,5 +26,4 @@ public:
 
 } // End namespace.
 
-#endif // NETLIST_PATHS_COMPILE_GRAPH_HPP
-
+#endif // NETLIST_RUN_VERILATOR_HPP

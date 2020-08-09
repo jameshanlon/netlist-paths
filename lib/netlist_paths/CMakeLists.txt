@@ -1,9 +1,14 @@
+set(SOURCES
+    NetlistPaths.cpp
+    RunVerilator.cpp
+    ReadVerilatorXML.cpp
+    Netlist.cpp
+    Options.cpp)
+
 # Compile a shared library to link with the Python module since Boost
 # distributions are expecting this.
 add_library(netlist_paths_shared SHARED
-  CompileGraph.cpp
-  Netlist.cpp
-  Options.cpp)
+  ${SOURCES})
 target_include_directories(netlist_paths_shared PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -18,9 +23,7 @@ install(TARGETS netlist_paths_shared
 
 # Compile a static version of the library to link with the command-line tool.
 add_library(netlist_paths_static STATIC
-  CompileGraph.cpp
-  Netlist.cpp
-  Options.cpp)
+  ${SOURCES})
 target_include_directories(netlist_paths_static PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
