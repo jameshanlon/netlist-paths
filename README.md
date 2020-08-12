@@ -5,32 +5,35 @@ an XML representation of a design's netlist, produced by Verilator, and
 provides facilities for inspecting types, variables and paths.
 
 
-## Compile and install
+## Dependencies
 
-Install dependencies:
-```
-C/C++ compiler
-CMake (minimum 3.12.0)
-Boost (minimum 1.68.0)
-Python
-```
-Install Verilator dependencies:
-```
-make
-autoconf
-flex
-bison
-```
-Then:
+- C++ compiler supporing C++14.
+- CMake (minimum 3.12.0)
+- Boost (minimum 1.68.0)
+- Python3
+- make
+- autoconf
+- flex
+- bison
+
+## Build
+Run a debug build with Make, for example:
 ```
 git submodule update --init --recursive
 mkdir Debug
 cd Debug
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 make -j8 install
+```
+
+## Test
+
+Run unit tests:
+```
 ctest . --verbose
 ```
 
+Run external tests with [netlist-paths-tests](https://github.com/jameshanlon/netlist-paths-tests).
 
 ## Debugging
 
