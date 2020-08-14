@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <boost/format.hpp>
 
 class File {
   std::string filename;
@@ -39,6 +40,12 @@ public:
            a.startCol == b.startCol &&
            a.endLine == b.endLine &&
            a.endCol == b.endCol;
+  }
+  /// String representation.
+  std::string toString() const {
+    auto s = boost::format("%s %d:%d,%d:%d")
+               % getFilename() % startLine % startCol % endLine % endCol;
+    return s.str();
   }
 };
 

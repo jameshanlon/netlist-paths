@@ -285,8 +285,8 @@ struct Vertex {
            name.find("__Vconc") != std::string::npos ||
            name.find("__Vfunc") != std::string::npos;
   }
-  /// Visible vertices are displayed in the name dump.
-  inline bool isVisible() const {
+  /// Named vertices are displayed in the name dump.
+  inline bool isNamed() const {
     return !isLogic() &&
            !isSrcReg() &&
            !canIgnore() &&
@@ -301,6 +301,10 @@ struct Vertex {
   void setDeleted() { deleted = true; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
   const std::string &getName() const { return name; }
+  const std::string getAstTypeString() const { return getVertexAstTypeStr(astType); }
+  const std::string getDirString() const { return getVertexDirectionStr(direction); }
+  const std::string getDTypeString() const { return dtype->toString(); }
+  const std::string getLocString() const { return location.toString(); }
   VertexDirection getDirection() const { return direction; }
 };
 

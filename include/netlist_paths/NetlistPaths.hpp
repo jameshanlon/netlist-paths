@@ -2,6 +2,7 @@
 #define NETLIST_PATHS_NETLIST_PATHS_HPP
 
 #include <memory>
+#include <ostream>
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
 
@@ -13,7 +14,8 @@ class NetlistPaths {
   std::vector<File> files;
   std::vector<DType> dtypes;
   std::vector<VertexDesc> waypoints;
-  int maxNameLength(const Path &path) const;
+  size_t maxNameLength(const Path &path) const;
+  std::vector<VertexDesc> getNamedVertexIds(const std::string& regex="") const;
 
 public:
   NetlistPaths() = delete;
@@ -39,7 +41,7 @@ public:
   //===--------------------------------------------------------------------===//
   // Reporting of names, types and paths.
   //===--------------------------------------------------------------------===//
-  void printNames() const;
+  void dumpNames(std::ostream &os, const std::string &regex) const;
   //void printPathReport(const Path &path) const;
   //void printPathReport(const std::vector<Path> &paths) const;
   //===--------------------------------------------------------------------===//
@@ -77,7 +79,8 @@ public:
   void dumpDotFile(const std::string &outputFilename) const {
     netlist.dumpDotFile(outputFilename);
   }
-  std::vector<std::reference_wrapper<const Vertex>> getNamedVertices() const;
+  std::vector<std::reference_wrapper<const Vertex>>
+  getNamedVertices(const std::string &regex="") const;
 };
 
 }; // End namespace.

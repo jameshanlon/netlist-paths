@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
     std::string outputFilename;
     std::string startName;
     std::string endName;
+    std::string nameRegex;
     std::vector<std::string> throughNames;
     // Specify command line options.
     hiddenOptions.add_options()
@@ -62,6 +63,9 @@ int main(int argc, char **argv) {
                         "define a preprocessor macro (only with --compile)")
       ("dotfile",       "Dump dotfile of netlist graph")
       ("dumpnames",     "Dump list of names in netlist")
+      ("match",         po::value<std::string>(&nameRegex)
+                          ->value_name("name regex"),
+                        "Regex to match names against (only with --dumpnames)")
       ("outfile,o",     po::value<std::string>(&outputFilename)
                           ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
                           ->value_name("filename"),
@@ -127,12 +131,11 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-//    // Dump netlist names.
-//    if (netlist_paths::options.dumpNames) {
-//      auto vertices = netlist.getNames();
-//      netlist.printNames(vertices);
-//      return 0;
-//    }
+    // Dump netlist names.
+    if (netlist_paths::options.dumpNames) {
+      netlistPaths.dumpNames(std::cout, nameRegex);
+      return 0;
+    }
 //
 //    return 0; // TEMPORARY EARLY EXIT
 //

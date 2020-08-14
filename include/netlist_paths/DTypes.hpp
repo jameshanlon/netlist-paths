@@ -8,6 +8,8 @@
 struct DType {
   std::string name;
   Location location;
+public:
+  std::string toString() { return name; }
 protected:
   DType(const std::string &name, Location &location) :
       name(name), location(location) {}
