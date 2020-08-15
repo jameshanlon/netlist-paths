@@ -22,6 +22,7 @@ enum class AstNode {
   CONST,
   C_FUNC,
   INITIAL,
+  MEMBER_DTYPE,
   MODULE,
   PACKED_ARRAY_DTYPE,
   RANGE,
@@ -42,30 +43,31 @@ enum class AstNode {
 /// Convert a string name into an AstNode type.
 static AstNode resolveNode(const char *name) {
   static std::map<std::string, AstNode> mappings {
-      { "always",             AstNode::ALWAYS },
-      { "alwayspublic",       AstNode::ALWAYS_PUBLIC },
-      { "assign",             AstNode::ASSIGN },
-      { "assignalias",        AstNode::ASSIGN_ALIAS },
-      { "assigndly",          AstNode::ASSIGN_DLY },
-      { "assignw",            AstNode::ASSIGN_W },
-      { "basicdtype",         AstNode::BASIC_DTYPE },
-      { "cfunc",              AstNode::C_FUNC },
-      { "contassign",         AstNode::CONT_ASSIGN },
-      { "const",              AstNode::CONST },
-      { "initial",            AstNode::INITIAL },
-      { "module",             AstNode::MODULE },
-      { "packedarraydtype",   AstNode::PACKED_ARRAY_DTYPE },
-      { "refdtype",           AstNode::REF_DTYPE },
-      { "scope",              AstNode::SCOPE },
-      { "sengate",            AstNode::SEN_GATE },
-      { "senitem",            AstNode::SEN_ITEM },
-      { "structdtype",        AstNode::STRUCT_DTYPE },
-      { "topscope",           AstNode::TOP_SCOPE },
-      { "typetable",          AstNode::TYPE_TABLE },
-      { "unpackedarraydtype", AstNode::UNPACKED_ARRAY_DTYPE },
-      { "var",                AstNode::VAR },
-      { "varref",             AstNode::VAR_REF },
-      { "varscope",           AstNode::VAR_SCOPE },
+      { "always",           AstNode::ALWAYS },
+      { "alwayspublic",     AstNode::ALWAYS_PUBLIC },
+      { "assign",           AstNode::ASSIGN },
+      { "assignalias",      AstNode::ASSIGN_ALIAS },
+      { "assigndly",        AstNode::ASSIGN_DLY },
+      { "assignw",          AstNode::ASSIGN_W },
+      { "basicdtype",       AstNode::BASIC_DTYPE },
+      { "cfunc",            AstNode::C_FUNC },
+      { "contassign",       AstNode::CONT_ASSIGN },
+      { "const",            AstNode::CONST },
+      { "initial",          AstNode::INITIAL },
+      { "memberdtype",      AstNode::MEMBER_DTYPE },
+      { "module",           AstNode::MODULE },
+      { "packarraydtype",   AstNode::PACKED_ARRAY_DTYPE },
+      { "refdtype",         AstNode::REF_DTYPE },
+      { "scope",            AstNode::SCOPE },
+      { "sengate",          AstNode::SEN_GATE },
+      { "senitem",          AstNode::SEN_ITEM },
+      { "structdtype",      AstNode::STRUCT_DTYPE },
+      { "topscope",         AstNode::TOP_SCOPE },
+      { "typetable",        AstNode::TYPE_TABLE },
+      { "unpackarraydtype", AstNode::UNPACKED_ARRAY_DTYPE },
+      { "var",              AstNode::VAR },
+      { "varref",           AstNode::VAR_REF },
+      { "varscope",         AstNode::VAR_SCOPE },
   };
   auto it = mappings.find(name);
   return (it != mappings.end()) ? it->second : AstNode::INVALID;
@@ -84,6 +86,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::CONT_ASSIGN:          visitAssign(node);             break;
   case AstNode::C_FUNC:               visitCFunc(node);              break;
   case AstNode::INITIAL:              visitInitial(node);            break;
+  case AstNode::MEMBER_DTYPE:         visitMemberDtype(node);        break;
   case AstNode::PACKED_ARRAY_DTYPE:   visitArrayDtype(node, true);   break;
   case AstNode::REF_DTYPE:            visitRefDtype(node);           break;
   case AstNode::SCOPE:                visitScope(node);              break;
@@ -348,17 +351,29 @@ void ReadVerilatorXML::visitBasicDtype(XMLNode *node) {
   if (node->first_attribute("left") && node->first_attribute("right")) {
     auto left = std::stoul(node->first_attribute("left")->value());
     auto right = std::stoul(node->first_attribute("right")->value());
-    dtypeMappings[id] = addDtype(BasicDType(name, location, left, right));
+    dtypeMappings[id] = std::make_shared<BasicDType>(BasicDType(name, location,
+                                                                left, right));
   } else {
-    dtypeMappings[id] = addDtype(BasicDType(name, location));
+    dtypeMappings[id] = std::make_shared<BasicDType>(BasicDType(name, location));
   }
+  addDtype(dtypeMappings[id]);
 }
 
 void ReadVerilatorXML::visitRefDtype(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
   auto name = node->first_attribute("name")->value();
+  auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
-  dtypeMappings[id] = addDtype(RefDType(name, location));
+  dtypeMappings[id] = std::make_shared<RefDType>(RefDType(name, location,
+                                                          dtypeMappings[subDTypeId]));
+  addDtype(dtypeMappings[id]);
+}
+
+MemberDType ReadVerilatorXML::visitMemberDtype(XMLNode *node) {
+  auto name = node->first_attribute("name")->value();
+  auto location = parseLocation(node->first_attribute("loc")->value());
+  auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
+  return MemberDType(name, location, dtypeMappings[std::string(subDTypeId)]);
 }
 
 std::string ReadVerilatorXML::visitConst(XMLNode *node) {
@@ -374,18 +389,37 @@ std::pair<std::string, std::string> ReadVerilatorXML::visitRange(XMLNode *node) 
 
 void ReadVerilatorXML::visitArrayDtype(XMLNode *node, bool packed) {
   auto id = node->first_attribute("id")->value();
-  auto name = node->first_attribute("name")->value();
+  auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
   assert(numChildren(node) == 1 && "arraydtype expects one range child");
   auto range = visitRange(node->first_node());
-  dtypeMappings[id] = addDtype(ArrayDType(name, location,
-                                          range.first,
-                                          range.second,
-                                          packed));
+  dtypeMappings[id] = std::make_shared<ArrayDType>(ArrayDType(location,
+                                                              dtypeMappings[subDTypeId],
+                                                              range.first,
+                                                              range.second,
+                                                              packed));
+  addDtype(dtypeMappings[id]);
 }
 
 void ReadVerilatorXML::visitStructDtype(XMLNode *node) {
-  iterateChildren(node);
+  auto id = node->first_attribute("id")->value();
+  auto location = parseLocation(node->first_attribute("loc")->value());
+  std::shared_ptr<StructDType> dtype;
+  // Struct may not be named, and defined inline with a declaration.
+  if (node->first_attribute("name")) {
+    auto name = node->first_attribute("name")->value();
+    dtype = std::make_shared<StructDType>(StructDType(name, location));
+  } else {
+    dtype = std::make_shared<StructDType>(StructDType(location));
+  }
+  for (XMLNode *child = node->first_node();
+       child; child = child->next_sibling()) {
+    assert(std::string(child->name()) == "memberdtype" &&
+           "structdtype expects memberdtype children");
+    dtype->addMemberDType(visitMemberDtype(child));
+  }
+  dtypeMappings[id] = dtype;
+  addDtype(dtype);
 }
 
 void ReadVerilatorXML::readXML(const std::string &filename) {
@@ -429,7 +463,7 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
 
 ReadVerilatorXML::ReadVerilatorXML(Netlist &netlist,
                                    std::vector<File> &files,
-                                   std::vector<DType> &dtypes,
+                                   std::vector<std::shared_ptr<DType>> &dtypes,
                                    const std::string &filename) :
     netlist(netlist),
     files(files),

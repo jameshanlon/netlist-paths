@@ -18,5 +18,6 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("reg_exists",        &NetlistPaths::regExists)
     .def("startpoint_exists", &NetlistPaths::startpointExists)
     .def("endpoint_exists",   &NetlistPaths::endpointExists)
-    .def("path_exists",       &NetlistPaths::pathExists);
+    .def("path_exists",       &NetlistPaths::pathExists)
+    .def("dump_names",        &NetlistPaths::dumpNamesStdOut);
 }

@@ -51,7 +51,7 @@ NetlistPaths::getNamedVertices(const std::string &regex) const {
 void NetlistPaths::dumpNames(std::ostream &os, const std::string &regex) const {
   auto vertices = getNamedVertexIds(regex);
   size_t maxWidth = maxNameLength(vertices) + 1;
-  auto fmtString = std::string()+"%-"+std::to_string(maxWidth)+"s %-10s %-10s %-10s %s\n";
+  auto fmtString = std::string()+"%-"+std::to_string(maxWidth)+"s %-10s %-16s %-10s %s\n";
   os << boost::format(fmtString) % "Name" % "Type" % "DType" % "Direction" % "Location";
   for (auto vertexId : vertices) {
     os << boost::format(fmtString)

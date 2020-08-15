@@ -101,8 +101,9 @@ int main(int argc, char **argv) {
 
     // Call Verilator to produce graph file.
     if (netlist_paths::options.compile) {
-      if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME)
-         outputFilename += ".graph";
+      if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME) {
+         outputFilename += ".xml";
+      }
       auto includes = vm.count("include")
                         ? vm["include"].as<std::vector<std::string>>()
                         : std::vector<std::string>{};

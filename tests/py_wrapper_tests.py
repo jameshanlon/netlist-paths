@@ -124,6 +124,7 @@ class TestPyWrapper(unittest.TestCase):
     def test_basic_types(self):
         # Check handling of basic types.
         np = self.compile_test('basic_types.sv')
+        assert np.dump_names('') != ''
 
     def test_fsm(self):
         np = self.compile_test('fsm.sv')

@@ -49,7 +49,7 @@ class ReadVerilatorXML {
 private:
   Netlist &netlist;
   std::vector<File> &files;
-  std::vector<DType> &dtypes;
+  std::vector<std::shared_ptr<DType>> &dtypes;
   std::vector<std::unique_ptr<VarNode>> vars;
   std::map<std::string, std::shared_ptr<File>> fileIdMappings;
   std::map<std::string, std::shared_ptr<DType>> dtypeMappings;
@@ -64,9 +64,8 @@ private:
     files.push_back(file);
     return std::make_shared<File>(files.back());
   }
-  std::shared_ptr<DType> addDtype(DType dtype) {
+  void addDtype(std::shared_ptr<DType> dtype) {
     dtypes.push_back(dtype);
-    return std::make_shared<DType>(dtypes.back());
   }
   std::size_t numChildren(XMLNode *node);
   void dispatchVisitor(XMLNode *node);
@@ -96,6 +95,7 @@ private:
   void visitRefDtype(XMLNode *node);
   std::string visitConst(XMLNode *node);
   std::pair<std::string, std::string> visitRange(XMLNode *node);
+  MemberDType visitMemberDtype(XMLNode *node);
   void visitArrayDtype(XMLNode *node, bool packed);
   void visitStructDtype(XMLNode *node);
   void readXML(const std::string &filename);
@@ -104,7 +104,7 @@ public:
   ReadVerilatorXML() = delete;
   ReadVerilatorXML(Netlist &netlist,
                    std::vector<File> &files,
-                   std::vector<DType> &dtypes,
+                   std::vector<std::shared_ptr<DType>> &dtypes,
                    const std::string &filename);
 };
 
