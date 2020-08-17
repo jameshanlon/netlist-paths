@@ -85,17 +85,56 @@ public:
     members.push_back(memberDType);
   }
   virtual const std::string toString() const override {
-    auto s = std::string("typedef struct packed {\n");
-    for (auto member : members) {
-      auto structDType = std::dynamic_pointer_cast<StructDType>(member.getSubDType());
-      if (structDType) {
-        s += "  " + member.getSubDType()->getName() + " " + member.getName() + ";\n";
-      } else {
-        s += "  " + member.getSubDType()->toString() + ";\n";
-      }
-    }
-    s += "} " + name + "\n";
-    return s;
+    return "packed struct";
+  }
+  //virtual const std::string toString() const override {
+  //  auto s = std::string("typedef struct packed {\n");
+  //  for (auto member : members) {
+  //    auto structDType = std::dynamic_pointer_cast<StructDType>(member.getSubDType());
+  //    if (structDType) {
+  //      s += "  " + member.getSubDType()->getName() + " " + member.getName() + ";\n";
+  //    } else {
+  //      s += "  " + member.getSubDType()->toString() + ";\n";
+  //    }
+  //  }
+  //  s += "} " + name + "\n";
+  //  return s;
+  //}
+};
+
+class UnionDType : public DType {
+  std::vector<MemberDType> members;
+public:
+  UnionDType(Location &location) :
+      DType(location) {}
+  UnionDType(const std::string &name, Location &location) :
+      DType(name, location) {}
+  void addMemberDType(MemberDType memberDType) {
+    members.push_back(memberDType);
+  }
+  virtual const std::string toString() const override {
+    return "packed union";
+  }
+};
+
+class EnumItem {
+  std::string name;
+  std::string value;
+public:
+  EnumItem(const std::string &name, const std::string &value) :
+      name(name), value(value) {}
+};
+
+class EnumDType : public DType {
+  std::vector<EnumItem> items;
+  std::shared_ptr<DType> subDType;
+public:
+  EnumDType(const std::string &name, Location &location,
+              std::shared_ptr<DType> subDType) :
+      DType(name, location), subDType(subDType) {}
+  void addItem(EnumItem item) { items.push_back(item); }
+  virtual const std::string toString() const override {
+    return "emum";
   }
 };
 

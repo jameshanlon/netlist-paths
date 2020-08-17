@@ -80,6 +80,7 @@ private:
   void visitNode(XMLNode *node);
   void visitModule(XMLNode *node);
   void visitTypeTable(XMLNode *node);
+  void visitTypedef(XMLNode *node);
   void visitAlways(XMLNode *node);
   void visitAssign(XMLNode *node);
   void visitAssignDly(XMLNode *node);
@@ -95,9 +96,11 @@ private:
   void visitRefDtype(XMLNode *node);
   std::string visitConst(XMLNode *node);
   std::pair<std::string, std::string> visitRange(XMLNode *node);
-  MemberDType visitMemberDtype(XMLNode *node);
-  void visitArrayDtype(XMLNode *node, bool packed);
-  void visitStructDtype(XMLNode *node);
+  MemberDType visitMemberDType(XMLNode *node);
+  void visitArrayDType(XMLNode *node, bool packed);
+  template<typename T> void visitAggregateDType(XMLNode *node);
+  EnumItem visitEnumItem(XMLNode *node);
+  void visitEnumDType(XMLNode *node);
   void readXML(const std::string &filename);
 
 public:

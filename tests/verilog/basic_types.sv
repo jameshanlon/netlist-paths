@@ -1,6 +1,8 @@
 module basic_types
   ();
 
+  // Structs
+
   struct packed {
     logic a;
     logic b;
@@ -38,18 +40,40 @@ module basic_types
   packed_struct_nested_t packed_struct_nested;
   packed_struct_twice_nested_t packed_struct_twice_nested;
 
+  // Enums
+
   enum logic [2:0] {
     FOO_A = 3'b001,
     FOO_B = 3'b010,
     FOO_C = 3'b100
-  } enum_foo_notypedef;
+  } enum_no_typedef;
 
   typedef enum logic [2:0] {
-    BAR_A = 3'b001,
-    BAR_B = 3'b010,
-    BAR_C = 3'b100
-  } bar_enum_t;
+    BAR_A,
+    BAR_B,
+    BAR_C
+  } enum_auto_t;
 
-  bar_enum_t enum_bar;
+  enum_auto_t enum_auto;
+
+  typedef enum logic [2:0] {
+    BAZ_A = 3'b001,
+    BAZ_B = 3'b010,
+    BAZ_C = 3'b100
+  } enum_onehot_t;
+
+  enum_onehot_t enum_onehot;
+
+  // Unions
+
+  union packed {
+    logic a;
+    logic b;
+  } union_of_logics_no_typedef;
+
+  union packed {
+    packed_struct_t a;
+    packed_struct_nested_t b;
+  } union_of_structs_no_typedef;
 
 endmodule

@@ -21,10 +21,11 @@ enum class AstNode {
   CONT_ASSIGN,
   CONST,
   C_FUNC,
+  ENUM,
   INITIAL,
   MEMBER_DTYPE,
   MODULE,
-  PACKED_ARRAY_DTYPE,
+  PACKED_ARRAY,
   RANGE,
   REF_DTYPE,
   SCOPE,
@@ -33,7 +34,9 @@ enum class AstNode {
   STRUCT_DTYPE,
   TOP_SCOPE,
   TYPE_TABLE,
-  UNPACKED_ARRAY_DTYPE,
+  TYPEDEF,
+  UNION_DTYPE,
+  UNPACKED_ARRAY,
   VAR,
   VAR_REF,
   VAR_SCOPE,
@@ -53,10 +56,11 @@ static AstNode resolveNode(const char *name) {
       { "cfunc",            AstNode::C_FUNC },
       { "contassign",       AstNode::CONT_ASSIGN },
       { "const",            AstNode::CONST },
+      { "enumdtype",        AstNode::ENUM },
       { "initial",          AstNode::INITIAL },
       { "memberdtype",      AstNode::MEMBER_DTYPE },
       { "module",           AstNode::MODULE },
-      { "packarraydtype",   AstNode::PACKED_ARRAY_DTYPE },
+      { "packarraydtype",   AstNode::PACKED_ARRAY },
       { "refdtype",         AstNode::REF_DTYPE },
       { "scope",            AstNode::SCOPE },
       { "sengate",          AstNode::SEN_GATE },
@@ -64,7 +68,9 @@ static AstNode resolveNode(const char *name) {
       { "structdtype",      AstNode::STRUCT_DTYPE },
       { "topscope",         AstNode::TOP_SCOPE },
       { "typetable",        AstNode::TYPE_TABLE },
-      { "unpackarraydtype", AstNode::UNPACKED_ARRAY_DTYPE },
+      { "typedef",          AstNode::TYPEDEF },
+      { "uniondtype",       AstNode::UNION_DTYPE },
+      { "unpackarraydtype", AstNode::UNPACKED_ARRAY },
       { "var",              AstNode::VAR },
       { "varref",           AstNode::VAR_REF },
       { "varscope",         AstNode::VAR_SCOPE },
@@ -76,29 +82,35 @@ static AstNode resolveNode(const char *name) {
 void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   // Handle node by type.
   switch (resolveNode(node->name())) {
-  case AstNode::ALWAYS:               visitAlways(node);             break;
-  case AstNode::ALWAYS_PUBLIC:        visitAlways(node);             break;
-  case AstNode::ASSIGN:               visitAssign(node);             break;
-  case AstNode::ASSIGN_ALIAS:         visitAssign(node);             break;
-  case AstNode::ASSIGN_DLY:           visitAssignDly(node);          break;
-  case AstNode::ASSIGN_W:             visitAssign(node);             break;
-  case AstNode::BASIC_DTYPE:          visitBasicDtype(node);         break;
-  case AstNode::CONT_ASSIGN:          visitAssign(node);             break;
-  case AstNode::C_FUNC:               visitCFunc(node);              break;
-  case AstNode::INITIAL:              visitInitial(node);            break;
-  case AstNode::MEMBER_DTYPE:         visitMemberDtype(node);        break;
-  case AstNode::PACKED_ARRAY_DTYPE:   visitArrayDtype(node, true);   break;
-  case AstNode::REF_DTYPE:            visitRefDtype(node);           break;
-  case AstNode::SCOPE:                visitScope(node);              break;
-  case AstNode::SEN_GATE:             visitSenGate(node);            break;
-  case AstNode::SEN_ITEM:             visitSenItem(node);            break;
-  case AstNode::STRUCT_DTYPE:         visitStructDtype(node);        break;
-  case AstNode::TOP_SCOPE:            visitScope(node);              break;
-  case AstNode::UNPACKED_ARRAY_DTYPE: visitArrayDtype(node, false);  break;
-  case AstNode::VAR:                  visitVar(node);                break;
-  case AstNode::VAR_REF:              visitVarRef(node);             break;
-  case AstNode::VAR_SCOPE:            visitVarScope(node);           break;
-  default:                            visitNode(node);               break;
+  case AstNode::ALWAYS:         visitAlways(node);                      break;
+  case AstNode::ALWAYS_PUBLIC:  visitAlways(node);                      break;
+  case AstNode::ASSIGN:         visitAssign(node);                      break;
+  case AstNode::ASSIGN_ALIAS:   visitAssign(node);                      break;
+  case AstNode::ASSIGN_DLY:     visitAssignDly(node);                   break;
+  case AstNode::ASSIGN_W:       visitAssign(node);                      break;
+  case AstNode::BASIC_DTYPE:    visitBasicDtype(node);                  break;
+  case AstNode::CONT_ASSIGN:    visitAssign(node);                      break;
+  case AstNode::C_FUNC:         visitCFunc(node);                       break;
+  case AstNode::ENUM:           visitEnumDType(node);                   break;
+  case AstNode::INITIAL:        visitInitial(node);                     break;
+  case AstNode::MEMBER_DTYPE:   visitMemberDType(node);                 break;
+  case AstNode::PACKED_ARRAY:   visitArrayDType(node, true);            break;
+  case AstNode::REF_DTYPE:      visitRefDtype(node);                    break;
+  case AstNode::SCOPE:          visitScope(node);                       break;
+  case AstNode::SEN_GATE:       visitSenGate(node);                     break;
+  case AstNode::SEN_ITEM:       visitSenItem(node);                     break;
+  case AstNode::STRUCT_DTYPE:   visitAggregateDType<StructDType>(node); break;
+  case AstNode::TOP_SCOPE:      visitScope(node);                       break;
+  case AstNode::TYPEDEF:        visitTypedef(node);                     break;
+  case AstNode::UNION_DTYPE:    visitAggregateDType<UnionDType>(node);  break;
+  case AstNode::UNPACKED_ARRAY: visitArrayDType(node, false);           break;
+  case AstNode::VAR:            visitVar(node);                         break;
+  case AstNode::VAR_REF:        visitVarRef(node);                      break;
+  case AstNode::VAR_SCOPE:      visitVarScope(node);                    break;
+  default:
+    DEBUG(std::cout << "Unrecognised node: " << node->name() << "\n");
+    visitNode(node);
+    break;
   }
 }
 
@@ -344,6 +356,10 @@ void ReadVerilatorXML::visitTypeTable(XMLNode *node) {
   iterateChildren(node);
 }
 
+void ReadVerilatorXML::visitTypedef(XMLNode *node) {
+  iterateChildren(node);
+}
+
 void ReadVerilatorXML::visitBasicDtype(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
   auto name = node->first_attribute("name")->value();
@@ -369,7 +385,7 @@ void ReadVerilatorXML::visitRefDtype(XMLNode *node) {
   addDtype(dtypeMappings[id]);
 }
 
-MemberDType ReadVerilatorXML::visitMemberDtype(XMLNode *node) {
+MemberDType ReadVerilatorXML::visitMemberDType(XMLNode *node) {
   auto name = node->first_attribute("name")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
@@ -387,7 +403,7 @@ std::pair<std::string, std::string> ReadVerilatorXML::visitRange(XMLNode *node) 
   return std::make_pair(start, end);
 }
 
-void ReadVerilatorXML::visitArrayDtype(XMLNode *node, bool packed) {
+void ReadVerilatorXML::visitArrayDType(XMLNode *node, bool packed) {
   auto id = node->first_attribute("id")->value();
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
@@ -401,22 +417,47 @@ void ReadVerilatorXML::visitArrayDtype(XMLNode *node, bool packed) {
   addDtype(dtypeMappings[id]);
 }
 
-void ReadVerilatorXML::visitStructDtype(XMLNode *node) {
+/// Shared handling for structs and unions.
+template<typename T>
+void ReadVerilatorXML::visitAggregateDType(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
-  std::shared_ptr<StructDType> dtype;
-  // Struct may not be named, and defined inline with a declaration.
+  std::shared_ptr<T> dtype;
+  // Struct or union may not be named, and defined inline with a declaration.
   if (node->first_attribute("name")) {
     auto name = node->first_attribute("name")->value();
-    dtype = std::make_shared<StructDType>(StructDType(name, location));
+    dtype = std::make_shared<T>(T(name, location));
   } else {
-    dtype = std::make_shared<StructDType>(StructDType(location));
+    dtype = std::make_shared<T>(T(location));
   }
   for (XMLNode *child = node->first_node();
        child; child = child->next_sibling()) {
     assert(std::string(child->name()) == "memberdtype" &&
-           "structdtype expects memberdtype children");
-    dtype->addMemberDType(visitMemberDtype(child));
+           "aggregate dtype expects memberdtype children");
+    dtype->addMemberDType(visitMemberDType(child));
+  }
+  dtypeMappings[id] = dtype;
+  addDtype(dtype);
+}
+
+EnumItem ReadVerilatorXML::visitEnumItem(XMLNode *node) {
+  auto name = node->first_attribute("name")->value();
+  auto value = visitConst(node->first_node());
+  return EnumItem(name, value);
+}
+
+void ReadVerilatorXML::visitEnumDType(XMLNode *node) {
+  auto id = node->first_attribute("id")->value();
+  auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
+  auto location = parseLocation(node->first_attribute("loc")->value());
+  auto name = node->first_attribute("name")->value();
+  auto dtype = std::make_shared<EnumDType>(EnumDType(name, location,
+                                                     dtypeMappings[subDTypeId]));
+  for (XMLNode *child = node->first_node();
+       child; child = child->next_sibling()) {
+    assert(std::string(child->name()) == "enumitem" &&
+           "enumdtype expects enumitem children");
+    dtype->addItem(visitEnumItem(child));
   }
   dtypeMappings[id] = dtype;
   addDtype(dtype);

@@ -4,18 +4,6 @@
 
 using namespace netlist_paths;
 
-/// Determine the max length of a name.
-size_t NetlistPaths::maxNameLength(const std::vector<VertexDesc> &names) const {
-  size_t maxLength = 0;
-  for (auto v : names) {
-    if (netlist.getVertex(v).canIgnore()) {
-      continue;
-    }
-    maxLength = std::max(maxLength, netlist.getVertex(v).name.size());
-  }
-  return maxLength;
-}
-
 /// Return a list of IDs of named vertices, optionally filter by regex.
 std::vector<VertexDesc>
 NetlistPaths::getNamedVertexIds(const std::string &regex) const {
@@ -49,17 +37,29 @@ NetlistPaths::getNamedVertices(const std::string &regex) const {
 
 /// Dump details of named entities in the design.
 void NetlistPaths::dumpNames(std::ostream &os, const std::string &regex) const {
-  auto vertices = getNamedVertexIds(regex);
-  size_t maxWidth = maxNameLength(vertices) + 1;
-  auto fmtString = std::string()+"%-"+std::to_string(maxWidth)+"s %-10s %-16s %-10s %s\n";
-  os << boost::format(fmtString) % "Name" % "Type" % "DType" % "Direction" % "Location";
-  for (auto vertexId : vertices) {
-    os << boost::format(fmtString)
-            % netlist.getVertex(vertexId).getName()
-            % netlist.getVertex(vertexId).getAstTypeString()
-            % netlist.getVertex(vertexId).getDTypeString()
-            % netlist.getVertex(vertexId).getDirString()
-            % netlist.getVertex(vertexId).getLocString();
+  // Populate the rows of the table.
+  std::vector<const std::string> hdr({"Name", "Type", "DType", "Direction", "Location"});
+  std::vector<std::vector<const std::string>> rows;
+  for (auto vertexId : getNamedVertexIds(regex)) {
+    rows.push_back({netlist.getVertex(vertexId).getName(),
+                    netlist.getVertex(vertexId).getAstTypeString(),
+                    netlist.getVertex(vertexId).getDTypeString(),
+                    netlist.getVertex(vertexId).getDirString(),
+                    netlist.getVertex(vertexId).getLocString()});
+  }
+  // Create the row format string.
+  std::string fmt;
+  for (size_t i=0; i<hdr.size(); i++) {
+    size_t maxWidth = hdr[i].size();
+    for (size_t j=0; j<rows.size(); j++) {
+      maxWidth = std::max(maxWidth, rows[j][i].size());
+    }
+    fmt += "%-"+std::to_string(maxWidth+1)+"s ";
+  }
+  fmt += '\n';
+  os << boost::format(fmt) % hdr[0] % hdr[1] % hdr[2] % hdr[3] % hdr[4];
+  for (auto row : rows) {
+    os << boost::format(fmt) % row[0] % row[1] % row[2] % row[3] % row[4];
   }
 }
 
