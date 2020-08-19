@@ -95,7 +95,7 @@ private:
   void visitBasicDtype(XMLNode *node);
   void visitRefDtype(XMLNode *node);
   std::string visitConst(XMLNode *node);
-  std::pair<std::string, std::string> visitRange(XMLNode *node);
+  std::pair<const std::string, const std::string> visitRange(XMLNode *node);
   MemberDType visitMemberDType(XMLNode *node);
   void visitArrayDType(XMLNode *node, bool packed);
   template<typename T> void visitAggregateDType(XMLNode *node);

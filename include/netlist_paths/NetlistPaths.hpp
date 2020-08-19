@@ -15,7 +15,6 @@ class NetlistPaths {
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
   std::vector<VertexDesc> waypoints;
-  size_t maxNameLength(const Path &path) const;
   std::vector<VertexDesc> getNamedVertexIds(const std::string& regex="") const;
 
 public:
@@ -40,8 +39,17 @@ public:
   std::size_t numWaypoints() const { return waypoints.size(); }
   void clearWaypoints() { waypoints.clear(); }
   //===--------------------------------------------------------------------===//
-  // Reporting of names, types and paths.
+  // Reporting of names and types.
   //===--------------------------------------------------------------------===//
+  const std::string getDTypeStr(const std::string &name,
+                                VertexGraphType vertexType=VertexGraphType::ANY) const {
+    auto vertex = netlist.getVertexDescRegex(name, vertexType);
+    if (vertex != netlist.nullVertex()) {
+      return netlist.getVertex(vertex).getDTypeString();
+    } else {
+      return std::string("none");
+    }
+  }
   void dumpNames(std::ostream &os, const std::string &regex) const;
   void dumpNamesStdOut(const std::string &regex) const { dumpNames(std::cout, regex); }
   //void printPathReport(const Path &path) const;
@@ -49,9 +57,6 @@ public:
   //===--------------------------------------------------------------------===//
   // Basic path querying.
   //===--------------------------------------------------------------------===//
-  const std::string &getVertexName(VertexDesc vertex) const {
-    return netlist.getVertex(vertex).getName();
-  }
   bool startpointExists(const std::string &name) const noexcept {
     return netlist.getStartVertex(name) != netlist.nullVertex();
   }

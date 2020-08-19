@@ -187,9 +187,9 @@ VertexDesc Netlist::getVertexDescRegex(const std::string &name,
   // FIXME: create a list of candidate vertices, rather than iterating all vertices.
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
-  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
-  // Or '_' (when supplying a flattened name).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
+  // Or '_' (when supplying a flattened name).
+  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
   std::regex nameRegex(nameRegexStr);
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (((graphType == VertexGraphType::ANY) ? true : graph[v].isGraphType(graphType)) &&

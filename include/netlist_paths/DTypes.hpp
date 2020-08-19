@@ -8,7 +8,12 @@
 
 class DType {
 public:
-  virtual const std::string toString() const { return name; }
+  /// Return the string representation of the dtype. The suffix agrument allows
+  /// unpacked array range specifications to be appended with the inner-most
+  /// dimension on the LHS and outermost on the RHS.
+  virtual const std::string toString(const std::string suffix="") const {
+    return name + suffix;
+  }
   const std::string getName() const { return name; }
   virtual ~DType() = default; // Make DType polymorphic to allow dynamic casts.
 protected:
@@ -30,11 +35,11 @@ public:
   BasicDType(const std::string &name, Location &location,
              unsigned left, unsigned right) :
     DType(name, location), left(left), right(right), ranged(true) {}
-  virtual const std::string toString() const override {
+  virtual const std::string toString(const std::string suffix="") const override {
     if (ranged) {
-      return (boost::format("%s [%d:%d]") % name % left % right).str();
+      return (boost::format("[%d:%d] %s%s") % left % right % name % suffix).str();
     } else {
-      return name;
+      return name+suffix;
     }
   }
 };
@@ -45,8 +50,8 @@ public:
   RefDType(const std::string &name, Location &location,
            std::shared_ptr<DType> subDType) :
       DType(name, location), subDType(subDType) {}
-  virtual const std::string toString() const override {
-    return (boost::format("%s %s") % name % subDType->getName()).str();
+  virtual const std::string toString(const std::string suffix="") const override {
+    return (boost::format("%s %s%s") % name % subDType->getName() % suffix).str();
   }
 };
 
@@ -57,11 +62,22 @@ class ArrayDType : public DType {
   bool packed;
 public:
   ArrayDType(Location &location, std::shared_ptr<DType> subDType,
-             std::string &start, std::string &end, bool packed) :
+             const std::string &start, const std::string &end, bool packed) :
       DType(location), subDType(subDType), start(start), end(end), packed(packed) {}
-  virtual const std::string toString() const override {
-    return (boost::format("%s %s [%d:%d]") % (packed?"packed":"unpacked")
-              % subDType->getName() % end % start).str();
+  virtual const std::string toString(const std::string suffix="") const override {
+    if (packed) {
+      // Packed array range specifications are prepended. Eg:
+      // [a:b]         [c:d]     <name>
+      // ^ innermost ^ outermost
+      return (boost::format("[%d:%d] %s%s") % end % start % subDType->toString() % suffix).str();
+    } else {
+      // Unpacked array range specifications are appended, using the suffix
+      // parameter to pack them innermost-to-outermost. Eg:
+      // <name> [a:b]         [c:d]
+      //        ^ innermost ^ outermost
+      auto currentSuffix = (boost::format(" [%d:%d]") % end % start).str();
+      return subDType->toString(suffix+currentSuffix);
+    }
   }
 };
 
@@ -84,8 +100,8 @@ public:
   void addMemberDType(MemberDType memberDType) {
     members.push_back(memberDType);
   }
-  virtual const std::string toString() const override {
-    return "packed struct";
+  virtual const std::string toString(const std::string suffix="") const override {
+    return std::string("packed struct") + suffix;
   }
   //virtual const std::string toString() const override {
   //  auto s = std::string("typedef struct packed {\n");
@@ -112,8 +128,8 @@ public:
   void addMemberDType(MemberDType memberDType) {
     members.push_back(memberDType);
   }
-  virtual const std::string toString() const override {
-    return "packed union";
+  virtual const std::string toString(const std::string suffix="") const override {
+    return std::string("packed union") + suffix;
   }
 };
 
@@ -133,8 +149,8 @@ public:
               std::shared_ptr<DType> subDType) :
       DType(name, location), subDType(subDType) {}
   void addItem(EnumItem item) { items.push_back(item); }
-  virtual const std::string toString() const override {
-    return "emum";
+  virtual const std::string toString(const std::string suffix="") const override {
+    return std::string("emum") + suffix;
   }
 };
 

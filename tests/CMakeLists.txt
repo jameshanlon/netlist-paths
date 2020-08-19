@@ -21,7 +21,7 @@ function(add_test_exe binary_name source_files)
            COMMAND ./${binary_name})
 endfunction()
 
-add_test_exe(TestBasicModules basic_modules.cpp)
+add_test_exe(UnitTests unit_tests.cpp)
 
 # Python wrapper tests.
 
