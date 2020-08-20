@@ -51,7 +51,7 @@ public:
            std::shared_ptr<DType> subDType) :
       DType(name, location), subDType(subDType) {}
   virtual const std::string toString(const std::string suffix="") const override {
-    return (boost::format("%s %s%s") % name % subDType->getName() % suffix).str();
+    return (boost::format("%s%s") % subDType->toString() % suffix).str();
   }
 };
 
