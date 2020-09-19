@@ -44,21 +44,30 @@ module dtypes
     logic h;
   } packed_struct_nested2_t;
 
+  typedef struct packed {
+    packed_struct_nested_t g;
+    packed_struct_nested2_t h;
+    logic i;
+    logic j;
+    logic k;
+  } packed_struct_nested3_t;
+
   packed_struct_nested_t packstruct_nested;
   packed_struct_nested2_t packstruct_nested2;
+  packed_struct_nested3_t packstruct_nested3;
 
   // Enums
 
-  enum logic [2:0] {
-    FOO_A = 3'b001,
-    FOO_B = 3'b010,
-    FOO_C = 3'b100
-  } enum_no_typedef;
+  enum logic {
+    FOO_A,
+    FOO_B
+  } enum_notypedef;
 
-  typedef enum logic [2:0] {
+  typedef enum logic [1:0] {
     BAR_A,
     BAR_B,
-    BAR_C
+    BAR_C,
+    BAR_D
   } enum_auto_t;
 
   enum_auto_t enum_auto;
@@ -91,5 +100,10 @@ module dtypes
   } union_logic_t;
 
   union_logic_t [4:0] [3:0] union_logic_packarray2d_unpackarray2d [2:0] [1:0];
+
+  union packed {
+    enum_onehot_t a;
+    packed_struct_nested_t b;
+  } union_enum_struct;
 
 endmodule

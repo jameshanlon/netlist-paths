@@ -305,6 +305,7 @@ struct Vertex {
   const std::string getDirString() const { return getVertexDirectionStr(direction); }
   const std::string getDTypeString() const { return dtype->toString(); }
   const std::string getLocString() const { return location.toString(); }
+  size_t getDTypeWidth() const { return dtype->getWidth(); }
   VertexDirection getDirection() const { return direction; }
 };
 

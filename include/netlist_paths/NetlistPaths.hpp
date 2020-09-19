@@ -17,6 +17,18 @@ class NetlistPaths {
   std::vector<VertexDesc> waypoints;
   std::vector<VertexDesc> getNamedVertexIds(const std::string& regex="") const;
 
+  /// Get a DType by name.
+  const std::shared_ptr<DType> getDType(const std::string &name) const {
+   auto dtype = std::find_if(std::begin(dtypes), std::end(dtypes),
+                             [&name](const std::shared_ptr<DType> &dt) {
+                               return dt->getName() == name; });
+   if (dtype != std::end(dtypes)) {
+     return *dtype;
+   } else {
+     return std::shared_ptr<DType>();
+   }
+  }
+
 public:
   NetlistPaths() = delete;
   NetlistPaths(const std::string &filename) {
@@ -24,25 +36,32 @@ public:
     netlist.splitRegVertices();
     netlist.checkGraph();
   }
+
   //===--------------------------------------------------------------------===//
   // Waypoints.
   //===--------------------------------------------------------------------===//
+
   void addStartpoint(const std::string &name) {
     waypoints.push_back(netlist.getStartVertex(name));
   }
+
   void addEndpoint(const std::string &name) {
     waypoints.push_back(netlist.getEndVertex(name));
   }
+
   void addWaypoint(const std::string &name) {
     waypoints.push_back(netlist.getMidVertex(name));
   }
+
   std::size_t numWaypoints() const { return waypoints.size(); }
   void clearWaypoints() { waypoints.clear(); }
+
   //===--------------------------------------------------------------------===//
   // Reporting of names and types.
   //===--------------------------------------------------------------------===//
-  const std::string getDTypeStr(const std::string &name,
-                                VertexGraphType vertexType=VertexGraphType::ANY) const {
+
+  const std::string getVertexDTypeStr(const std::string &name,
+                                      VertexGraphType vertexType=VertexGraphType::ANY) const {
     auto vertex = netlist.getVertexDescRegex(name, vertexType);
     if (vertex != netlist.nullVertex()) {
       return netlist.getVertex(vertex).getDTypeString();
@@ -50,22 +69,46 @@ public:
       return std::string("none");
     }
   }
+
+  size_t getVertexDTypeWidth(const std::string &name,
+                             VertexGraphType vertexType=VertexGraphType::ANY) const {
+    auto vertex = netlist.getVertexDescRegex(name, vertexType);
+    if (vertex != netlist.nullVertex()) {
+      return netlist.getVertex(vertex).getDTypeWidth();
+    } else {
+      return 0;
+    }
+  }
+
+  size_t getDTypeWidth(const std::string &name) const {
+    auto dtype = getDType(name);
+    if (dtype) {
+      return dtype->getWidth();
+    } else {
+      return 0;
+    }
+  }
   void dumpNames(std::ostream &os, const std::string &regex) const;
   void dumpNamesStdOut(const std::string &regex) const { dumpNames(std::cout, regex); }
   //void printPathReport(const Path &path) const;
   //void printPathReport(const std::vector<Path> &paths) const;
+
   //===--------------------------------------------------------------------===//
   // Basic path querying.
   //===--------------------------------------------------------------------===//
+
   bool startpointExists(const std::string &name) const noexcept {
     return netlist.getStartVertex(name) != netlist.nullVertex();
   }
+
   bool endpointExists(const std::string &name) const noexcept {
     return netlist.getEndVertex(name) != netlist.nullVertex();
   }
+
   bool regExists(const std::string &name) const noexcept {
     return netlist.getRegVertex(name) != netlist.nullVertex();
   }
+
   bool pathExists(const std::string &start, const std::string &end) {
     clearWaypoints();
     // Check that the start and end points exist.
@@ -80,12 +123,15 @@ public:
     waypoints.push_back(endPoint);
     return !netlist.getAnyPointToPoint(waypoints).empty();
   }
+
   //===--------------------------------------------------------------------===//
   // Netlist access.
   //===--------------------------------------------------------------------===//
+
   void dumpDotFile(const std::string &outputFilename) const {
     netlist.dumpDotFile(outputFilename);
   }
+
   std::vector<std::reference_wrapper<const Vertex>>
   getNamedVertices(const std::string &regex="") const;
 };

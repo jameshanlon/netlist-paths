@@ -392,24 +392,24 @@ MemberDType ReadVerilatorXML::visitMemberDType(XMLNode *node) {
   return MemberDType(name, location, dtypeMappings[std::string(subDTypeId)]);
 }
 
-std::string ReadVerilatorXML::visitConst(XMLNode *node) {
+size_t ReadVerilatorXML::visitConst(XMLNode *node) {
   auto value = std::string(node->first_attribute("name")->value());
   if (value.rfind("'") != std::string::npos) {
     // Drop any value type prefixes.
     auto pos = value.rfind("'sh");
     if (pos != std::string::npos) {
-      return std::to_string(std::stoi(value.substr(pos+3), nullptr, 16));
+      return std::stoi(value.substr(pos+3), nullptr, 16);
     }
     pos = value.rfind("'h");
     if (pos != std::string::npos) {
-      return std::to_string(std::stoul(value.substr(pos+2), nullptr, 16));
+      return std::stoul(value.substr(pos+2), nullptr, 16);
     }
     assert(0 && "Unexpected constant type prefix");
   }
-  return value;
+  return std::stoul(value);
 }
 
-std::pair<const std::string, const std::string>
+std::pair<size_t, size_t>
 ReadVerilatorXML::visitRange(XMLNode *node) {
   assert(numChildren(node) == 2 && "range expects two const children");
   auto start = visitConst(node->last_node());

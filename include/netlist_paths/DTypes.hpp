@@ -1,6 +1,7 @@
 #ifndef NETLIST_PATHS_DTYPES_HPP
 #define NETLIST_PATHS_DTYPES_HPP
 
+#include <numeric>
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@ public:
     return name + suffix;
   }
   const std::string getName() const { return name; }
+  virtual size_t getWidth() const { return 0; }
   virtual ~DType() = default; // Make DType polymorphic to allow dynamic casts.
 protected:
   std::string name;
@@ -42,6 +44,9 @@ public:
       return name+suffix;
     }
   }
+  virtual size_t getWidth() const override {
+    return ranged ? (left - right + 1) : 1;
+  }
 };
 
 class RefDType : public DType {
@@ -53,16 +58,19 @@ public:
   virtual const std::string toString(const std::string suffix="") const override {
     return (boost::format("%s%s") % subDType->toString() % suffix).str();
   }
+  virtual size_t getWidth() const override {
+    return subDType->getWidth();
+  }
 };
 
 class ArrayDType : public DType {
   std::shared_ptr<DType> subDType;
-  std::string start;
-  std::string end;
+  size_t start;
+  size_t end;
   bool packed;
 public:
   ArrayDType(Location &location, std::shared_ptr<DType> subDType,
-             const std::string &start, const std::string &end, bool packed) :
+             size_t start, size_t end, bool packed) :
       DType(location), subDType(subDType), start(start), end(end), packed(packed) {}
   virtual const std::string toString(const std::string suffix="") const override {
     if (packed) {
@@ -79,6 +87,9 @@ public:
       return subDType->toString(suffix+currentSuffix);
     }
   }
+  virtual size_t getWidth() const override {
+    return packed ? (end - start + 1) * subDType->getWidth() : 0;
+  }
 };
 
 class MemberDType : public DType {
@@ -88,6 +99,9 @@ public:
               std::shared_ptr<DType> subDType) :
       DType(name, location), subDType(subDType) {};
   std::shared_ptr<DType> getSubDType() const { return subDType; }
+  virtual size_t getWidth() const override {
+    return subDType->getWidth();
+  }
 };
 
 class StructDType : public DType {
@@ -103,19 +117,10 @@ public:
   virtual const std::string toString(const std::string suffix="") const override {
     return std::string("packed struct") + suffix;
   }
-  //virtual const std::string toString() const override {
-  //  auto s = std::string("typedef struct packed {\n");
-  //  for (auto member : members) {
-  //    auto structDType = std::dynamic_pointer_cast<StructDType>(member.getSubDType());
-  //    if (structDType) {
-  //      s += "  " + member.getSubDType()->getName() + " " + member.getName() + ";\n";
-  //    } else {
-  //      s += "  " + member.getSubDType()->toString() + ";\n";
-  //    }
-  //  }
-  //  s += "} " + name + "\n";
-  //  return s;
-  //}
+  virtual size_t getWidth() const override {
+    auto sum = [](size_t result, const MemberDType &member) { return result + member.getWidth(); };
+    return std::accumulate(std::begin(members), std::end(members), 0, sum);
+  }
 };
 
 class UnionDType : public DType {
@@ -131,14 +136,19 @@ public:
   virtual const std::string toString(const std::string suffix="") const override {
     return std::string("packed union") + suffix;
   }
+  virtual size_t getWidth() const override {
+    return members.front().getWidth();
+  }
 };
 
 class EnumItem {
   std::string name;
-  std::string value;
+  size_t value;
 public:
-  EnumItem(const std::string &name, const std::string &value) :
+  EnumItem(const std::string &name, size_t value) :
       name(name), value(value) {}
+  const std::string &getName() const { return name; }
+  size_t getValue() const { return value; }
 };
 
 class EnumDType : public DType {
@@ -151,6 +161,9 @@ public:
   void addItem(EnumItem item) { items.push_back(item); }
   virtual const std::string toString(const std::string suffix="") const override {
     return std::string("emum") + suffix;
+  }
+  virtual size_t getWidth() const override {
+    return subDType->getWidth();
   }
 };
 

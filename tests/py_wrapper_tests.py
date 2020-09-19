@@ -64,7 +64,7 @@ class TestPyWrapper(unittest.TestCase):
         self.assertFalse(np.reg_exists('foo'))
         self.assertFalse(np.startpoint_exists('foo'))
         self.assertFalse(np.endpoint_exists('foo'))
-    
+
     def test_counter_paths(self):
         np = self.compile_test('counter.sv')
         # Check all valid paths are reported.
@@ -121,9 +121,15 @@ class TestPyWrapper(unittest.TestCase):
         self.assertFalse(np.path_exists("i_foo_current", "o_next_foo_inactive"))
         self.assertFalse(np.path_exists("i_foo_next", "o_foo_inactive"))
 
-    def test_basic_types(self):
-        # Check handling of basic types.
-        np = self.compile_test('basic_types.sv')
+    def test_dtypes(self):
+        # Check dtype queries (see C++ unit tests).
+        np = self.compile_test('dtypes.sv')
+        self.assertTrue(np.get_dtype_width('logic') == 1)
+        self.assertTrue(np.get_vertex_dtype_width('logic_bit') == 1)
+        self.assertTrue(np.get_vertex_dtype_str('logic_bit') == 'logic')
+        self.assertTrue(np.get_dtype_width('packed_struct_nested3_t') == 3+4+3)
+        self.assertTrue(np.get_vertex_dtype_width('packstruct_nested3') == 3+4+3)
+        self.assertTrue(np.get_vertex_dtype_str('packstruct_nested3') == 'packed struct')
         assert np.dump_names('') != ''
 
     def test_fsm(self):
