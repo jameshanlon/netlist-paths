@@ -1,4 +1,5 @@
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
@@ -21,6 +22,9 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   register_exception_translator<Exception>(&translateException);
 
+  class_<Path>("Path")
+     .def(vector_indexing_suite<Path>());
+
   class_<Options, boost::noncopyable>("Options", no_init)
     .def("get_instance",       &Options::getInstancePtr,
                                return_value_policy<reference_existing_object>())
@@ -40,6 +44,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("startpoint_exists",      &NetlistPaths::startpointExists)
     .def("endpoint_exists",        &NetlistPaths::endpointExists)
     .def("path_exists",            &NetlistPaths::pathExists)
+    .def("get_any_path",           &NetlistPaths::getAnyPath)
     .def("dump_names",             &NetlistPaths::dumpNamesStdOut)
     .def("get_dtype_width",        &NetlistPaths::getDTypeWidth)
     .def("get_vertex_dtype_str",   &NetlistPaths::getVertexDTypeStr,

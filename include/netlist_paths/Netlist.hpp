@@ -60,13 +60,10 @@ public:
   void setVertexDirection(VertexDesc vertex, VertexDirection direction) {
     graph[vertex].direction = direction;
   }
-  /// Annotate source register vertices.
-  //void annotateRegVertices();
   VertexDesc nullVertex() const { return boost::graph_traits<Graph>::null_vertex(); }
   std::size_t numVertices() { return boost::num_vertices(graph); }
   std::size_t numEdges() { return boost::num_edges(graph); }
   void splitRegVertices();
-  void mergeDuplicateVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
   std::vector<VertexDesc> getAllVertices() const;

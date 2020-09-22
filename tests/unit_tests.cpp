@@ -52,6 +52,7 @@ BOOST_FIXTURE_TEST_CASE(name_matching, TestContext) {
   BOOST_TEST(np->regExists("pipeline/.*/*data_q.*"));
   // Malformed regex
   BOOST_CHECK_THROW(np->regExists("*data_q"), netlist_paths::Exception);
+  BOOST_CHECK_THROW(np->regExists("?data_q"), netlist_paths::Exception);
 }
 
 /// Test string representations of types.
