@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <ostream>
+#include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
 
@@ -19,14 +20,14 @@ class NetlistPaths {
 
   /// Get a DType by name.
   const std::shared_ptr<DType> getDType(const std::string &name) const {
-   auto dtype = std::find_if(std::begin(dtypes), std::end(dtypes),
-                             [&name](const std::shared_ptr<DType> &dt) {
-                               return dt->getName() == name; });
-   if (dtype != std::end(dtypes)) {
-     return *dtype;
-   } else {
-     return std::shared_ptr<DType>();
-   }
+    auto dtype = std::find_if(std::begin(dtypes), std::end(dtypes),
+                              [&name](const std::shared_ptr<DType> &dt) {
+                                return dt->getName() == name; });
+    if (dtype != std::end(dtypes)) {
+      return *dtype;
+    } else {
+      return std::shared_ptr<DType>();
+    }
   }
 
 public:
@@ -66,7 +67,7 @@ public:
     if (vertex != netlist.nullVertex()) {
       return netlist.getVertex(vertex).getDTypeString();
     } else {
-      return std::string("none");
+      throw Exception(std::string("could not find vertex "+name));
     }
   }
 
@@ -76,16 +77,15 @@ public:
     if (vertex != netlist.nullVertex()) {
       return netlist.getVertex(vertex).getDTypeWidth();
     } else {
-      return 0;
+      throw Exception(std::string("could not find vertex "+name));
     }
   }
 
   size_t getDTypeWidth(const std::string &name) const {
-    auto dtype = getDType(name);
-    if (dtype) {
+    if (auto dtype = getDType(name)) {
       return dtype->getWidth();
     } else {
-      return 0;
+      throw Exception(std::string("could not find dtype "+name));
     }
   }
   void dumpNames(std::ostream &os, const std::string &regex) const;

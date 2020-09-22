@@ -23,8 +23,8 @@ struct Options {
   bool compile;
   bool boostParser;
   Options() :
-      debugMode(true),
-      verboseMode(true),
+      debugMode(false),
+      verboseMode(false),
       displayHelp(false),
       dumpDotfile(false),
       dumpNames(false),

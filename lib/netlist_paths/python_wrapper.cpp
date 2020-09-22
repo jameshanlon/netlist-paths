@@ -1,6 +1,11 @@
 #include <boost/python.hpp>
+#include "netlist_paths/Exception.hpp"
 #include "netlist_paths/RunVerilator.hpp"
 #include "netlist_paths/NetlistPaths.hpp"
+
+void translateException(const netlist_paths::Exception& e) {
+  PyErr_SetString(PyExc_RuntimeError, e.what());
+};
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
                                        getVertexDTypeStr, 1, 2);
@@ -12,6 +17,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 {
   using namespace boost::python;
   using namespace netlist_paths;
+
+  register_exception_translator<Exception>(&translateException);
 
   int (RunVerilator::*run)(const std::string&, const std::string&) const = &RunVerilator::run;
 

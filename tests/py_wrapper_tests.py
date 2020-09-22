@@ -122,7 +122,7 @@ class TestPyWrapper(unittest.TestCase):
         self.assertFalse(np.path_exists("i_foo_next", "o_foo_inactive"))
 
     def test_dtypes(self):
-        # Check dtype queries (see C++ unit tests).
+        # Check dtype queries (see C++ unit tests for complete set).
         np = self.compile_test('dtypes.sv')
         self.assertTrue(np.get_dtype_width('logic') == 1)
         self.assertTrue(np.get_vertex_dtype_width('logic_bit') == 1)
@@ -130,6 +130,10 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(np.get_dtype_width('packed_struct_nested3_t') == 3+4+3)
         self.assertTrue(np.get_vertex_dtype_width('packstruct_nested3') == 3+4+3)
         self.assertTrue(np.get_vertex_dtype_str('packstruct_nested3') == 'packed struct')
+        # Check that exceptions are raised
+        self.assertRaises(RuntimeError, np.get_dtype_width, 'foo')
+        self.assertRaises(RuntimeError, np.get_vertex_dtype_str, 'foo')
+        self.assertRaises(RuntimeError, np.get_vertex_dtype_width, 'foo')
         assert np.dump_names('') != ''
 
     def test_fsm(self):

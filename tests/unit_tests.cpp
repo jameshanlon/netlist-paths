@@ -74,6 +74,8 @@ BOOST_FIXTURE_TEST_CASE(dtype_strings, TestContext) {
   BOOST_TEST(np->getVertexDTypeStr("dtypes.union_logic_notypedef") == "packed union");
   BOOST_TEST(np->getVertexDTypeStr("dtypes.union_struct_notypedef") == "packed union");
   BOOST_TEST(np->getVertexDTypeStr("dtypes.union_logic_packarray2d_unpackarray2d") == "[4:0] [3:0] packed union [2:0] [1:0]");
+  // Exceptions
+  BOOST_CHECK_THROW(np->getVertexDTypeStr("dtypes.foo"), netlist_paths::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
@@ -111,4 +113,16 @@ BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
   BOOST_TEST(np->getVertexDTypeWidth("dtypes.union_struct_notypedef") == 2);
   BOOST_TEST(np->getVertexDTypeWidth("dtypes.union_logic_packarray2d_unpackarray2d") == 0);
   BOOST_TEST(np->getVertexDTypeWidth("dtypes.union_enum_struct") == 3);
+  // Access via dtype names
+  BOOST_TEST(np->getDTypeWidth("logic") == 1);
+  BOOST_TEST(np->getDTypeWidth("packed_struct_t") == 2);
+  BOOST_TEST(np->getDTypeWidth("packed_struct_nested_t") == 3);
+  BOOST_TEST(np->getDTypeWidth("packed_struct_nested2_t") == 3+1);
+  BOOST_TEST(np->getDTypeWidth("packed_struct_nested3_t") == 3+4+3);
+  BOOST_TEST(np->getDTypeWidth("enum_auto_t") == 2);
+  BOOST_TEST(np->getDTypeWidth("enum_onehot_t") == 3);
+  BOOST_TEST(np->getDTypeWidth("union_logic_t") == 1);
+  // Exceptions
+  BOOST_CHECK_THROW(np->getVertexDTypeWidth("dtypes.foo"), netlist_paths::Exception);
+  BOOST_CHECK_THROW(np->getDTypeWidth("dtypes.foo"), netlist_paths::Exception);
 }
