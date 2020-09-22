@@ -1,5 +1,6 @@
 #include <boost/python.hpp>
 #include "netlist_paths/Exception.hpp"
+#include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
 #include "netlist_paths/NetlistPaths.hpp"
 
@@ -19,6 +20,13 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   using namespace netlist_paths;
 
   register_exception_translator<Exception>(&translateException);
+
+  class_<Options, boost::noncopyable>("Options", no_init)
+    .def("get_instance",       &Options::getInstancePtr,
+                               return_value_policy<reference_existing_object>())
+    .staticmethod("get_instance")
+    .def("set_match_wildcard", &Options::setMatchWildcard)
+    .def("set_match_regex",    &Options::setMatchRegex);
 
   int (RunVerilator::*run)(const std::string&, const std::string&) const = &RunVerilator::run;
 

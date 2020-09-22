@@ -5,6 +5,7 @@
 #include <iostream>
 #include <ostream>
 #include "netlist_paths/Exception.hpp"
+#include "netlist_paths/Options.hpp"
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
 
@@ -57,6 +58,34 @@ public:
   std::size_t numWaypoints() const { return waypoints.size(); }
   void clearWaypoints() { waypoints.clear(); }
 
+  //VertexDesc getStartVertexExcept(const std::string &name) const;
+  //VertexDesc getEndVertexExcept(const std::string &name) const;
+  //VertexDesc getMidVertexExcept(const std::string &name) const;
+  //VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {
+  //  auto vertex = getStartVertex(name);
+  //  if (vertex == nullVertex()) {
+  //    throw Exception(std::string("could not find vertex ")+name);
+  //  } else {
+  //    return vertex;
+  //  }
+  //}
+  //VertexDesc Netlist::getEndVertexExcept(const std::string &name) const {
+  //  auto vertex = getEndVertex(name);
+  //  if (vertex == nullVertex()) {
+  //    throw Exception(std::string("could not find vertex ")+name);
+  //  } else {
+  //    return vertex;
+  //  }
+  //}
+  //VertexDesc Netlist::getMidVertexExcept(const std::string &name) const {
+  //  auto vertex = getMidVertex(name);
+  //  if (vertex == nullVertex()) {
+  //    throw Exception(std::string("could not find vertex ")+name);
+  //  } else {
+  //    return vertex;
+  //  }
+  //}
+
   //===--------------------------------------------------------------------===//
   // Reporting of names and types.
   //===--------------------------------------------------------------------===//
@@ -97,15 +126,15 @@ public:
   // Basic path querying.
   //===--------------------------------------------------------------------===//
 
-  bool startpointExists(const std::string &name) const noexcept {
+  bool startpointExists(const std::string &name) const {
     return netlist.getStartVertex(name) != netlist.nullVertex();
   }
 
-  bool endpointExists(const std::string &name) const noexcept {
+  bool endpointExists(const std::string &name) const {
     return netlist.getEndVertex(name) != netlist.nullVertex();
   }
 
-  bool regExists(const std::string &name) const noexcept {
+  bool regExists(const std::string &name) const {
     return netlist.getRegVertex(name) != netlist.nullVertex();
   }
 

@@ -77,21 +77,21 @@ int main(int argc, char **argv) {
     // Parse command line arguments.
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
-    netlist_paths::options.debugMode     = vm.count("debug") > 0;
-    netlist_paths::options.verboseMode   = vm.count("verbose") > 0;
-    netlist_paths::options.displayHelp   = vm.count("help") > 0;
-    netlist_paths::options.dumpDotfile   = vm.count("dotfile") > 0;
-    netlist_paths::options.dumpNames     = vm.count("dumpnames") > 0;
-    netlist_paths::options.fanOutDegree  = vm.count("fanout") > 0;
-    netlist_paths::options.fanInDegree   = vm.count("fanin") > 0;
-    netlist_paths::options.allPaths      = vm.count("allpaths") > 0;
-    netlist_paths::options.startPoints   = vm.count("startpoints") > 0;
-    netlist_paths::options.endPoints     = vm.count("endpoints") > 0;
-    netlist_paths::options.reportLogic   = vm.count("reportlogic") > 0;
-    netlist_paths::options.fullFileNames = vm.count("filenames") > 0;
-    netlist_paths::options.compile       = vm.count("compile") > 0;
-    netlist_paths::options.boostParser   = vm.count("boostparser") > 0;
-    if (netlist_paths::options.displayHelp) {
+    netlist_paths::Options::getInstance().debugMode     = vm.count("debug") > 0;
+    netlist_paths::Options::getInstance().verboseMode   = vm.count("verbose") > 0;
+    netlist_paths::Options::getInstance().displayHelp   = vm.count("help") > 0;
+    netlist_paths::Options::getInstance().dumpDotfile   = vm.count("dotfile") > 0;
+    netlist_paths::Options::getInstance().dumpNames     = vm.count("dumpnames") > 0;
+    netlist_paths::Options::getInstance().fanOutDegree  = vm.count("fanout") > 0;
+    netlist_paths::Options::getInstance().fanInDegree   = vm.count("fanin") > 0;
+    netlist_paths::Options::getInstance().allPaths      = vm.count("allpaths") > 0;
+    netlist_paths::Options::getInstance().startPoints   = vm.count("startpoints") > 0;
+    netlist_paths::Options::getInstance().endPoints     = vm.count("endpoints") > 0;
+    netlist_paths::Options::getInstance().reportLogic   = vm.count("reportlogic") > 0;
+    netlist_paths::Options::getInstance().fullFileNames = vm.count("filenames") > 0;
+    netlist_paths::Options::getInstance().compile       = vm.count("compile") > 0;
+    netlist_paths::Options::getInstance().boostParser   = vm.count("boostparser") > 0;
+    if (netlist_paths::Options::getInstance().displayHelp) {
       std::cout << "OVERVIEW: Query paths in a Verilog netlist\n\n";
       std::cout << "USAGE: " << argv[0] << " [options] infile\n\n";
       std::cout << genericOptions << "\n";
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     notify(vm);
 
     // Call Verilator to produce graph file.
-    if (netlist_paths::options.compile) {
+    if (netlist_paths::Options::getInstance().compile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME) {
          outputFilename += ".xml";
       }
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
     auto netlistPaths = netlist_paths::NetlistPaths(inputFiles.front());
 
     // Dump dot file.
-    if (netlist_paths::options.dumpDotfile) {
+    if (netlist_paths::Options::getInstance().dumpDotfile) {
       if (outputFilename == netlist_paths::DEFAULT_OUTPUT_FILENAME) {
          outputFilename += ".dot";
       }
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
     }
 
     // Dump netlist names.
-    if (netlist_paths::options.dumpNames) {
+    if (netlist_paths::Options::getInstance().dumpNames) {
       netlistPaths.dumpNames(std::cout, nameRegex);
       return 0;
     }

@@ -17,8 +17,6 @@
 
 namespace fs = boost::filesystem;
 
-netlist_paths::Options options;
-
 BOOST_FIXTURE_TEST_CASE(verilator, TestContext) {
   // Check the Verilator binary exists.
   BOOST_ASSERT(boost::filesystem::exists(installPrefix));
@@ -35,6 +33,25 @@ BOOST_FIXTURE_TEST_CASE(adder, TestContext) {
       BOOST_TEST(!pathExists(e, s));
     }
   }
+}
+
+/// Test matching of names by wildcards and regexes.
+BOOST_FIXTURE_TEST_CASE(name_matching, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
+  // Wildcard
+  netlist_paths::Options::getInstance().setMatchWildcard();
+  BOOST_TEST(np->regExists("*data_q*"));
+  BOOST_TEST(np->regExists("*d?t?_q*"));
+  BOOST_TEST(np->regExists("pipeline/*/data_q*"));
+  BOOST_TEST(np->regExists("pipeline/*/*data_q*"));
+  // Regex
+  netlist_paths::Options::getInstance().setMatchRegex();
+  BOOST_TEST(np->regExists(".*data_q.*"));
+  BOOST_TEST(np->regExists(".*d.t._q.*"));
+  BOOST_TEST(np->regExists("pipeline/.*/data_q.*"));
+  BOOST_TEST(np->regExists("pipeline/.*/*data_q.*"));
+  // Malformed regex
+  BOOST_CHECK_THROW(np->regExists("*data_q"), netlist_paths::Exception);
 }
 
 /// Test string representations of types.

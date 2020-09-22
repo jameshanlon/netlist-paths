@@ -2,8 +2,7 @@ set(SOURCES
     NetlistPaths.cpp
     RunVerilator.cpp
     ReadVerilatorXML.cpp
-    Netlist.cpp
-    Options.cpp)
+    Netlist.cpp)
 
 # Compile a shared library to link with the Python module since Boost
 # distributions are expecting this.

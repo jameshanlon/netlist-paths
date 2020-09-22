@@ -183,14 +183,25 @@ VertexDesc Netlist::getVertexDesc(const std::string &name) const {
 /// Lookup a vertex using a regex pattern and function specifying a type.
 VertexDesc Netlist::getVertexDescRegex(const std::string &name,
                                        VertexGraphType graphType) const {
-  // TODO: add an option to disable regex matching.
-  // FIXME: create a list of candidate vertices, rather than iterating all vertices.
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
   // Or '_' (when supplying a flattened name).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
-  std::regex nameRegex(nameRegexStr);
+  // Wildcard matching.
+  if (Options::getInstance().getMatchWildcard()) {
+    boost::replace_all(nameRegexStr, "?", ".");
+    boost::replace_all(nameRegexStr, "*", ".*");
+  }
+  // Catch any errors in the regex string.
+  std::regex nameRegex;
+  try {
+    nameRegex.assign(nameRegexStr);
+  } catch(std::regex_error e) {
+    throw Exception(std::string("malformed regular expression: ")+e.what());
+  }
+  // Search the vertices.
+  // TODO: create a list of candidate vertices, rather than iterating all vertices.
   BGL_FORALL_VERTICES(v, graph, Graph) {
     if (((graphType == VertexGraphType::ANY) ? true : graph[v].isGraphType(graphType)) &&
         std::regex_search(graph[v].name, nameRegex)) {
@@ -199,36 +210,6 @@ VertexDesc Netlist::getVertexDescRegex(const std::string &name,
   }
   return nullVertex();
 }
-
-//// FIXME: Move exception logic into tool.
-//VertexDesc Netlist::getStartVertexExcept(const std::string &name) const {
-//  auto vertex = getStartVertex(name);
-//  if (vertex == nullVertex()) {
-//    throw Exception(std::string("could not find vertex ")+name);
-//  } else {
-//    return vertex;
-//  }
-//}
-//
-//// FIXME: Move exception logic into tool.
-//VertexDesc Netlist::getEndVertexExcept(const std::string &name) const {
-//  auto vertex = getEndVertex(name);
-//  if (vertex == nullVertex()) {
-//    throw Exception(std::string("could not find vertex ")+name);
-//  } else {
-//    return vertex;
-//  }
-//}
-//
-//// FIXME: Move exception logic into tool.
-//VertexDesc Netlist::getMidVertexExcept(const std::string &name) const {
-//  auto vertex = getMidVertex(name);
-//  if (vertex == nullVertex()) {
-//    throw Exception(std::string("could not find vertex ")+name);
-//  } else {
-//    return vertex;
-//  }
-//}
 
 void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
   for (auto v : path) {

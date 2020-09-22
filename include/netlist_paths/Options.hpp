@@ -3,8 +3,6 @@
 
 namespace netlist_paths {
 
-constexpr int NULL_VERTEX_ID = 0;
-constexpr int VERTEX_TYPE_STR_MAX_LEN = 16;
 constexpr const char *DEFAULT_OUTPUT_FILENAME = "netlist";
 
 struct Options {
@@ -22,6 +20,20 @@ struct Options {
   bool fullFileNames;
   bool compile;
   bool boostParser;
+  bool matchWildcard;
+  bool getMatchWildcard() const { return matchWildcard; }
+  void setMatchWildcard() { matchWildcard = true; }
+  void setMatchRegex() { matchWildcard = false; }
+public:
+  // Singleton instance.
+  static Options &getInstance() {
+    static Options instance;
+    return instance;
+  }
+  static Options *getInstancePtr() {
+    return &getInstance();
+  }
+private:
   Options() :
       debugMode(false),
       verboseMode(false),
@@ -36,10 +48,13 @@ struct Options {
       reportLogic(false),
       fullFileNames(false),
       compile(false),
-      boostParser(false) {}
+      boostParser(false),
+      matchWildcard(true) {}
+public:
+  // Prevent copies from being made (C++11).
+  Options(Options const&) = delete;
+  void operator=(Options const&) = delete;
 };
-
-extern netlist_paths::Options options;
 
 } // End netlist_paths namespace.
 

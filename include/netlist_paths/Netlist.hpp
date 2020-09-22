@@ -85,9 +85,6 @@ public:
   VertexDesc getRegVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::REG);
   }
-  //VertexDesc getStartVertexExcept(const std::string &name) const;
-  //VertexDesc getEndVertexExcept(const std::string &name) const;
-  //VertexDesc getMidVertexExcept(const std::string &name) const;
   //std::vector<Path> getAllFanOut(VertexDesc startVertex) const;
   //std::vector<Path> getAllFanOut(const std::string &startName) const {
   //  auto startVertex = getStartVertexExcept(startName);
