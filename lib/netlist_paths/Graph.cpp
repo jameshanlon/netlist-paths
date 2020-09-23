@@ -10,16 +10,16 @@
 #include <regex>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/graph/graphviz.hpp>
 #include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/graphviz.hpp>
 #include <boost/graph/iteration_macros.hpp>
 #include <boost/graph/reverse_graph.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
-#include "netlist_paths/Netlist.hpp"
-#include "netlist_paths/Exception.hpp"
-#include "netlist_paths/Options.hpp"
 #include "netlist_paths/Debug.hpp"
+#include "netlist_paths/Exception.hpp"
+#include "netlist_paths/Graph.hpp"
+#include "netlist_paths/Options.hpp"
 
 using namespace netlist_paths;
 
@@ -58,12 +58,12 @@ public:
 /// and 'source' registers only with out edges. This implies graph connectivity
 /// follows combinatorial paths in the netlist and allows traversals of the
 /// graph to trace combinatorial timing paths.
-void Netlist::splitRegVertices() {
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+void Graph::splitRegVertices() {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
       // Collect all adjacent vertices.
       std::vector<VertexDesc> adjacentVertices;
-      BGL_FORALL_ADJ(v, adjVertex, graph, Graph) {
+      BGL_FORALL_ADJ(v, adjVertex, graph, InternalGraph) {
         adjacentVertices.push_back(adjVertex);
       }
       // Create a new 'source' reg vertex.
@@ -113,8 +113,8 @@ void Netlist::splitRegVertices() {
 //}
 
 /// Perform some checks on the netlist and emit warnings if necessary.
-void Netlist::checkGraph() const {
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+void Graph::checkGraph() const {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     // Check there are no Vlvbound nodes.
     if (graph[v].name.find("__Vlvbound") != std::string::npos) {
       std::cout << "Warning: " << graph[v].toString() << " vertex in netlist\n";
@@ -137,30 +137,30 @@ void Netlist::checkGraph() const {
 }
 
 /// Return a list of Vertex objects in the graph.
-std::vector<VertexDesc> Netlist::getAllVertices() const {
+std::vector<VertexDesc> Graph::getAllVertices() const {
   std::vector<VertexDesc> vs;
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     vs.push_back(v);
   }
   return vs;
 }
 
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
-void Netlist::dumpDotFile(const std::string &outputFilename) const {
+void Graph::dumpDotFile(const std::string &outputFilename) const {
   std::ofstream outputFile(outputFilename);
   if (!outputFile.is_open()) {
     throw Exception(std::string("unable to open ")+outputFilename);
   }
   // Loop over all vertices and print properties.
   outputFile << "digraph netlist {\n";
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     outputFile << v << " ["
        << "label=\"" << graph[v].name << "\", "
        << "type=\"" << getVertexAstTypeStr(graph[v].astType) << "\""
        << "]\n";
   }
   // Loop over all edges.
-  BGL_FORALL_EDGES(e, graph, Graph) {
+  BGL_FORALL_EDGES(e, graph, InternalGraph) {
     outputFile << boost::source(e, graph) << " -> "
                << boost::target(e, graph) << ";\n";
   }
@@ -171,8 +171,8 @@ void Netlist::dumpDotFile(const std::string &outputFilename) const {
 }
 
 /// Lookup a vertex by name.
-VertexDesc Netlist::getVertexDesc(const std::string &name) const {
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+VertexDesc Graph::getVertexDesc(const std::string &name) const {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].name == name) {
       return v;
     }
@@ -181,7 +181,7 @@ VertexDesc Netlist::getVertexDesc(const std::string &name) const {
 }
 
 /// Lookup a vertex using a regex pattern and function specifying a type.
-VertexDesc Netlist::getVertexDescRegex(const std::string &name,
+VertexDesc Graph::getVertexDescRegex(const std::string &name,
                                        VertexGraphType graphType) const {
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
@@ -202,7 +202,7 @@ VertexDesc Netlist::getVertexDescRegex(const std::string &name,
   }
   // Search the vertices.
   // TODO: create a list of candidate vertices, rather than iterating all vertices.
-  BGL_FORALL_VERTICES(v, graph, Graph) {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (((graphType == VertexGraphType::ANY) ? true : graph[v].isGraphType(graphType)) &&
         std::regex_search(graph[v].name, nameRegex)) {
       return v;
@@ -211,7 +211,7 @@ VertexDesc Netlist::getVertexDescRegex(const std::string &name,
   return nullVertex();
 }
 
-void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
+void Graph::dumpPath(const std::vector<VertexDesc> &path) const {
   for (auto v : path) {
     if (!graph[v].isLogic()) {
       std::cout << "  " << graph[v].name << "\n";
@@ -221,7 +221,7 @@ void Netlist::dumpPath(const std::vector<VertexDesc> &path) const {
 
 /// Given the tree structure from a DFS, traverse the tree from leaf to root to
 /// return a path.
-Path Netlist::determinePath(ParentMap &parentMap,
+Path Graph::determinePath(ParentMap &parentMap,
                             Path path,
                             VertexDesc startVertex,
                             VertexDesc endVertex) const {
@@ -243,7 +243,7 @@ Path Netlist::determinePath(ParentMap &parentMap,
 /// Determine all paths between a start and an end point.
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
-void Netlist::determineAllPaths(ParentMap &parentMap,
+void Graph::determineAllPaths(ParentMap &parentMap,
                                      std::vector<Path> &result,
                                      Path path,
                                      VertexDesc startVertex,
@@ -320,7 +320,7 @@ void Netlist::determineAllPaths(ParentMap &parentMap,
 //}
 //
 /// Report a single path between a set of named points.
-Path Netlist::
+Path Graph::
 getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const {
   std::vector<VertexDesc> path;
   // Construct the path between each adjacent waypoints.

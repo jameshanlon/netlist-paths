@@ -6,14 +6,14 @@
 #include <ostream>
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/Netlist.hpp"
+#include "netlist_paths/Graph.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
 
 namespace netlist_paths {
 
 /// Wrapper for Python to manage the netlist paths object.
 class NetlistPaths {
-  Netlist netlist;
+  Graph netlist;
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
   std::vector<VertexDesc> waypoints;

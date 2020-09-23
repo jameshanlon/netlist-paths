@@ -516,7 +516,7 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
                  << " vertices and " << netlist.numEdges() << " edges\n");
 }
 
-ReadVerilatorXML::ReadVerilatorXML(Netlist &netlist,
+ReadVerilatorXML::ReadVerilatorXML(Graph &netlist,
                                    std::vector<File> &files,
                                    std::vector<std::shared_ptr<DType>> &dtypes,
                                    const std::string &filename) :

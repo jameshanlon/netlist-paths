@@ -10,17 +10,17 @@
 
 namespace netlist_paths {
 
-using Graph = boost::adjacency_list<boost::vecS,
-                                    boost::vecS,
-                                    boost::bidirectionalS,
-                                    Vertex>;
-using VertexDesc = boost::graph_traits<Graph>::vertex_descriptor;
+using InternalGraph = boost::adjacency_list<boost::vecS,
+                                            boost::vecS,
+                                            boost::bidirectionalS,
+                                            Vertex>;
+using VertexDesc = boost::graph_traits<InternalGraph>::vertex_descriptor;
 using ParentMap = std::map<VertexDesc, std::vector<VertexDesc>>;
 using Path = std::vector<VertexDesc>;
 
-class Netlist {
+class Graph {
 private:
-  Graph graph;
+  InternalGraph graph;
 
   void dumpPath(const Path &path) const;
   Path determinePath(ParentMap &parentMap,
@@ -34,7 +34,7 @@ private:
                          VertexDesc endVertex) const;
 
 public:
-  Netlist() {}
+  Graph() {}
   VertexDesc addLogicVertex(VertexAstType type, Location location) {
     auto vertex = Vertex(type, location);
     return boost::add_vertex(vertex, graph);
@@ -60,7 +60,7 @@ public:
   void setVertexDirection(VertexDesc vertex, VertexDirection direction) {
     graph[vertex].direction = direction;
   }
-  VertexDesc nullVertex() const { return boost::graph_traits<Graph>::null_vertex(); }
+  VertexDesc nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
   std::size_t numVertices() { return boost::num_vertices(graph); }
   std::size_t numEdges() { return boost::num_edges(graph); }
   void splitRegVertices();

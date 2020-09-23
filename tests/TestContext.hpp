@@ -3,8 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
-#include <netlist_paths/NetlistPaths.hpp>
+#include "netlist_paths/NetlistPaths.hpp"
+#include "netlist_paths/RunVerilator.hpp"
+
+namespace fs = boost::filesystem;
 
 struct TestContext {
   TestContext() {}

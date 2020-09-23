@@ -8,10 +8,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
-#include "netlist_paths/Netlist.hpp"
-#include "netlist_paths/Options.hpp"
-#include "netlist_paths/ReadVerilatorXML.hpp"
-#include "netlist_paths/RunVerilator.hpp"
 #include "tests/definitions.hpp"
 #include "TestContext.hpp"
 
@@ -30,7 +26,7 @@ BOOST_FIXTURE_TEST_CASE(adder, TestContext) {
   for (auto s : startPoints) {
     for (auto e : endPoints) {
       BOOST_TEST(pathExists(s, e));
-      BOOST_TEST(!pathExists(e, s));
+      BOOST_CHECK_THROW(pathExists(e, s), netlist_paths::Exception);
     }
   }
 }

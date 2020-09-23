@@ -41,10 +41,10 @@ class TestPyWrapper(unittest.TestCase):
             self.assertTrue(np.path_exists(prefix+'i_b', prefix+'o_sum'))
             self.assertTrue(np.path_exists(prefix+'i_b', prefix+'o_co'))
             # Check for invalid paths.
-            self.assertFalse(np.path_exists(prefix+'o_sum', prefix+'i_a'))
-            self.assertFalse(np.path_exists(prefix+'o_co',  prefix+'i_a'))
-            self.assertFalse(np.path_exists(prefix+'o_sum', prefix+'i_b'))
-            self.assertFalse(np.path_exists(prefix+'o_co',  prefix+'i_b'))
+            self.assertRaises(RuntimeError, np.path_exists, prefix+'o_sum', prefix+'i_a')
+            self.assertRaises(RuntimeError, np.path_exists, prefix+'o_co',  prefix+'i_a')
+            self.assertRaises(RuntimeError, np.path_exists, prefix+'o_sum', prefix+'i_b')
+            self.assertRaises(RuntimeError, np.path_exists, prefix+'o_co',  prefix+'i_b')
 
     def test_counter_regs(self):
         np = self.compile_test('counter.sv')
@@ -73,9 +73,9 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(np.path_exists('counter.counter_q', 'counter.o_count'))
         self.assertTrue(np.path_exists('counter.counter_q', 'counter.o_wrap'))
         # Check invalid paths.
-        self.assertFalse(np.path_exists('counter.o_count', 'counter.counter_q'))
-        self.assertFalse(np.path_exists('counter.count_q', 'counter.i_clk'))
-        self.assertFalse(np.path_exists('counter.count_q', 'counter.i_rst'))
+        self.assertRaises(RuntimeError, np.path_exists, 'counter.o_count', 'counter.counter_q')
+        self.assertRaises(RuntimeError, np.path_exists, 'counter.count_q', 'counter.i_clk')
+        self.assertRaises(RuntimeError, np.path_exists, 'counter.count_q', 'counter.i_rst')
         self.assertFalse(np.path_exists('counter.i_clk', 'counter.o_count'))
         self.assertFalse(np.path_exists('counter.i_clk', 'counter.o_wrap'))
         self.assertFalse(np.path_exists('counter.i_rst', 'counter.o_count'))

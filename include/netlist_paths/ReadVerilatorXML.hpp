@@ -10,7 +10,7 @@
 #include <rapidxml-1.13/rapidxml.hpp>
 
 #include "netlist_paths/Debug.hpp"
-#include "netlist_paths/Netlist.hpp"
+#include "netlist_paths/Graph.hpp"
 
 namespace netlist_paths {
 
@@ -47,7 +47,7 @@ public:
 
 class ReadVerilatorXML {
 private:
-  Netlist &netlist;
+  Graph &netlist;
   std::vector<File> &files;
   std::vector<std::shared_ptr<DType>> &dtypes;
   std::vector<std::unique_ptr<VarNode>> vars;
@@ -105,7 +105,7 @@ private:
 
 public:
   ReadVerilatorXML() = delete;
-  ReadVerilatorXML(Netlist &netlist,
+  ReadVerilatorXML(Graph &netlist,
                    std::vector<File> &files,
                    std::vector<std::shared_ptr<DType>> &dtypes,
                    const std::string &filename);

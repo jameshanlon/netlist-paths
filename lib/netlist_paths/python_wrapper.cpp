@@ -20,8 +20,10 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   using namespace boost::python;
   using namespace netlist_paths;
 
+  // Setup exception translation.
   register_exception_translator<Exception>(&translateException);
 
+  // Setup support for returning Path objects (ie vectors of VertexDescs).
   class_<Path>("Path")
      .def(vector_indexing_suite<Path>());
 
