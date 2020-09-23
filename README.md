@@ -48,6 +48,11 @@ Produce a visualisation of the netlist graph:
 netlist-paths out.xml --verbose --debug --dotfile --outfile graph.dot
 dot -Tpdf graph.dot -o graph.pdf
 ```
+Run C++ unit tests directly:
+```
+cd Debug/tests
+./UnitTests
+```
 Run Python unit tests directly (version of Python must match build):
 ```
 cd Debug/tests
