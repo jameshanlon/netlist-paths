@@ -1,5 +1,5 @@
-#ifndef NETLIST_PATHS_NETLIST_HPP
-#define NETLIST_PATHS_NETLIST_HPP
+#ifndef NETLIST_PATHS_GRAPH_HPP
+#define NETLIST_PATHS_GRAPH_HPP
 
 #include <string>
 #include <vector>
@@ -109,4 +109,4 @@ public:
 
 } // End namespace.
 
-#endif // NETLIST_PATHS_NETLIST_HPP
+#endif // NETLIST_PATHS_GRAPH_HPP

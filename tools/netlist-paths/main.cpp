@@ -6,10 +6,10 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include "netlist_paths/NetlistPaths.hpp"
-#include "netlist_paths/Exception.hpp"
-#include "netlist_paths/Options.hpp"
 #include "netlist_paths/Debug.hpp"
+#include "netlist_paths/Exception.hpp"
+#include "netlist_paths/Netlist.hpp"
+#include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
 
 namespace po = boost::program_options;
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     if (inputFiles.size() > 1) {
       throw netlist_paths::Exception("multiple XML files specified");
     }
-    auto netlistPaths = netlist_paths::NetlistPaths(inputFiles.front());
+    auto netlistPaths = netlist_paths::Netlist(inputFiles.front());
 
     // Dump dot file.
     if (netlist_paths::Options::getInstance().dumpDotfile) {

@@ -1,12 +1,12 @@
 #include <regex>
 #include <boost/format.hpp>
-#include "netlist_paths/NetlistPaths.hpp"
+#include "netlist_paths/Netlist.hpp"
 
 using namespace netlist_paths;
 
 /// Return a list of IDs of named vertices, optionally filter by regex.
 std::vector<VertexDesc>
-NetlistPaths::getNamedVertexIds(const std::string &regex) const {
+Netlist::getNamedVertexIds(const std::string &regex) const {
   std::vector<VertexDesc> vertexIds;
   std::regex nameRegex(regex);
   // Collect vertices.
@@ -22,7 +22,7 @@ NetlistPaths::getNamedVertexIds(const std::string &regex) const {
 
 /// Return a sorted list of unique named entities in the netlist for searching.
 std::vector<std::reference_wrapper<const Vertex>>
-NetlistPaths::getNamedVertices(const std::string &regex) const {
+Netlist::getNamedVertices(const std::string &regex) const {
   // Collect vertices.
   std::vector<std::reference_wrapper<const Vertex>> vertices;
   for (auto vertexId : getNamedVertexIds(regex)) {
@@ -36,7 +36,7 @@ NetlistPaths::getNamedVertices(const std::string &regex) const {
 }
 
 /// Dump details of named entities in the design.
-void NetlistPaths::dumpNames(std::ostream &os, const std::string &regex) const {
+void Netlist::dumpNames(std::ostream &os, const std::string &regex) const {
   // Populate the rows of the table.
   std::vector<const std::string> hdr({"Name", "Type", "DType", "Direction", "Location"});
   std::vector<std::vector<const std::string>> rows;

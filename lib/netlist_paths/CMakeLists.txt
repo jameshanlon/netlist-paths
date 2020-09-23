@@ -1,5 +1,5 @@
 set(SOURCES
-    NetlistPaths.cpp
+    Netlist.cpp
     RunVerilator.cpp
     ReadVerilatorXML.cpp
     Graph.cpp)

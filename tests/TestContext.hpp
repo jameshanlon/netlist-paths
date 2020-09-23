@@ -5,14 +5,14 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
-#include "netlist_paths/NetlistPaths.hpp"
+#include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/RunVerilator.hpp"
 
 namespace fs = boost::filesystem;
 
 struct TestContext {
   TestContext() {}
-  std::unique_ptr<netlist_paths::NetlistPaths> np;
+  std::unique_ptr<netlist_paths::Netlist> np;
   /// Compile a test and create a netlist object.
   void compile(const std::string &inFilename,
                const std::string &topName) {
@@ -26,7 +26,7 @@ struct TestContext {
                      defines,
                      inputFiles,
                      outTemp.native());
-    np = std::make_unique<netlist_paths::NetlistPaths>(outTemp.native());
+    np = std::make_unique<netlist_paths::Netlist>(outTemp.native());
     fs::remove(outTemp);
     uniqueNames();
     qualifiedNames(topName);

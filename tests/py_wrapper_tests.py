@@ -3,7 +3,7 @@ import sys
 import unittest
 import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
-from py_netlist_paths import RunVerilator, NetlistPaths, Options
+from py_netlist_paths import RunVerilator, Netlist, Options
 
 class TestPyWrapper(unittest.TestCase):
 
@@ -13,7 +13,7 @@ class TestPyWrapper(unittest.TestCase):
     def compile_test(self, filename):
         comp = RunVerilator(defs.INSTALL_PREFIX)
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, filename), 'netlist.xml')
-        return NetlistPaths('netlist.xml')
+        return Netlist('netlist.xml')
 
     def test_verilator_bin(self):
         self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))

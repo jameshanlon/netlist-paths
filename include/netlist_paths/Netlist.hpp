@@ -1,5 +1,5 @@
-#ifndef NETLIST_PATHS_NETLIST_PATHS_HPP
-#define NETLIST_PATHS_NETLIST_PATHS_HPP
+#ifndef NETLIST_PATHS_NETLIST_HPP
+#define NETLIST_PATHS_NETLIST_HPP
 
 #include <memory>
 #include <iostream>
@@ -12,7 +12,7 @@
 namespace netlist_paths {
 
 /// Wrapper for Python to manage the netlist paths object.
-class NetlistPaths {
+class Netlist {
   Graph netlist;
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
@@ -32,8 +32,8 @@ class NetlistPaths {
   }
 
 public:
-  NetlistPaths() = delete;
-  NetlistPaths(const std::string &filename) {
+  Netlist() = delete;
+  Netlist(const std::string &filename) {
     ReadVerilatorXML(netlist, files, dtypes, filename);
     netlist.splitRegVertices();
     netlist.checkGraph();
@@ -147,4 +147,4 @@ public:
 
 }; // End namespace.
 
-#endif // NETLIST_PATHS_NETLIST_PATHS_HPP
+#endif // NETLIST_PATHS_NETLIST_HPP
