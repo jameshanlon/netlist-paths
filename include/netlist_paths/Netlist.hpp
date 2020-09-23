@@ -40,25 +40,6 @@ public:
   }
 
   //===--------------------------------------------------------------------===//
-  // Waypoints.
-  //===--------------------------------------------------------------------===//
-
-  void addStartpoint(const std::string &name) {
-    waypoints.push_back(netlist.getStartVertex(name));
-  }
-
-  void addEndpoint(const std::string &name) {
-    waypoints.push_back(netlist.getEndVertex(name));
-  }
-
-  void addWaypoint(const std::string &name) {
-    waypoints.push_back(netlist.getMidVertex(name));
-  }
-
-  std::size_t numWaypoints() const { return waypoints.size(); }
-  void clearWaypoints() { waypoints.clear(); }
-
-  //===--------------------------------------------------------------------===//
   // Reporting of names and types.
   //===--------------------------------------------------------------------===//
 
@@ -93,6 +74,25 @@ public:
   void dumpNamesStdOut(const std::string &regex) const { dumpNames(std::cout, regex); }
   //void printPathReport(const Path &path) const;
   //void printPathReport(const std::vector<Path> &paths) const;
+
+  //===--------------------------------------------------------------------===//
+  // Waypoints.
+  //===--------------------------------------------------------------------===//
+
+  void addStartpoint(const std::string &name) {
+    waypoints.push_back(netlist.getStartVertex(name));
+  }
+
+  void addEndpoint(const std::string &name) {
+    waypoints.push_back(netlist.getEndVertex(name));
+  }
+
+  void addWaypoint(const std::string &name) {
+    waypoints.push_back(netlist.getMidVertex(name));
+  }
+
+  std::size_t numWaypoints() const { return waypoints.size(); }
+  void clearWaypoints() { waypoints.clear(); }
 
   //===--------------------------------------------------------------------===//
   // Basic path querying.
