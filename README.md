@@ -1,8 +1,9 @@
 # Netlist paths
 
-This is a command-line tool for querying a Verilog netlist. It reads
-an XML representation of a design's netlist, produced by Verilator, and
-provides facilities for inspecting types, variables and paths.
+This is a library and command-line tool for querying a Verilog netlist.
+It reads an XML representation of a design's netlist, produced by Verilator,
+and provides facilities for inspecting types, variables and paths. The library
+is written in C++ and has a Python interface.
 
 
 ## Dependencies
@@ -15,6 +16,7 @@ provides facilities for inspecting types, variables and paths.
 - autoconf
 - flex
 - bison
+
 
 ## Build
 Run a debug build with Make, for example:
