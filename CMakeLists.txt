@@ -3,7 +3,7 @@ project(netlist-paths)
 include(ExternalProject)
 #set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Python REQUIRED COMPONENTS
+find_package(Python3 REQUIRED COMPONENTS
              Interpreter
              Development)
 find_package(Boost 1.68.0 REQUIRED COMPONENTS
