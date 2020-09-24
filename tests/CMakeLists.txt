@@ -10,7 +10,7 @@ function(add_test_exe binary_name source_files)
   add_executable(${binary_name}
                  ${source_files})
   target_link_libraries(${binary_name}
-                        netlist_paths_shared
+                        netlist_paths
                         ${Boost_LIBRARIES}
                         ${Python_LIBRARIES}
                         ${CMAKE_DL_LIBS} # Required for Boost_DLL

@@ -30,6 +30,7 @@ public:
            unsigned endCol) :
       file(file),
       startLine(startLine),
+      startCol(startCol),
       endLine(endLine),
       endCol(endCol) {}
   const std::string getFilename() const { return file->getFilename(); }
