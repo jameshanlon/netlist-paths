@@ -16,20 +16,20 @@ using InternalGraph = boost::adjacency_list<boost::vecS,
                                             Vertex>;
 using VertexDesc = boost::graph_traits<InternalGraph>::vertex_descriptor;
 using ParentMap = std::map<VertexDesc, std::vector<VertexDesc>>;
-using Path = std::vector<VertexDesc>;
+using VertexIDList = std::vector<VertexDesc>;
 
 class Graph {
 private:
   InternalGraph graph;
 
-  void dumpPath(const Path &path) const;
-  Path determinePath(ParentMap &parentMap,
-                     Path path,
-                     VertexDesc startVertexId,
-                     VertexDesc endVertexId) const;
+  void dumpPath(const VertexIDList &path) const;
+  VertexIDList determinePath(ParentMap &parentMap,
+                             VertexIDList path,
+                             VertexDesc startVertexId,
+                             VertexDesc endVertexId) const;
   void determineAllPaths(ParentMap &parentMap,
-                         std::vector<Path> &result,
-                         Path path,
+                         std::vector<VertexIDList> &result,
+                         VertexIDList path,
                          VertexDesc startVertex,
                          VertexDesc endVertex) const;
 
@@ -102,9 +102,13 @@ public:
   //  auto endVertex = getEndVertexExcept(endName);
   //  return getFanInDegree(endVertex);
   //}
-  Path getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const;
+  VertexIDList getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const;
   //std::vector<Path> getAllPointToPoint() const;
   const Vertex &getVertex(VertexDesc vertexId) const { return graph[vertexId]; }
+  Vertex* getVertexPtr(VertexDesc vertexId) const {
+    // Remove the const cast to make it compatible with the boost::python wrappers.
+    return const_cast<Vertex*>(&(graph[vertexId]));
+  }
 };
 
 } // End namespace.

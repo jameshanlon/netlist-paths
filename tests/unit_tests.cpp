@@ -140,3 +140,13 @@ BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
   BOOST_CHECK_THROW(np->getVertexDTypeWidth("dtypes.foo"), netlist_paths::Exception);
   BOOST_CHECK_THROW(np->getDTypeWidth("dtypes.foo"), netlist_paths::Exception);
 }
+
+BOOST_FIXTURE_TEST_CASE(path_iteration, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline.sv", "pipeline"));
+  auto vertices = np->getAnyPath("i_data", "data_q");
+  BOOST_TEST(vertices.size() == 3);
+  // Pipeline module
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
+  vertices = np->getAnyPath("i_data", "data_q");
+  BOOST_TEST(vertices.size() == 7);
+}

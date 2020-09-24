@@ -141,7 +141,16 @@ class TestPyWrapper(unittest.TestCase):
         self.assertRaises(RuntimeError, np.get_dtype_width, 'foo')
         self.assertRaises(RuntimeError, np.get_vertex_dtype_str, 'foo')
         self.assertRaises(RuntimeError, np.get_vertex_dtype_width, 'foo')
-        assert np.dump_names('') != ''
+
+    def test_path_iteration(self):
+        # Pipeline
+        np = self.compile_test('pipeline.sv')
+        path = np.get_any_path('i_data', 'data_q')
+        self.assertTrue(len(path) == 3)
+        # Pipeline module
+        np = self.compile_test('pipeline_module.sv')
+        path = np.get_any_path('i_data', 'data_q')
+        self.assertTrue(len(path) == 7)
 
     def test_fsm(self):
         np = self.compile_test('fsm.sv')

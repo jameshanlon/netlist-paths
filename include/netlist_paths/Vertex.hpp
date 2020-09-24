@@ -300,12 +300,16 @@ struct Vertex {
   bool isDeleted() const { return deleted; }
   void setDeleted() { deleted = true; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
-  const std::string &getName() const { return name; }
+  const std::string getName() const { return name; }
   const std::string getAstTypeString() const { return getVertexAstTypeStr(astType); }
   const std::string getDirString() const { return getVertexDirectionStr(direction); }
-  const std::string getDTypeString() const { return dtype->toString(); }
+  const std::string getDTypeString() const {
+    return dtype != nullptr ? dtype->toString() : "none";
+  }
+  size_t getDTypeWidth() const {
+    return dtype != nullptr ? dtype->getWidth() : 0;
+  }
   const std::string getLocString() const { return location.toString(); }
-  size_t getDTypeWidth() const { return dtype->getWidth(); }
   VertexDirection getDirection() const { return direction; }
 };
 

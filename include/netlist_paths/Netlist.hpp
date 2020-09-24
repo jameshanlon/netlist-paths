@@ -31,6 +31,14 @@ class Netlist {
     }
   }
 
+  std::vector<Vertex*> createVertexPtrList(VertexIDList vertices) const {
+    auto list = std::vector<Vertex*>();
+    for (auto vertexId : vertices) {
+      list.push_back(netlist.getVertexPtr(vertexId));
+    }
+    return list;
+  }
+
 public:
   Netlist() = delete;
   Netlist(const std::string &filename) {
@@ -111,7 +119,8 @@ public:
   }
 
   /// Return any path between two points.
-  Path getAnyPath(const std::string &start, const std::string &end) {
+  std::vector<Vertex*>
+  getAnyPath(const std::string &start, const std::string &end) {
     // Find the start end end points.
     auto startPoint = netlist.getStartVertex(start);
     if (startPoint == netlist.nullVertex()) {
@@ -125,12 +134,25 @@ public:
     clearWaypoints();
     waypoints.push_back(startPoint);
     waypoints.push_back(endPoint);
-    return netlist.getAnyPointToPoint(waypoints);
+    return createVertexPtrList(netlist.getAnyPointToPoint(waypoints));
   }
 
   /// Return a Boolean whether any path exists between two points.
   bool pathExists(const std::string &start, const std::string &end) {
-    return !getAnyPath(start, end).empty();
+    // Find the start end end points.
+    auto startPoint = netlist.getStartVertex(start);
+    if (startPoint == netlist.nullVertex()) {
+      throw Exception("start point not found");
+    }
+    auto endPoint = netlist.getEndVertex(end);
+    if (endPoint == netlist.nullVertex()) {
+      throw Exception("end point not found");
+    }
+    // Check the path exists.
+    clearWaypoints();
+    waypoints.push_back(startPoint);
+    waypoints.push_back(endPoint);
+    return !netlist.getAnyPointToPoint(waypoints).empty();
   }
 
   //===--------------------------------------------------------------------===//

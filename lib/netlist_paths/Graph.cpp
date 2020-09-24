@@ -137,8 +137,8 @@ void Graph::checkGraph() const {
 }
 
 /// Return a list of Vertex objects in the graph.
-std::vector<VertexDesc> Graph::getAllVertices() const {
-  std::vector<VertexDesc> vs;
+VertexIDList Graph::getAllVertices() const {
+  VertexIDList vs;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     vs.push_back(v);
   }
@@ -211,7 +211,7 @@ VertexDesc Graph::getVertexDescRegex(const std::string &name,
   return nullVertex();
 }
 
-void Graph::dumpPath(const std::vector<VertexDesc> &path) const {
+void Graph::dumpPath(const VertexIDList &path) const {
   for (auto v : path) {
     if (!graph[v].isLogic()) {
       std::cout << "  " << graph[v].name << "\n";
@@ -221,16 +221,16 @@ void Graph::dumpPath(const std::vector<VertexDesc> &path) const {
 
 /// Given the tree structure from a DFS, traverse the tree from leaf to root to
 /// return a path.
-Path Graph::determinePath(ParentMap &parentMap,
-                            Path path,
-                            VertexDesc startVertex,
-                            VertexDesc endVertex) const {
+VertexIDList Graph::determinePath(ParentMap &parentMap,
+                                  VertexIDList path,
+                                  VertexDesc startVertex,
+                                  VertexDesc endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
     return path;
   }
   if (parentMap[endVertex].size() == 0) {
-    return std::vector<VertexDesc>();
+    return VertexIDList();
   }
   assert(parentMap[endVertex].size() == 1);
   auto nextVertex = parentMap[endVertex].front();
@@ -244,8 +244,8 @@ Path Graph::determinePath(ParentMap &parentMap,
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
 void Graph::determineAllPaths(ParentMap &parentMap,
-                                     std::vector<Path> &result,
-                                     Path path,
+                                     std::vector<VertexIDList> &result,
+                                     VertexIDList path,
                                      VertexDesc startVertex,
                                      VertexDesc endVertex) const {
   path.push_back(endVertex);
@@ -320,8 +320,8 @@ void Graph::determineAllPaths(ParentMap &parentMap,
 //}
 //
 /// Report a single path between a set of named points.
-Path Graph::
-getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const {
+VertexIDList
+Graph::getAnyPointToPoint(const VertexIDList &waypoints) const {
   std::vector<VertexDesc> path;
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -336,12 +336,12 @@ getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const {
     INFO(std::cout << "Determining a path to "
                    << graph[endVertex].name << "\n");
     auto subPath = determinePath(parentMap,
-                                 Path(),
+                                 VertexIDList(),
                                  startVertex,
                                  endVertex);
     if (subPath.empty()) {
       // No path exists.
-      return Path();
+      return VertexIDList();
     }
     std::reverse(std::begin(subPath), std::end(subPath));
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
