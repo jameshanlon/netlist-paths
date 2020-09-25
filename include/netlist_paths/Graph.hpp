@@ -55,10 +55,10 @@ public:
     boost::add_edge(src, dst, graph);
   }
   void setVertexDstReg(VertexDesc vertex) {
-    graph[vertex].astType = VertexAstType::DST_REG;
+    graph[vertex].setDstReg();
   }
   void setVertexDirection(VertexDesc vertex, VertexDirection direction) {
-    graph[vertex].direction = direction;
+    graph[vertex].setDirection(direction);
   }
   VertexDesc nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
   std::size_t numVertices() { return boost::num_vertices(graph); }

@@ -125,7 +125,7 @@ inline const char *getVertexDirectionStr(VertexDirection direction) {
 // Vertex
 //===----------------------------------------------------------------------===//
 
-struct Vertex {
+class Vertex {
   //unsigned long long id;
   VertexAstType astType;
   VertexDirection direction;
@@ -137,6 +137,8 @@ struct Vertex {
   bool isPublic;
   bool isTop;
   bool deleted;
+
+public:
   Vertex() {}
   /// Logic vertex.
   Vertex(VertexAstType type,
@@ -300,17 +302,19 @@ struct Vertex {
   bool isDeleted() const { return deleted; }
   void setDeleted() { deleted = true; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
+  void setDstReg() { astType = VertexAstType::DST_REG; }
+  void setDirection(VertexDirection dir) { direction = dir; }
+  VertexAstType getAstType() const { return astType; }
+  VertexDirection getDirection() const { return direction; }
+  size_t getDTypeWidth() const { return dtype != nullptr ? dtype->getWidth() : 0; }
+  bool getIsPublic() const { return isPublic; }
   const std::string getName() const { return name; }
   const std::string getAstTypeString() const { return getVertexAstTypeStr(astType); }
   const std::string getDirString() const { return getVertexDirectionStr(direction); }
   const std::string getDTypeString() const {
     return dtype != nullptr ? dtype->toString() : "none";
   }
-  size_t getDTypeWidth() const {
-    return dtype != nullptr ? dtype->getWidth() : 0;
-  }
   const std::string getLocString() const { return location.toString(); }
-  VertexDirection getDirection() const { return direction; }
 };
 
 } // End netlist_paths namespace.

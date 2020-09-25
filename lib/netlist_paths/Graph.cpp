@@ -116,17 +116,17 @@ void Graph::splitRegVertices() {
 void Graph::checkGraph() const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     // Check there are no Vlvbound nodes.
-    if (graph[v].name.find("__Vlvbound") != std::string::npos) {
+    if (graph[v].getName().find("__Vlvbound") != std::string::npos) {
       std::cout << "Warning: " << graph[v].toString() << " vertex in netlist\n";
     }
     // Source registers don't have in edges.
-    if (graph[v].astType == VertexAstType::SRC_REG) {
+    if (graph[v].isSrcReg()) {
       if (boost::in_degree(v, graph) > 0)
          std::cout << "Warning: source reg " << graph[v].toString()
                    << " has in edges" << "\n";
     }
     // Destination registers don't have out edges.
-    if (graph[v].astType == VertexAstType::DST_REG) {
+    if (graph[v].isDstReg()) {
       if (boost::out_degree(v, graph) > 0)
         std::cout << "Warning: destination reg " << graph[v].toString()
                   << " has out edges"<<"\n";
@@ -155,8 +155,8 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   outputFile << "digraph netlist {\n";
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     outputFile << v << " ["
-       << "label=\"" << graph[v].name << "\", "
-       << "type=\"" << getVertexAstTypeStr(graph[v].astType) << "\""
+       << "label=\"" << graph[v].getName() << "\", "
+       << "type=\"" << graph[v].getAstTypeString() << "\""
        << "]\n";
   }
   // Loop over all edges.
@@ -173,7 +173,7 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
 /// Lookup a vertex by name.
 VertexDesc Graph::getVertexDesc(const std::string &name) const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    if (graph[v].name == name) {
+    if (graph[v].getName() == name) {
       return v;
     }
   }
@@ -204,7 +204,7 @@ VertexDesc Graph::getVertexDescRegex(const std::string &name,
   // TODO: create a list of candidate vertices, rather than iterating all vertices.
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (((graphType == VertexGraphType::ANY) ? true : graph[v].isGraphType(graphType)) &&
-        std::regex_search(graph[v].name, nameRegex)) {
+        std::regex_search(graph[v].getName(), nameRegex)) {
       return v;
     }
   }
@@ -214,7 +214,7 @@ VertexDesc Graph::getVertexDescRegex(const std::string &name,
 void Graph::dumpPath(const VertexIDList &path) const {
   for (auto v : path) {
     if (!graph[v].isLogic()) {
-      std::cout << "  " << graph[v].name << "\n";
+      std::cout << "  " << graph[v].getName() << "\n";
     }
   }
 }
@@ -328,13 +328,13 @@ Graph::getAnyPointToPoint(const VertexIDList &waypoints) const {
     auto startVertex = waypoints[i];
     auto endVertex = waypoints[i+1];
     INFO(std::cout << "Performing DFS from "
-                   << graph[startVertex].name << "\n");
+                   << graph[startVertex].getName() << "\n");
     ParentMap parentMap;
     boost::depth_first_search(graph,
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
     INFO(std::cout << "Determining a path to "
-                   << graph[endVertex].name << "\n");
+                   << graph[endVertex].getName() << "\n");
     auto subPath = determinePath(parentMap,
                                  VertexIDList(),
                                  startVertex,
