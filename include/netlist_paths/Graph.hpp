@@ -16,20 +16,20 @@ using InternalGraph = boost::adjacency_list<boost::vecS,
                                             Vertex>;
 using VertexID = boost::graph_traits<InternalGraph>::vertex_descriptor;
 using ParentMap = std::map<VertexID, std::vector<VertexID>>;
-using VertexIDList = std::vector<VertexID>;
+using VertexIDVec = std::vector<VertexID>;
 
 class Graph {
 private:
   InternalGraph graph;
 
-  void dumpPath(const VertexIDList &path) const;
-  VertexIDList determinePath(ParentMap &parentMap,
-                             VertexIDList path,
-                             VertexID startVertexId,
-                             VertexID endVertexId) const;
+  void dumpPath(const VertexIDVec &path) const;
+  VertexIDVec determinePath(ParentMap &parentMap,
+                            VertexIDVec path,
+                            VertexID startVertexId,
+                            VertexID endVertexId) const;
   void determineAllPaths(ParentMap &parentMap,
-                         std::vector<VertexIDList> &result,
-                         VertexIDList path,
+                         std::vector<VertexIDVec> &result,
+                         VertexIDVec path,
                          VertexID startVertex,
                          VertexID endVertex) const;
 
@@ -102,7 +102,7 @@ public:
   //  auto endVertex = getEndVertexExcept(endName);
   //  return getFanInDegree(endVertex);
   //}
-  VertexIDList getAnyPointToPoint(const std::vector<VertexID> &waypoints) const;
+  VertexIDVec getAnyPointToPoint(const std::vector<VertexID> &waypoints) const;
   //std::vector<Path> getAllPointToPoint() const;
   const Vertex &getVertex(VertexID vertexId) const { return graph[vertexId]; }
   Vertex* getVertexPtr(VertexID vertexId) const {

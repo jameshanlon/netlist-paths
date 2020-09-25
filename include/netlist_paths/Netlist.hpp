@@ -31,7 +31,7 @@ class Netlist {
     }
   }
 
-  std::vector<Vertex*> createVertexPtrList(VertexIDList vertices) const {
+  std::vector<Vertex*> createVertexPtrList(VertexIDVec vertices) const {
     auto list = std::vector<Vertex*>();
     for (auto vertexId : vertices) {
       list.push_back(netlist.getVertexPtr(vertexId));
