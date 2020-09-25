@@ -18,12 +18,12 @@ using XMLNode = rapidxml::xml_node<>;
 
 class VarNode {
   std::string name;
-  VertexDesc vertex;
+  VertexID vertex;
 public:
-  VarNode(const std::string &name, VertexDesc vertex) :
+  VarNode(const std::string &name, VertexID vertex) :
       name(name), vertex(vertex) {}
   std::string &getName() { return name; }
-  VertexDesc getVertex() { return vertex; }
+  VertexID getVertex() { return vertex; }
 };
 
 class ScopeNode {
@@ -36,13 +36,13 @@ public:
 class LogicNode {
   XMLNode *node;
   ScopeNode &scope;
-  VertexDesc vertex;
+  VertexID vertex;
 public:
-  LogicNode(XMLNode *node, ScopeNode &scope, VertexDesc vertex) :
+  LogicNode(XMLNode *node, ScopeNode &scope, VertexID vertex) :
       node(node), scope(scope), vertex(vertex) {}
   XMLNode *getNode() { return node; }
   ScopeNode &getScope() { return scope; }
-  VertexDesc getVertex() { return vertex; }
+  VertexID getVertex() { return vertex; }
 };
 
 class ReadVerilatorXML {
@@ -71,7 +71,7 @@ private:
   void dispatchVisitor(XMLNode *node);
   void iterateChildren(XMLNode *node);
   Location parseLocation(const std::string location);
-  VertexDesc lookupVarVertex(const std::string &name);
+  VertexID lookupVarVertex(const std::string &name);
   void newVar(XMLNode *node);
   void newScope(XMLNode *node);
   void newVarScope(XMLNode *node);

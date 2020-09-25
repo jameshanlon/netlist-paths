@@ -34,7 +34,7 @@ public:
   template<typename Edge, typename Graph>
   void tree_edge(Edge edge, const Graph &graph) const {
     if (!allPaths) {
-      VertexDesc src, dst;
+      VertexID src, dst;
       src = boost::source(edge, graph);
       dst = boost::target(edge, graph);
       parentMap[dst].push_back(src);
@@ -45,7 +45,7 @@ public:
   template<typename Edge, typename Graph>
   void examine_edge(Edge edge, const Graph &graph) const {
     if (allPaths) {
-      VertexDesc src, dst;
+      VertexID src, dst;
       src = boost::source(edge, graph);
       dst = boost::target(edge, graph);
       parentMap[dst].push_back(src);
@@ -62,7 +62,7 @@ void Graph::splitRegVertices() {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
       // Collect all adjacent vertices.
-      std::vector<VertexDesc> adjacentVertices;
+      std::vector<VertexID> adjacentVertices;
       BGL_FORALL_ADJ(v, adjVertex, graph, InternalGraph) {
         adjacentVertices.push_back(adjVertex);
       }
@@ -171,7 +171,7 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
 }
 
 /// Lookup a vertex by name.
-VertexDesc Graph::getVertexDesc(const std::string &name) const {
+VertexID Graph::getVertexDesc(const std::string &name) const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].getName() == name) {
       return v;
@@ -181,7 +181,7 @@ VertexDesc Graph::getVertexDesc(const std::string &name) const {
 }
 
 /// Lookup a vertex using a regex pattern and function specifying a type.
-VertexDesc Graph::getVertexDescRegex(const std::string &name,
+VertexID Graph::getVertexDescRegex(const std::string &name,
                                        VertexGraphType graphType) const {
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
@@ -223,8 +223,8 @@ void Graph::dumpPath(const VertexIDList &path) const {
 /// return a path.
 VertexIDList Graph::determinePath(ParentMap &parentMap,
                                   VertexIDList path,
-                                  VertexDesc startVertex,
-                                  VertexDesc endVertex) const {
+                                  VertexID startVertex,
+                                  VertexID endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
     return path;
@@ -244,10 +244,10 @@ VertexIDList Graph::determinePath(ParentMap &parentMap,
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
 void Graph::determineAllPaths(ParentMap &parentMap,
-                                     std::vector<VertexIDList> &result,
-                                     VertexIDList path,
-                                     VertexDesc startVertex,
-                                     VertexDesc endVertex) const {
+                              std::vector<VertexIDList> &result,
+                              VertexIDList path,
+                              VertexID startVertex,
+                              VertexID endVertex) const {
   path.push_back(endVertex);
   if (endVertex == startVertex) {
     INFO(std::cout << "FOUND PATH\n");
@@ -322,7 +322,7 @@ void Graph::determineAllPaths(ParentMap &parentMap,
 /// Report a single path between a set of named points.
 VertexIDList
 Graph::getAnyPointToPoint(const VertexIDList &waypoints) const {
-  std::vector<VertexDesc> path;
+  std::vector<VertexID> path;
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
     auto startVertex = waypoints[i];

@@ -14,9 +14,9 @@ using InternalGraph = boost::adjacency_list<boost::vecS,
                                             boost::vecS,
                                             boost::bidirectionalS,
                                             Vertex>;
-using VertexDesc = boost::graph_traits<InternalGraph>::vertex_descriptor;
-using ParentMap = std::map<VertexDesc, std::vector<VertexDesc>>;
-using VertexIDList = std::vector<VertexDesc>;
+using VertexID = boost::graph_traits<InternalGraph>::vertex_descriptor;
+using ParentMap = std::map<VertexID, std::vector<VertexID>>;
+using VertexIDList = std::vector<VertexID>;
 
 class Graph {
 private:
@@ -25,61 +25,61 @@ private:
   void dumpPath(const VertexIDList &path) const;
   VertexIDList determinePath(ParentMap &parentMap,
                              VertexIDList path,
-                             VertexDesc startVertexId,
-                             VertexDesc endVertexId) const;
+                             VertexID startVertexId,
+                             VertexID endVertexId) const;
   void determineAllPaths(ParentMap &parentMap,
                          std::vector<VertexIDList> &result,
                          VertexIDList path,
-                         VertexDesc startVertex,
-                         VertexDesc endVertex) const;
+                         VertexID startVertex,
+                         VertexID endVertex) const;
 
 public:
   Graph() {}
-  VertexDesc addLogicVertex(VertexAstType type, Location location) {
+  VertexID addLogicVertex(VertexAstType type, Location location) {
     auto vertex = Vertex(type, location);
     return boost::add_vertex(vertex, graph);
   }
-  VertexDesc addVarVertex(VertexAstType type,
-                          VertexDirection direction,
-                          Location location,
-                          std::shared_ptr<DType> dtype,
-                          const std::string &name,
-                          bool isParam,
-                          const std::string &paramValue,
-                          bool isPublic) {
+  VertexID addVarVertex(VertexAstType type,
+                        VertexDirection direction,
+                        Location location,
+                        std::shared_ptr<DType> dtype,
+                        const std::string &name,
+                        bool isParam,
+                        const std::string &paramValue,
+                        bool isPublic) {
     auto vertex = Vertex(type, direction, location, dtype, name, isParam,
                          paramValue, isPublic);
     return boost::add_vertex(vertex, graph);
   }
-  void addEdge(VertexDesc src, VertexDesc dst) {
+  void addEdge(VertexID src, VertexID dst) {
     boost::add_edge(src, dst, graph);
   }
-  void setVertexDstReg(VertexDesc vertex) {
+  void setVertexDstReg(VertexID vertex) {
     graph[vertex].setDstReg();
   }
-  void setVertexDirection(VertexDesc vertex, VertexDirection direction) {
+  void setVertexDirection(VertexID vertex, VertexDirection direction) {
     graph[vertex].setDirection(direction);
   }
-  VertexDesc nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
+  VertexID nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
   std::size_t numVertices() { return boost::num_vertices(graph); }
   std::size_t numEdges() { return boost::num_edges(graph); }
   void splitRegVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
-  std::vector<VertexDesc> getAllVertices() const;
-  VertexDesc getVertexDesc(const std::string &name) const;
-  VertexDesc getVertexDescRegex(const std::string &name,
+  std::vector<VertexID> getAllVertices() const;
+  VertexID getVertexDesc(const std::string &name) const;
+  VertexID getVertexDescRegex(const std::string &name,
                                 VertexGraphType graphType) const;
-  VertexDesc getStartVertex(const std::string &name) const {
+  VertexID getStartVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::START_POINT);
   }
-  VertexDesc getEndVertex(const std::string &name) const {
+  VertexID getEndVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::END_POINT);
   }
-  VertexDesc getMidVertex(const std::string &name) const {
+  VertexID getMidVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::MID_POINT);
   }
-  VertexDesc getRegVertex(const std::string &name) const {
+  VertexID getRegVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::REG);
   }
   //std::vector<Path> getAllFanOut(VertexDesc startVertex) const;
@@ -102,10 +102,10 @@ public:
   //  auto endVertex = getEndVertexExcept(endName);
   //  return getFanInDegree(endVertex);
   //}
-  VertexIDList getAnyPointToPoint(const std::vector<VertexDesc> &waypoints) const;
+  VertexIDList getAnyPointToPoint(const std::vector<VertexID> &waypoints) const;
   //std::vector<Path> getAllPointToPoint() const;
-  const Vertex &getVertex(VertexDesc vertexId) const { return graph[vertexId]; }
-  Vertex* getVertexPtr(VertexDesc vertexId) const {
+  const Vertex &getVertex(VertexID vertexId) const { return graph[vertexId]; }
+  Vertex* getVertexPtr(VertexID vertexId) const {
     // Remove the const cast to make it compatible with the boost::python wrappers.
     return const_cast<Vertex*>(&(graph[vertexId]));
   }

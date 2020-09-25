@@ -5,9 +5,9 @@
 using namespace netlist_paths;
 
 /// Return a list of IDs of named vertices, optionally filter by regex.
-std::vector<VertexDesc>
+std::vector<VertexID>
 Netlist::getNamedVertexIds(const std::string &regex) const {
-  std::vector<VertexDesc> vertexIds;
+  std::vector<VertexID> vertexIds;
   std::regex nameRegex(regex);
   // Collect vertices.
   for (auto vertexId : netlist.getAllVertices()) {

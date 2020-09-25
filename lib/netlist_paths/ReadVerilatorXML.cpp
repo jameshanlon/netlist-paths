@@ -139,7 +139,7 @@ void ReadVerilatorXML::newScope(XMLNode *node) {
   scopeParents.pop();
 }
 
-VertexDesc ReadVerilatorXML::lookupVarVertex(const std::string &name) {
+VertexID ReadVerilatorXML::lookupVarVertex(const std::string &name) {
   // Check the var ref is a suffix of a VAR_SCOPE.
   // (This is simplistic and should be improved, and/or check added for multiple matches.)
   auto equals = [&name](const std::unique_ptr<VarNode> &node) {

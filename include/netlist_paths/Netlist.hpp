@@ -16,8 +16,8 @@ class Netlist {
   Graph netlist;
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
-  std::vector<VertexDesc> waypoints;
-  std::vector<VertexDesc> getNamedVertexIds(const std::string& regex="") const;
+  std::vector<VertexID> waypoints;
+  std::vector<VertexID> getNamedVertexIds(const std::string& regex="") const;
 
   /// Get a DType by name.
   const std::shared_ptr<DType> getDType(const std::string &name) const {
