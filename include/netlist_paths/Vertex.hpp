@@ -140,6 +140,7 @@ class Vertex {
 
 public:
   Vertex() {}
+
   /// Logic vertex.
   Vertex(VertexAstType type,
          Location location) :
@@ -150,6 +151,7 @@ public:
       isPublic(false),
       isTop(false),
       deleted(false) {}
+
   /// Var vertex.
   Vertex(VertexAstType type,
          VertexDirection direction,
@@ -169,6 +171,7 @@ public:
       isPublic(isPublic),
       isTop(determineIsTop(name)),
       deleted(false) {}
+
   /// Copy constructor.
   Vertex(const Vertex &v) :
       astType(v.astType),
@@ -179,6 +182,7 @@ public:
       isParam(v.isParam),
       isTop(v.isTop),
       deleted(v.deleted) {}
+
   /// A Vertex is in the 'top' scope when has one or two hierarchical components.
   /// module.name or name is top level, but module.submodule.name is not.
   static bool determineIsTop(const std::string &name) {
@@ -186,12 +190,14 @@ public:
     boost::split(tokens, name, boost::is_any_of("."));
     return tokens.size() < 3;
   }
+
   /// Given a hierarchical name a.b.c, return the last component c.
   std::string getBasename() const {
     std::vector<std::string> tokens;
     boost::split(tokens, name, boost::is_any_of("."));
     return tokens.back();
   }
+
   /// Less than comparison
   bool compareLessThan(const Vertex &b) const {
     if (name        < b.name)      return true;
@@ -204,6 +210,7 @@ public:
     if (b.deleted   < deleted)     return false;
     return false;
   }
+
   /// Equality comparison
   bool compareEqual(const Vertex &b) const {
     return astType    == b.astType &&
@@ -216,6 +223,8 @@ public:
            isTop      == b.isTop &&
            deleted    == b.deleted;
   }
+
+  /// Match this vertex against different graph types.
   bool isGraphType(VertexGraphType type) const {
     switch (type) {
       case VertexGraphType::REG:         return isReg();
@@ -228,14 +237,15 @@ public:
       default:                           return false;
     }
   }
+
   inline bool isSrcReg() const {
-    return !deleted &&
-           astType == VertexAstType::SRC_REG;
+    return !deleted && astType == VertexAstType::SRC_REG;
   }
+
   inline bool isDstReg() const {
-    return !deleted &&
-           astType == VertexAstType::DST_REG;
+    return !deleted && astType == VertexAstType::DST_REG;
   }
+
   inline bool isLogic() const {
     return astType == VertexAstType::LOGIC ||
            astType == VertexAstType::ASSIGN ||
@@ -247,14 +257,17 @@ public:
            astType == VertexAstType::SEN_GATE ||
            astType == VertexAstType::SEN_ITEM;
   }
+
   inline bool isParameter() const {
     return isParam;
   }
+
   inline bool isReg() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
             astType == VertexAstType::DST_REG);
   }
+
   inline bool isPort() const {
     return !deleted &&
            isTop &&
@@ -262,24 +275,28 @@ public:
             direction == VertexDirection::OUTPUT ||
             direction == VertexDirection::INOUT);
   }
+
   inline bool isStartPoint() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
             (direction == VertexDirection::INPUT && isTop) ||
             (direction == VertexDirection::INOUT && isTop));
   }
+
   inline bool isEndPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
             (direction == VertexDirection::OUTPUT && isTop) ||
             (direction == VertexDirection::INOUT && isTop));
   }
+
   inline bool isMidPoint() const {
     return !deleted &&
            (astType == VertexAstType::VAR ||
             astType == VertexAstType::WIRE ||
             astType == VertexAstType::PORT);
   }
+
   inline bool canIgnore() const {
     // Ignore variables Verilator has introduced.
     return name.find("__Vdly") != std::string::npos ||
@@ -287,6 +304,7 @@ public:
            name.find("__Vconc") != std::string::npos ||
            name.find("__Vfunc") != std::string::npos;
   }
+
   /// Named vertices are displayed in the name dump.
   inline bool isNamed() const {
     return !isLogic() &&
@@ -294,12 +312,14 @@ public:
            !canIgnore() &&
            !isDeleted();
   }
+
   /// Return a description of this vertex.
   std::string toString() const {
     // TODO: expand on this for different vertex types.
     return std::string(getVertexAstTypeStr(astType));
   }
-  bool isDeleted() const { return deleted; }
+
+  /// Various getters and setters.
   void setDeleted() { deleted = true; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
   void setDstReg() { astType = VertexAstType::DST_REG; }
@@ -311,10 +331,9 @@ public:
   const std::string getName() const { return name; }
   const std::string getAstTypeString() const { return getVertexAstTypeStr(astType); }
   const std::string getDirString() const { return getVertexDirectionStr(direction); }
-  const std::string getDTypeString() const {
-    return dtype != nullptr ? dtype->toString() : "none";
-  }
+  const std::string getDTypeString() const { return dtype != nullptr ? dtype->toString() : "none"; }
   const std::string getLocString() const { return location.toString(); }
+  bool isDeleted() const { return deleted; }
 };
 
 } // End netlist_paths namespace.
