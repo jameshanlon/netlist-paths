@@ -23,7 +23,7 @@ if __name__ == '__main__':
                         help='Define a preprocessor macro (only with --compile)')
     parser.add_argument('--dump-names',
                         nargs='?',
-                        default='',
+                        default=None,
                         const='.*',
                         help='Dump all names, filter by regex')
     parser.add_argument('--from',
@@ -57,8 +57,9 @@ if __name__ == '__main__':
     # Create the netlist
     netlist = Netlist(temp_name)
     # Dump names
-    if len(args.dump_names):
+    if args.dump_names:
         netlist.dump_names(args.dump_names)
+        return 0
     # Point-to-point path
     if args.start_point and args.end_point:
         path = netlist.get_any_path(args.start_point, args.end_point)
@@ -67,3 +68,4 @@ if __name__ == '__main__':
                                                        vertex.get_dtype_str(),
                                                        vertex.get_dtype_width(),
                                                        vertex.get_name()))
+        return 0
