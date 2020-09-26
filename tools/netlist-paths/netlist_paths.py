@@ -22,8 +22,10 @@ if __name__ == '__main__':
                         metavar='definition',
                         help='Define a preprocessor macro (only with --compile)')
     parser.add_argument('--dump-names',
-                        action='store_true',
-                        help='Dump all names')
+                        nargs='?',
+                        default='',
+                        const='.*',
+                        help='Dump all names, filter by regex')
     parser.add_argument('--from',
                         dest='start_point',
                         help='Start point')
@@ -55,8 +57,8 @@ if __name__ == '__main__':
     # Create the netlist
     netlist = Netlist(temp_name)
     # Dump names
-    if args.dump_names:
-        netlist.dump_names('.*')
+    if len(args.dump_names):
+        netlist.dump_names(args.dump_names)
     # Point-to-point path
     if args.start_point and args.end_point:
         path = netlist.get_any_path(args.start_point, args.end_point)
