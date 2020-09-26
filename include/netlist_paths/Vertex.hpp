@@ -329,10 +329,10 @@ public:
   size_t getDTypeWidth() const { return dtype != nullptr ? dtype->getWidth() : 0; }
   bool getIsPublic() const { return isPublic; }
   const std::string getName() const { return name; }
-  const std::string getAstTypeString() const { return getVertexAstTypeStr(astType); }
-  const std::string getDirString() const { return getVertexDirectionStr(direction); }
-  const std::string getDTypeString() const { return dtype != nullptr ? dtype->toString() : "none"; }
-  const std::string getLocString() const { return location.toString(); }
+  const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
+  const std::string getDirStr() const { return getVertexDirectionStr(direction); }
+  const std::string getDTypeStr() const { return dtype != nullptr ? dtype->toString() : "none"; }
+  const std::string getLocStr() const { return location.toString(); }
   bool isDeleted() const { return deleted; }
 };
 

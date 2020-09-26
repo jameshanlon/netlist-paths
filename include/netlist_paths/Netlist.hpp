@@ -55,7 +55,7 @@ public:
                                       VertexGraphType vertexType=VertexGraphType::ANY) const {
     auto vertex = netlist.getVertexDescRegex(name, vertexType);
     if (vertex != netlist.nullVertex()) {
-      return netlist.getVertex(vertex).getDTypeString();
+      return netlist.getVertex(vertex).getDTypeStr();
     } else {
       throw Exception(std::string("could not find vertex "+name));
     }
@@ -78,10 +78,9 @@ public:
       throw Exception(std::string("could not find dtype "+name));
     }
   }
+
   void dumpNames(std::ostream &os, const std::string &regex) const;
   void dumpNamesStdOut(const std::string &regex) const { dumpNames(std::cout, regex); }
-  //void printPathReport(const Path &path) const;
-  //void printPathReport(const std::vector<Path> &paths) const;
 
   //===--------------------------------------------------------------------===//
   // Waypoints.

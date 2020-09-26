@@ -24,6 +24,8 @@ struct Options {
   bool getMatchWildcard() const { return matchWildcard; }
   void setMatchWildcard() { matchWildcard = true; }
   void setMatchRegex() { matchWildcard = false; }
+  void setVerbose() { verboseMode = true; }
+  void setDebug() { debugMode = true; }
 public:
   // Singleton instance.
   static Options &getInstance() {

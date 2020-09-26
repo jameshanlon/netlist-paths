@@ -156,7 +156,7 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     outputFile << v << " ["
        << "label=\"" << graph[v].getName() << "\", "
-       << "type=\"" << graph[v].getAstTypeString() << "\""
+       << "type=\"" << graph[v].getAstTypeStr() << "\""
        << "]\n";
   }
   // Loop over all edges.

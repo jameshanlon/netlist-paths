@@ -42,10 +42,10 @@ void Netlist::dumpNames(std::ostream &os, const std::string &regex) const {
   std::vector<std::vector<const std::string>> rows;
   for (auto vertexId : getNamedVertexIds(regex)) {
     rows.push_back({netlist.getVertex(vertexId).getName(),
-                    netlist.getVertex(vertexId).getAstTypeString(),
-                    netlist.getVertex(vertexId).getDTypeString(),
-                    netlist.getVertex(vertexId).getDirString(),
-                    netlist.getVertex(vertexId).getLocString()});
+                    netlist.getVertex(vertexId).getAstTypeStr(),
+                    netlist.getVertex(vertexId).getDTypeStr(),
+                    netlist.getVertex(vertexId).getDirStr(),
+                    netlist.getVertex(vertexId).getLocStr()});
   }
   // Create the row format string.
   std::string fmt;

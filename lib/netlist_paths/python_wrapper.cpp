@@ -25,11 +25,11 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
      .def("get_name",        &Vertex::getName)
-     .def("get_ast_type",    &Vertex::getAstTypeString)
-     .def("get_direction",   &Vertex::getDirString)
-     .def("get_dtype_str",   &Vertex::getDTypeString)
+     .def("get_ast_type",    &Vertex::getAstTypeStr)
+     .def("get_direction",   &Vertex::getDirStr)
+     .def("get_dtype_str",   &Vertex::getDTypeStr)
      .def("get_dtype_width", &Vertex::getDTypeWidth)
-     .def("get_location",    &Vertex::getLocString);
+     .def("get_location",    &Vertex::getLocStr);
 
   class_<std::vector<Vertex*> >("VertexList")
       .def(vector_indexing_suite<std::vector<Vertex*> >());
@@ -38,6 +38,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("get_instance",       &Options::getInstancePtr,
                                return_value_policy<reference_existing_object>())
     .staticmethod("get_instance")
+    .def("set_verbose",        &Options::setVerbose)
+    .def("set_debug",          &Options::setDebug)
     .def("set_match_wildcard", &Options::setMatchWildcard)
     .def("set_match_regex",    &Options::setMatchRegex);
 
@@ -49,6 +51,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Netlist, boost::noncopyable>("Netlist",
                                       init<const std::string&>())
+    .def("dump_names",             &Netlist::dumpNamesStdOut)
     .def("reg_exists",             &Netlist::regExists)
     .def("startpoint_exists",      &Netlist::startpointExists)
     .def("endpoint_exists",        &Netlist::endpointExists)

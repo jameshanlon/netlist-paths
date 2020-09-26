@@ -18,19 +18,6 @@ BOOST_FIXTURE_TEST_CASE(verilator, TestContext) {
   BOOST_ASSERT(boost::filesystem::exists(installPrefix));
 }
 
-BOOST_FIXTURE_TEST_CASE(adder, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("adder.sv", "adder"));
-  // Check paths between all start and end points are reported.
-  auto startPoints = {"i_a", "i_b"};
-  auto endPoints = {"o_sum", "o_co"};
-  for (auto s : startPoints) {
-    for (auto e : endPoints) {
-      BOOST_TEST(pathExists(s, e));
-      BOOST_CHECK_THROW(pathExists(e, s), netlist_paths::Exception);
-    }
-  }
-}
-
 /// Test matching of names by wildcards and regexes.
 BOOST_FIXTURE_TEST_CASE(name_matching, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
@@ -141,12 +128,59 @@ BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
   BOOST_CHECK_THROW(np->getDTypeWidth("dtypes.foo"), netlist_paths::Exception);
 }
 
+BOOST_FIXTURE_TEST_CASE(path_exists, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("adder.sv", "adder"));
+  // Check paths between all start and end points are reported.
+  auto startPoints = {"i_a", "i_b"};
+  auto endPoints = {"o_sum", "o_co"};
+  for (auto s : startPoints) {
+    for (auto e : endPoints) {
+      BOOST_TEST(pathExists(s, e));
+      BOOST_CHECK_THROW(pathExists(e, s), netlist_paths::Exception);
+    }
+  }
+}
+
 BOOST_FIXTURE_TEST_CASE(path_iteration, TestContext) {
+  // Pipeline
   BOOST_CHECK_NO_THROW(compile("pipeline.sv", "pipeline"));
   auto vertices = np->getAnyPath("i_data", "data_q");
   BOOST_TEST(vertices.size() == 3);
+  // 0
+  BOOST_TEST(vertices[0]->getAstTypeStr() == "VAR");
+  BOOST_TEST(vertices[0]->getDTypeStr()   == "[31:0] logic");
+  BOOST_TEST(vertices[0]->getName()       == "i_data");
+  // 1
+  BOOST_TEST(vertices[1]->getAstTypeStr() == "ASSIGN_DLY");
+  BOOST_TEST(vertices[1]->getDTypeStr()   == "none");
+  BOOST_TEST(vertices[2]->getAstTypeStr() == "DST_REG");
+  // 2
+  BOOST_TEST(vertices[2]->getDTypeStr()   == "[31:0] logic [7:0]");
+  BOOST_TEST(vertices[2]->getName()       == "pipeline.data_q");
   // Pipeline module
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
   vertices = np->getAnyPath("i_data", "data_q");
   BOOST_TEST(vertices.size() == 7);
+  // 0
+  BOOST_TEST(vertices[0]->getAstTypeStr() == "VAR");
+  BOOST_TEST(vertices[0]->getDTypeStr()   == "[31:0] logic");
+  BOOST_TEST(vertices[0]->getName()       == "i_data");
+  // 1
+  BOOST_TEST(vertices[1]->getAstTypeStr() == "ASSIGN");
+  // 2
+  BOOST_TEST(vertices[2]->getAstTypeStr() == "VAR");
+  BOOST_TEST(vertices[2]->getDTypeStr()   == "[31:0] logic [8:0]");
+  BOOST_TEST(vertices[2]->getName()       == "pipeline.routing");
+  // 3
+  BOOST_TEST(vertices[3]->getAstTypeStr() == "ASSIGN");
+  // 4
+  BOOST_TEST(vertices[4]->getAstTypeStr() == "VAR");
+  BOOST_TEST(vertices[4]->getDTypeStr()   == "[31:0] logic");
+  BOOST_TEST(vertices[4]->getName()       == "pipeline.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
+  // 5
+  BOOST_TEST(vertices[5]->getAstTypeStr() == "ASSIGN_DLY");
+  // 6
+  BOOST_TEST(vertices[6]->getAstTypeStr() == "DST_REG");
+  BOOST_TEST(vertices[6]->getDTypeStr()   == "[31:0] logic");
+  BOOST_TEST(vertices[6]->getName()       == "pipeline.g_pipestage[0].u_pipestage.data_q");
 }
