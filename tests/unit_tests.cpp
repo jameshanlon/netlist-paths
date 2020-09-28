@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE compile_graph
+#define BOOST_TEST_MODULE unit_tests
 
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
@@ -141,46 +141,98 @@ BOOST_FIXTURE_TEST_CASE(path_exists, TestContext) {
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(path_iteration, TestContext) {
-  // Pipeline
-  BOOST_CHECK_NO_THROW(compile("pipeline.sv", "pipeline"));
+void checkVarReport(const netlist_paths::Vertex *vertex,
+                    const std::string astTypeStr,
+                    const std::string dtypeStr,
+                    const std::string name) {
+  BOOST_TEST(vertex->getAstTypeStr() == astTypeStr);
+  BOOST_TEST(vertex->getDTypeStr() == dtypeStr);
+  BOOST_TEST(vertex->getName() == name);
+}
+
+void checkLogReport(const netlist_paths::Vertex *vertex,
+                    const std::string astTypeStr) {
+  BOOST_TEST(vertex->getAstTypeStr() == astTypeStr);
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv", "basic_assign_chain"));
+  auto vertices = np->getAnyPath("in", "out");
+  BOOST_TEST(vertices.size() == 7);
+  checkVarReport(vertices[0], "VAR", "logic", "in");
+  checkLogReport(vertices[1], "ASSIGN");
+  checkVarReport(vertices[2], "VAR", "logic", "basic_assign_chain.a");
+  checkLogReport(vertices[3], "ASSIGN");
+  checkVarReport(vertices[4], "VAR", "logic", "basic_assign_chain.b");
+  checkLogReport(vertices[5], "ASSIGN");
+  checkVarReport(vertices[6], "VAR", "logic", "out");
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("basic_comb_chain.sv", "basic_comb_chain"));
+  auto vertices = np->getAnyPath("in", "out");
+  BOOST_TEST(vertices.size() == 7);
+  checkVarReport(vertices[0], "VAR", "logic", "in");
+  checkLogReport(vertices[1], "ASSIGN");
+  checkVarReport(vertices[2], "VAR", "logic", "basic_comb_chain.a");
+  checkLogReport(vertices[3], "ASSIGN");
+  checkVarReport(vertices[4], "VAR", "logic", "basic_comb_chain.b");
+  checkLogReport(vertices[5], "ASSIGN");
+  checkVarReport(vertices[6], "VAR", "logic", "out");
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv", "basic_ff_chain"));
+  // in -> a
+  auto vertices = np->getAnyPath("in", "basic_ff_chain.a");
+  BOOST_TEST(vertices.size() == 3);
+  checkVarReport(vertices[0], "VAR", "logic", "in");
+  checkLogReport(vertices[1], "ASSIGN_DLY");
+  checkVarReport(vertices[2], "DST_REG", "logic", "basic_ff_chain.a");
+  // a -> b
+  vertices = np->getAnyPath("basic_ff_chain.a", "basic_ff_chain.b");
+  BOOST_TEST(vertices.size() == 3);
+  checkVarReport(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
+  checkLogReport(vertices[1], "ASSIGN_DLY");
+  checkVarReport(vertices[2], "DST_REG", "logic", "basic_ff_chain.b");
+  // b -> out
+  vertices = np->getAnyPath("basic_ff_chain.b", "out");
+  BOOST_TEST(vertices.size() == 3);
+  checkVarReport(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
+  checkLogReport(vertices[1], "ASSIGN");
+  checkVarReport(vertices[2], "VAR", "logic", "out");
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
+  // NOTE: can differentiate between the generate instances of the pipeline.
+  auto vertices = np->getAnyPath("i_data", "data_q");
+  BOOST_TEST(vertices.size() == 7);
+  checkVarReport(vertices[0], "VAR", "[31:0] logic", "i_data");
+  checkLogReport(vertices[1], "ASSIGN");
+  checkVarReport(vertices[2], "VAR", "[31:0] logic [8:0]", "pipeline.routing");
+  checkLogReport(vertices[3], "ASSIGN");
+  checkVarReport(vertices[4], "VAR", "[31:0] logic", "pipeline.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
+  checkLogReport(vertices[5], "ASSIGN_DLY");
+  checkVarReport(vertices[6], "DST_REG", "[31:0] logic", "pipeline.g_pipestage[0].u_pipestage.data_q");
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline_loops.sv", "pipeline_loops"));
+  // NOTE: cannot currently differentiate between elements of the data_q array.
   auto vertices = np->getAnyPath("i_data", "data_q");
   BOOST_TEST(vertices.size() == 3);
-  // 0
-  BOOST_TEST(vertices[0]->getAstTypeStr() == "VAR");
-  BOOST_TEST(vertices[0]->getDTypeStr()   == "[31:0] logic");
-  BOOST_TEST(vertices[0]->getName()       == "i_data");
-  // 1
-  BOOST_TEST(vertices[1]->getAstTypeStr() == "ASSIGN_DLY");
-  BOOST_TEST(vertices[1]->getDTypeStr()   == "none");
-  BOOST_TEST(vertices[2]->getAstTypeStr() == "DST_REG");
-  // 2
-  BOOST_TEST(vertices[2]->getDTypeStr()   == "[31:0] logic [7:0]");
-  BOOST_TEST(vertices[2]->getName()       == "pipeline.data_q");
-  // Pipeline module
-  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
-  vertices = np->getAnyPath("i_data", "data_q");
-  BOOST_TEST(vertices.size() == 7);
-  // 0
-  BOOST_TEST(vertices[0]->getAstTypeStr() == "VAR");
-  BOOST_TEST(vertices[0]->getDTypeStr()   == "[31:0] logic");
-  BOOST_TEST(vertices[0]->getName()       == "i_data");
-  // 1
-  BOOST_TEST(vertices[1]->getAstTypeStr() == "ASSIGN");
-  // 2
-  BOOST_TEST(vertices[2]->getAstTypeStr() == "VAR");
-  BOOST_TEST(vertices[2]->getDTypeStr()   == "[31:0] logic [8:0]");
-  BOOST_TEST(vertices[2]->getName()       == "pipeline.routing");
-  // 3
-  BOOST_TEST(vertices[3]->getAstTypeStr() == "ASSIGN");
-  // 4
-  BOOST_TEST(vertices[4]->getAstTypeStr() == "VAR");
-  BOOST_TEST(vertices[4]->getDTypeStr()   == "[31:0] logic");
-  BOOST_TEST(vertices[4]->getName()       == "pipeline.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
-  // 5
-  BOOST_TEST(vertices[5]->getAstTypeStr() == "ASSIGN_DLY");
-  // 6
-  BOOST_TEST(vertices[6]->getAstTypeStr() == "DST_REG");
-  BOOST_TEST(vertices[6]->getDTypeStr()   == "[31:0] logic");
-  BOOST_TEST(vertices[6]->getName()       == "pipeline.g_pipestage[0].u_pipestage.data_q");
+  checkVarReport(vertices[0], "VAR", "[31:0] logic", "i_data");
+  checkLogReport(vertices[1], "ASSIGN_DLY");
+  checkVarReport(vertices[2], "DST_REG", "[31:0] logic [7:0]", "pipeline_loops.data_q");
+}
+
+BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("pipeline_no_loops.sv", "pipeline_no_loops"));
+  // NOTE: cannot currently differentiate between elements of the data_q array.
+  auto vertices = np->getAnyPath("data_q", "data_q");
+  BOOST_TEST(vertices.size() == 3);
+  checkVarReport(vertices[0], "SRC_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
+  checkLogReport(vertices[1], "ASSIGN_DLY");
+  checkVarReport(vertices[2], "DST_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
 }

@@ -6,8 +6,7 @@ import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
 from py_netlist_paths import RunVerilator, Netlist, Options
 
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser(description="Query a Verilog netlist")
     parser.add_argument('files',
                         nargs='+',
@@ -37,7 +36,7 @@ if __name__ == '__main__':
                         help='Enable regular expression matching of names')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
-                        help='Print information')
+                        help='Print execution information')
     parser.add_argument('-d', '--debug',
                         action='store_true',
                         help='Print debugging information')
@@ -49,23 +48,33 @@ if __name__ == '__main__':
         Options.get_instance().set_verbose()
     if args.debug:
         Options.get_instance().set_debug()
-    # Verilator compilation
-    if (args.compile):
-        comp = RunVerilator(defs.INSTALL_PREFIX)
-        temp_name = next(tempfile._get_candidate_names())
-        comp.run(args.files[0], temp_name)
-    # Create the netlist
-    netlist = Netlist(temp_name)
-    # Dump names
-    if args.dump_names:
-        netlist.dump_names(args.dump_names)
-        return 0
-    # Point-to-point path
-    if args.start_point and args.end_point:
-        path = netlist.get_any_path(args.start_point, args.end_point)
-        for vertex in path:
-            print('{:<16} {:<16} {:<16} {:<16}'.format(vertex.get_ast_type(),
-                                                       vertex.get_dtype_str(),
-                                                       vertex.get_dtype_width(),
-                                                       vertex.get_name()))
-        return 0
+    try:
+        # Verilator compilation
+        # (Only support one source file.)
+        if (args.compile):
+            comp = RunVerilator(defs.INSTALL_PREFIX)
+            temp_name = next(tempfile._get_candidate_names())
+            if comp.run(args.files[0], temp_name) > 0:
+                raise RuntimeError('error compiling design')
+        # Create the netlist
+        netlist = Netlist(temp_name)
+        # Dump names
+        if args.dump_names:
+            netlist.dump_names(args.dump_names)
+            return 0
+        # Point-to-point path
+        if args.start_point and args.end_point:
+            path = netlist.get_any_path(args.start_point, args.end_point)
+            for vertex in path:
+                print('{:<16} {:<16} {:<16} {:<16}'.format(vertex.get_ast_type(),
+                                                           vertex.get_dtype_str(),
+                                                           vertex.get_dtype_width(),
+                                                           vertex.get_name()))
+            return 0
+    except RuntimeError as e:
+      print('Error: '+str(e))
+      return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

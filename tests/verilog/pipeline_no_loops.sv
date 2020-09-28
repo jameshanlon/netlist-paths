@@ -1,5 +1,5 @@
 // Pipeline a data signal over a number of stages.
-module three_stage_pipeline
+module pipeline_no_loops
   #(
     parameter p_width = 32
   )(
