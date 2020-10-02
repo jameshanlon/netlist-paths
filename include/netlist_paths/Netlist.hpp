@@ -131,20 +131,17 @@ public:
   }
 
   /// Return any path between two points.
-  std::vector<Vertex*>
-  getAnyPath(const std::string &start, const std::string &end) {
+  std::vector<Vertex*> getAnyPath() {
+    auto result = createVertexPtrList(netlist.getAnyPointToPoint(waypoints));
     clearWaypoints();
-    addStartpoint(start);
-    addEndpoint(end);
-    return createVertexPtrList(netlist.getAnyPointToPoint(waypoints));
+    return result;
   }
 
   /// Return a Boolean whether any path exists between two points.
-  bool pathExists(const std::string &start, const std::string &end) {
+  bool pathExists() {
+    auto result = !netlist.getAnyPointToPoint(waypoints).empty();
     clearWaypoints();
-    addStartpoint(start);
-    addEndpoint(end);
-    return !netlist.getAnyPointToPoint(waypoints).empty();
+    return result;
   }
 
   //===--------------------------------------------------------------------===//

@@ -11,7 +11,9 @@
 namespace fs = boost::filesystem;
 
 struct TestContext {
+
   TestContext() {}
+
   std::unique_ptr<netlist_paths::Netlist> np;
   /// Compile a test and create a netlist object.
   void compile(const std::string &inFilename,
@@ -31,6 +33,7 @@ struct TestContext {
     uniqueNames();
     qualifiedNames(topName);
   }
+
   /// Check all names are unique.
   void uniqueNames() {
     auto vertices = np->getNamedVertices();
@@ -43,6 +46,7 @@ struct TestContext {
     names.erase(last, std::end(names));
     BOOST_TEST(vertices.size() == names.size());
   }
+
   /// Check all hierarchical names are qualified with the top module name.
   void qualifiedNames(const std::string &topName) {
     for (auto v : np->getNamedVertices()) {
@@ -53,9 +57,24 @@ struct TestContext {
       }
     }
   }
-  bool regExists(const std::string &name) { return np->regExists(name); }
+
+  bool regExists(const std::string &name) {
+    return np->regExists(name);
+  }
+
   bool pathExists(const std::string &start,
-                  const std::string &end) { return np->pathExists(start, end); }
+                  const std::string &end) {
+    np->addStartpoint(start);
+    np->addEndpoint(end);
+    return np->pathExists();
+  }
+
+  std::vector<netlist_paths::Vertex*> getAnyPath(const std::string &start,
+                                                 const std::string &end) {
+    np->addStartpoint(start);
+    np->addEndpoint(end);
+    return np->getAnyPath();
+  }
 };
 
 #endif // NETLIST_PATHS_TEST_CONTEXT_HPP

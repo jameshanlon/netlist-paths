@@ -157,7 +157,7 @@ void checkLogReport(const netlist_paths::Vertex *vertex,
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv", "basic_assign_chain"));
-  auto vertices = np->getAnyPath("in", "out");
+  auto vertices = getAnyPath("in", "out");
   BOOST_TEST(vertices.size() == 7);
   checkVarReport(vertices[0], "VAR", "logic", "in");
   checkLogReport(vertices[1], "ASSIGN");
@@ -170,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_comb_chain.sv", "basic_comb_chain"));
-  auto vertices = np->getAnyPath("in", "out");
+  auto vertices = getAnyPath("in", "out");
   BOOST_TEST(vertices.size() == 7);
   checkVarReport(vertices[0], "VAR", "logic", "in");
   checkLogReport(vertices[1], "ASSIGN");
@@ -184,19 +184,19 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
 BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv", "basic_ff_chain"));
   // in -> a
-  auto vertices = np->getAnyPath("in", "basic_ff_chain.a");
+  auto vertices = getAnyPath("in", "basic_ff_chain.a");
   BOOST_TEST(vertices.size() == 3);
   checkVarReport(vertices[0], "VAR", "logic", "in");
   checkLogReport(vertices[1], "ASSIGN_DLY");
   checkVarReport(vertices[2], "DST_REG", "logic", "basic_ff_chain.a");
   // a -> b
-  vertices = np->getAnyPath("basic_ff_chain.a", "basic_ff_chain.b");
+  vertices = getAnyPath("basic_ff_chain.a", "basic_ff_chain.b");
   BOOST_TEST(vertices.size() == 3);
   checkVarReport(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
   checkLogReport(vertices[1], "ASSIGN_DLY");
   checkVarReport(vertices[2], "DST_REG", "logic", "basic_ff_chain.b");
   // b -> out
-  vertices = np->getAnyPath("basic_ff_chain.b", "out");
+  vertices = getAnyPath("basic_ff_chain.b", "out");
   BOOST_TEST(vertices.size() == 3);
   checkVarReport(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
   checkLogReport(vertices[1], "ASSIGN");
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
   // NOTE: can differentiate between the generate instances of the pipeline.
-  auto vertices = np->getAnyPath("i_data", "data_q");
+  auto vertices = getAnyPath("i_data", "data_q");
   BOOST_TEST(vertices.size() == 7);
   checkVarReport(vertices[0], "VAR", "[31:0] logic", "i_data");
   checkLogReport(vertices[1], "ASSIGN");
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_loops.sv", "pipeline_loops"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
-  auto vertices = np->getAnyPath("i_data", "data_q");
+  auto vertices = getAnyPath("i_data", "data_q");
   BOOST_TEST(vertices.size() == 3);
   checkVarReport(vertices[0], "VAR", "[31:0] logic", "i_data");
   checkLogReport(vertices[1], "ASSIGN_DLY");
@@ -230,7 +230,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_no_loops.sv", "pipeline_no_loops"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
-  auto vertices = np->getAnyPath("data_q", "data_q");
+  auto vertices = getAnyPath("data_q", "data_q");
   BOOST_TEST(vertices.size() == 3);
   checkVarReport(vertices[0], "SRC_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
   checkLogReport(vertices[1], "ASSIGN_DLY");
