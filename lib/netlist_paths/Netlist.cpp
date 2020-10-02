@@ -7,17 +7,16 @@ using namespace netlist_paths;
 /// Return a list of IDs of named vertices, optionally filter by regex.
 std::vector<VertexID>
 Netlist::getNamedVertexIds(const std::string &regex) const {
-  std::vector<VertexID> vertexIds;
+  std::vector<VertexID> vertices;
   std::regex nameRegex(regex);
-  // Collect vertices.
   for (auto vertexId : netlist.getAllVertices()) {
     if (netlist.getVertex(vertexId).isNamed() &&
         (regex.empty() ||
          std::regex_search(netlist.getVertex(vertexId).getName(), nameRegex))) {
-      vertexIds.push_back(vertexId);
+      vertices.push_back(vertexId);
     }
   }
-  return vertexIds;
+  return vertices;
 }
 
 /// Return a sorted list of unique named entities in the netlist for searching.
@@ -33,34 +32,6 @@ Netlist::getNamedVertices(const std::string &regex) const {
                    return a.compareLessThan(b); };
   std::sort(vertices.begin(), vertices.end(), compare);
   return vertices;
-}
-
-/// Dump details of named entities in the design.
-void Netlist::dumpNames(std::ostream &os, const std::string &regex) const {
-  // Populate the rows of the table.
-  std::vector<const std::string> hdr({"Name", "Type", "DType", "Direction", "Location"});
-  std::vector<std::vector<const std::string>> rows;
-  for (auto vertexId : getNamedVertexIds(regex)) {
-    rows.push_back({netlist.getVertex(vertexId).getName(),
-                    netlist.getVertex(vertexId).getAstTypeStr(),
-                    netlist.getVertex(vertexId).getDTypeStr(),
-                    netlist.getVertex(vertexId).getDirStr(),
-                    netlist.getVertex(vertexId).getLocStr()});
-  }
-  // Create the row format string.
-  std::string fmt;
-  for (size_t i=0; i<hdr.size(); i++) {
-    size_t maxWidth = hdr[i].size();
-    for (size_t j=0; j<rows.size(); j++) {
-      maxWidth = std::max(maxWidth, rows[j][i].size());
-    }
-    fmt += "%-"+std::to_string(maxWidth+1)+"s ";
-  }
-  fmt += '\n';
-  os << boost::format(fmt) % hdr[0] % hdr[1] % hdr[2] % hdr[3] % hdr[4];
-  for (auto row : rows) {
-    os << boost::format(fmt) % row[0] % row[1] % row[2] % row[3] % row[4];
-  }
 }
 
 ///// Pretty print a path (some sequence of vertices).

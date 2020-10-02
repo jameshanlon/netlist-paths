@@ -6,6 +6,34 @@ import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
 from py_netlist_paths import RunVerilator, Netlist, Options
 
+
+# Dump a table of names and their attributes matching regex to fd.
+def dump_names(netlist, regex, fd):
+    rows = []
+    HDR = ['Name', 'Type', 'DType', 'Direction', 'Location']
+    vertices = netlist.get_named_vertices(regex)
+    vertices = sorted(vertices, key=lambda x: (x.get_name(),
+                                               x.get_ast_type(),
+                                               x.get_dtype_str(),
+                                               x.get_direction()))
+    for vertex in vertices:
+        rows.append((vertex.get_name(),
+                     vertex.get_ast_type(),
+                     vertex.get_dtype_str(),
+                     vertex.get_direction(),
+                     vertex.get_location()))
+    # Calculate max widths for each column
+    widths = [len(x) for x in HDR]
+    for row in rows:
+        for i, col in enumerate(row):
+            widths[i] = max(widths[i], len(col))
+    fmt = ' '.join('{row['+str(i)+']:<{widths['+str(i)+']}}' for i in range(len(HDR)))
+    fmt += '\n'
+    fd.write(fmt.format(row=HDR, widths=widths))
+    for row in rows:
+        fd.write(fmt.format(row=row, widths=widths))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Query a Verilog netlist")
     parser.add_argument('files',
@@ -60,7 +88,7 @@ def main():
         netlist = Netlist(temp_name)
         # Dump names
         if args.dump_names:
-            netlist.dump_names(args.dump_names)
+            dump_names(netlist, args.dump_names, sys.stdout)
             return 0
         # Point-to-point path
         if args.start_point and args.end_point:

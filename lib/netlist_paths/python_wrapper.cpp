@@ -51,13 +51,12 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Netlist, boost::noncopyable>("Netlist",
                                       init<const std::string&>())
-    .def("dump_names",             &Netlist::dumpNamesStdOut)
+    .def("get_named_vertices",     &Netlist::getNamedVerticesPtr)
     .def("reg_exists",             &Netlist::regExists)
     .def("startpoint_exists",      &Netlist::startpointExists)
     .def("endpoint_exists",        &Netlist::endpointExists)
     .def("path_exists",            &Netlist::pathExists)
     .def("get_any_path",           &Netlist::getAnyPath)
-    .def("dump_names",             &Netlist::dumpNamesStdOut)
     .def("get_dtype_width",        &Netlist::getDTypeWidth)
     .def("get_vertex_dtype_str",   &Netlist::getVertexDTypeStr,
                                    get_vertex_dtype_str_overloads())

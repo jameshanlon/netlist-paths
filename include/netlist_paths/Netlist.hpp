@@ -17,7 +17,6 @@ class Netlist {
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
   std::vector<VertexID> waypoints;
-  std::vector<VertexID> getNamedVertexIds(const std::string& regex="") const;
 
   /// Get a DType by name.
   const std::shared_ptr<DType> getDType(const std::string &name) const {
@@ -30,6 +29,8 @@ class Netlist {
       return std::shared_ptr<DType>();
     }
   }
+
+  std::vector<VertexID> getNamedVertexIds(const std::string &regex="") const;
 
   std::vector<Vertex*> createVertexPtrList(VertexIDVec vertices) const {
     auto list = std::vector<Vertex*>();
@@ -78,9 +79,6 @@ public:
       throw Exception(std::string("could not find dtype "+name));
     }
   }
-
-  void dumpNames(std::ostream &os, const std::string &regex) const;
-  void dumpNamesStdOut(const std::string &regex) const { dumpNames(std::cout, regex); }
 
   //===--------------------------------------------------------------------===//
   // Waypoints.
@@ -164,6 +162,10 @@ public:
 
   std::vector<std::reference_wrapper<const Vertex>>
   getNamedVertices(const std::string &regex="") const;
+
+  std::vector<Vertex*> getNamedVerticesPtr(const std::string &regex="") const {
+    return createVertexPtrList(getNamedVertexIds(regex));
+  }
 };
 
 }; // End namespace.
