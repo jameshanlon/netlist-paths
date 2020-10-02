@@ -85,15 +85,30 @@ public:
   //===--------------------------------------------------------------------===//
 
   void addStartpoint(const std::string &name) {
-    waypoints.push_back(netlist.getStartVertex(name));
+    auto vertex = netlist.getStartVertex(name);
+    if (vertex != netlist.nullVertex()) {
+      waypoints.push_back(vertex);
+      return;
+    }
+    throw Exception(std::string("could not find start vertex "+name));
   }
 
   void addEndpoint(const std::string &name) {
-    waypoints.push_back(netlist.getEndVertex(name));
+    auto vertex = netlist.getEndVertex(name);
+    if (vertex != netlist.nullVertex()) {
+      waypoints.push_back(vertex);
+      return;
+    }
+    throw Exception(std::string("could not find end vertex "+name));
   }
 
   void addWaypoint(const std::string &name) {
-    waypoints.push_back(netlist.getMidVertex(name));
+    auto vertex = netlist.getMidVertex(name);
+    if (vertex != netlist.nullVertex()) {
+      waypoints.push_back(vertex);
+      return;
+    }
+    throw Exception(std::string("could not find vertex "+name));
   }
 
   std::size_t numWaypoints() const { return waypoints.size(); }
@@ -118,37 +133,17 @@ public:
   /// Return any path between two points.
   std::vector<Vertex*>
   getAnyPath(const std::string &start, const std::string &end) {
-    // Find the start end end points.
-    auto startPoint = netlist.getStartVertex(start);
-    if (startPoint == netlist.nullVertex()) {
-      throw Exception("start point not found");
-    }
-    auto endPoint = netlist.getEndVertex(end);
-    if (endPoint == netlist.nullVertex()) {
-      throw Exception("end point not found");
-    }
-    // Check the path exists.
     clearWaypoints();
-    waypoints.push_back(startPoint);
-    waypoints.push_back(endPoint);
+    addStartpoint(start);
+    addEndpoint(end);
     return createVertexPtrList(netlist.getAnyPointToPoint(waypoints));
   }
 
   /// Return a Boolean whether any path exists between two points.
   bool pathExists(const std::string &start, const std::string &end) {
-    // Find the start end end points.
-    auto startPoint = netlist.getStartVertex(start);
-    if (startPoint == netlist.nullVertex()) {
-      throw Exception("start point not found");
-    }
-    auto endPoint = netlist.getEndVertex(end);
-    if (endPoint == netlist.nullVertex()) {
-      throw Exception("end point not found");
-    }
-    // Check the path exists.
     clearWaypoints();
-    waypoints.push_back(startPoint);
-    waypoints.push_back(endPoint);
+    addStartpoint(start);
+    addEndpoint(end);
     return !netlist.getAnyPointToPoint(waypoints).empty();
   }
 
@@ -156,15 +151,15 @@ public:
   // Netlist access.
   //===--------------------------------------------------------------------===//
 
-  void dumpDotFile(const std::string &outputFilename) const {
-    netlist.dumpDotFile(outputFilename);
-  }
-
   std::vector<std::reference_wrapper<const Vertex>>
   getNamedVertices(const std::string &regex="") const;
 
   std::vector<Vertex*> getNamedVerticesPtr(const std::string &regex="") const {
     return createVertexPtrList(getNamedVertexIds(regex));
+  }
+
+  void dumpDotFile(const std::string &outputFilename) const {
+    netlist.dumpDotFile(outputFilename);
   }
 };
 

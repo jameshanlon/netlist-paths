@@ -34,6 +34,15 @@ def dump_names(netlist, regex, fd):
         fd.write(fmt.format(row=row, widths=widths))
 
 
+# Report the details of a path.
+def dump_path_report(netlist, path, fd):
+    for vertex in path:
+        print('{:<16} {:<16} {:<16} {:<16}'.format(vertex.get_ast_type(),
+                                                   vertex.get_dtype_str(),
+                                                   vertex.get_dtype_width(),
+                                                   vertex.get_name()))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Query a Verilog netlist")
     parser.add_argument('files',
@@ -92,12 +101,16 @@ def main():
             return 0
         # Point-to-point path
         if args.start_point and args.end_point:
-            path = netlist.get_any_path(args.start_point, args.end_point)
-            for vertex in path:
-                print('{:<16} {:<16} {:<16} {:<16}'.format(vertex.get_ast_type(),
-                                                           vertex.get_dtype_str(),
-                                                           vertex.get_dtype_width(),
-                                                           vertex.get_name()))
+            netlist.add_startpoint(args.start_point)
+            netlist.add_endpoint(args.end_point)
+            path = netlist.get_any_path()
+            dump_path_report(netlist, path, sys.stdout)
+            return 0
+        if args.start_point and not args.end_point:
+            # fan out
+            return 0
+        if args.end_point and not args.start_point:
+            # fan in
             return 0
     except RuntimeError as e:
       print('Error: '+str(e))

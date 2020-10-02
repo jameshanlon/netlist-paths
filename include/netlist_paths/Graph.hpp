@@ -82,28 +82,12 @@ public:
   VertexID getRegVertex(const std::string &name) const {
     return getVertexDescRegex(name, VertexGraphType::REG);
   }
-  //std::vector<Path> getAllFanOut(VertexDesc startVertex) const;
-  //std::vector<Path> getAllFanOut(const std::string &startName) const {
-  //  auto startVertex = getStartVertexExcept(startName);
-  //  return getAllFanOut(startVertex);
-  //}
-  //std::vector<Path> getAllFanIn(VertexDesc endVertex) const;
-  //std::vector<Path> getAllFanIn(const std::string &endName) const {
-  //  auto endVertex = getEndVertexExcept(endName);
-  //  return getAllFanIn(endVertex);
-  //}
-  //unsigned getfanOutDegree(VertexDesc startVertex);
-  //unsigned getfanOutDegree(const std::string &startName);
-  //  auto startVertex = getStartVertexExcept(startName);
-  //  return getfanOutDegree(startVertex);
-  //}
-  //unsigned getFanInDegree(VertexDesc endVertex);
-  //unsigned getFanInDegree(const std::string &endName);
-  //  auto endVertex = getEndVertexExcept(endName);
-  //  return getFanInDegree(endVertex);
-  //}
+  std::vector<VertexIDVec> getAllFanOut(VertexID startVertex) const;
+  std::vector<VertexIDVec> getAllFanIn(VertexID endVertex) const;
+  size_t getfanOutDegree(VertexID startVertex);
+  size_t getFanInDegree(VertexID endVertex);
   VertexIDVec getAnyPointToPoint(const std::vector<VertexID> &waypoints) const;
-  //std::vector<Path> getAllPointToPoint() const;
+  std::vector<VertexIDVec> getAllPointToPoint(const std::vector<VertexID> &waypoints) const;
   const Vertex &getVertex(VertexID vertexId) const { return graph[vertexId]; }
   Vertex* getVertexPtr(VertexID vertexId) const {
     // Remove the const cast to make it compatible with the boost::python wrappers.

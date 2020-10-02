@@ -107,10 +107,10 @@ class TestPyWrapper(unittest.TestCase):
     def test_pipeline_paths(self):
         # A pipeline implementation that uses loops and a register array.
         # Registers within the array cannot be distinguished.
-        np = self.compile_test('pipeline.sv')
-        self.assertTrue(np.reg_exists('pipeline.data_q'))
-        self.assertTrue(np.path_exists('pipeline.i_data', 'pipeline.data_q'))
-        self.assertTrue(np.path_exists('pipeline.data_q', 'pipeline.o_data'))
+        np = self.compile_test('pipeline_loops.sv')
+        self.assertTrue(np.reg_exists('pipeline_loops.data_q'))
+        self.assertTrue(np.path_exists('pipeline_loops.i_data', 'pipeline_loops.data_q'))
+        self.assertTrue(np.path_exists('pipeline_loops.data_q', 'pipeline_loops.o_data'))
 
     def test_vlvbound(self):
         np = self.compile_test('vlvbound.sv')
@@ -144,7 +144,7 @@ class TestPyWrapper(unittest.TestCase):
 
     def test_path_iteration(self):
         # Pipeline
-        np = self.compile_test('pipeline.sv')
+        np = self.compile_test('pipeline_loops.sv')
         path = np.get_any_path('i_data', 'data_q')
         self.assertTrue(len(path) == 3)
         # Pipeline module

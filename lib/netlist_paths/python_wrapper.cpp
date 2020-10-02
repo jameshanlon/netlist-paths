@@ -29,10 +29,14 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
      .def("get_direction",   &Vertex::getDirStr)
      .def("get_dtype_str",   &Vertex::getDTypeStr)
      .def("get_dtype_width", &Vertex::getDTypeWidth)
-     .def("get_location",    &Vertex::getLocStr);
+     .def("get_location",    &Vertex::getLocStr)
+     .def("can_ignore",      &Vertex::canIgnore);
 
   class_<std::vector<Vertex*> >("VertexList")
       .def(vector_indexing_suite<std::vector<Vertex*> >());
+
+  class_<std::vector<std::vector<Vertex*> > >("PathList")
+      .def(vector_indexing_suite<std::vector<std::vector<Vertex*> > >());
 
   class_<Options, boost::noncopyable>("Options", no_init)
     .def("get_instance",       &Options::getInstancePtr,
@@ -55,6 +59,9 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("reg_exists",             &Netlist::regExists)
     .def("startpoint_exists",      &Netlist::startpointExists)
     .def("endpoint_exists",        &Netlist::endpointExists)
+    .def("add_startpoint",         &Netlist::addStartpoint)
+    .def("add_endpoint",           &Netlist::addEndpoint)
+    .def("add_waypoint",           &Netlist::addWaypoint)
     .def("path_exists",            &Netlist::pathExists)
     .def("get_any_path",           &Netlist::getAnyPath)
     .def("get_dtype_width",        &Netlist::getDTypeWidth)

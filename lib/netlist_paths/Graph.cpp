@@ -267,61 +267,82 @@ void Graph::determineAllPaths(ParentMap &parentMap,
   }
 }
 
-///// Report all paths fanning out from a net/register/port.
-//std::vector<Path> Netlist::
-//getAllFanOut(VertexDesc startVertex) const {
-//  INFO(std::cout << "Performing DFS from "
-//                 << graph[startVertex].name << "\n");
-//  ParentMap parentMap;
-//  boost::depth_first_search(graph,
-//      boost::visitor(DfsVisitor(parentMap, false))
-//        .root_vertex(startVertex));
-//  // Check for a path between startPoint and each register.
-//  std::vector<Path> paths;
-//  BGL_FORALL_VERTICES(v, graph, Graph) {
-//    if (isEndPoint(graph[v])) {
-//      auto path = determinePath(parentMap,
-//                                Path(),
-//                                startVertex,
-//                                static_cast<VertexDesc>(graph[v].id));
-//      if (!path.empty()) {
-//        std::reverse(std::begin(path), std::end(path));
-//        paths.push_back(path);
-//      }
-//    }
-//  }
-//  return paths;
-//}
-//
-///// Report all paths fanning into a net/register/port.
-//std::vector<Path> Netlist::
-//getAllFanIn(VertexDesc endVertex) const {
-//  auto reverseGraph = boost::make_reverse_graph(graph);
-//  INFO(std::cout << "Performing DFS in reverse graph from "
-//                 << graph[endVertex].name << "\n");
-//  ParentMap parentMap;
-//  boost::depth_first_search(reverseGraph,
-//      boost::visitor(DfsVisitor(parentMap, false))
-//        .root_vertex(endVertex));
-//  // Check for a path between endPoint and each register.
-//  std::vector<Path> paths;
-//  BGL_FORALL_VERTICES(v, graph, Graph) {
-//    if (isStartPoint(graph[v])) {
-//      auto path = determinePath(parentMap,
-//                                Path(),
-//                                endVertex,
-//                                static_cast<VertexDesc>(graph[v].id));
-//      if (!path.empty()) {
-//        paths.push_back(path);
-//      }
-//    }
-//  }
-//  return paths;
-//}
-//
+/// Report all paths fanning out from a net/register/port.
+std::vector<VertexIDVec>
+Graph::getAllFanOut(VertexID startVertex) const {
+  INFO(std::cout << "Performing DFS from "
+                 << graph[startVertex].getName() << "\n");
+  ParentMap parentMap;
+  boost::depth_first_search(graph,
+      boost::visitor(DfsVisitor(parentMap, false))
+        .root_vertex(startVertex));
+  // Check for a path between startPoint and each register.
+  std::vector<VertexIDVec> paths;
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (graph[v].isEndPoint()) {
+      auto path = determinePath(parentMap,
+                                VertexIDVec(),
+                                startVertex,
+                                static_cast<VertexID>(v));
+      if (!path.empty()) {
+        std::reverse(std::begin(path), std::end(path));
+        paths.push_back(path);
+      }
+    }
+  }
+  return paths;
+}
+
+/// Report all paths fanning into a net/register/port.
+std::vector<VertexIDVec>
+Graph::getAllFanIn(VertexID endVertex) const {
+  auto reverseGraph = boost::make_reverse_graph(graph);
+  INFO(std::cout << "Performing DFS in reverse graph from "
+                 << graph[endVertex].getName() << "\n");
+  ParentMap parentMap;
+  boost::depth_first_search(reverseGraph,
+      boost::visitor(DfsVisitor(parentMap, false))
+        .root_vertex(endVertex));
+  // Check for a path between endPoint and each register.
+  std::vector<VertexIDVec> paths;
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (graph[v].isStartPoint()) {
+      auto path = determinePath(parentMap,
+                                VertexIDVec(),
+                                endVertex,
+                                static_cast<VertexID>(v));
+      if (!path.empty()) {
+        paths.push_back(path);
+      }
+    }
+  }
+  return paths;
+}
+
+/// Report all paths between start and end points.
+std::vector<VertexIDVec>
+Graph::getAllPointToPoint(const VertexIDVec &waypoints) const {
+  assert(waypoints.size() > 2 && "invlalid waypoints");
+  INFO(std::cout << "Performing DFS\n");
+  ParentMap parentMap;
+  boost::depth_first_search(graph,
+      boost::visitor(DfsVisitor(parentMap, true))
+        .root_vertex(waypoints[0]));
+  INFO(std::cout << "Determining all paths\n");
+  std::vector<VertexIDVec> paths;
+  determineAllPaths(parentMap,
+                    paths,
+                    VertexIDVec(),
+                    waypoints[0],
+                    waypoints[1]);
+  for (auto &path : paths) {
+    std::reverse(std::begin(path), std::end(path));
+  }
+  return paths;
+}
+
 /// Report a single path between a set of named points.
-VertexIDVec
-Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
+VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
   std::vector<VertexID> path;
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
@@ -350,50 +371,26 @@ Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
   return path;
 }
 
-///// Report all paths between start and end points.
-//std::vector<Path> Netlist::
-//getAllPointToPoint() const {
-//  assert(waypoints.size() > 2 && "invlalid waypoints");
-//  INFO(std::cout << "Performing DFS\n");
-//  ParentMap parentMap;
-//  boost::depth_first_search(graph,
-//      boost::visitor(DfsVisitor(parentMap, true))
-//        .root_vertex(waypoints[0]));
-//  INFO(std::cout << "Determining all paths\n");
-//  std::vector<Path> paths;
-//  determineAllPaths(parentMap,
-//                    paths,
-//                    Path(),
-//                    waypoints[0],
-//                    waypoints[1]);
-//  for (auto &path : paths) {
-//    std::reverse(std::begin(path), std::end(path));
-//  }
-//  return paths;
-//}
-//
-///// Return the number of registers a start point fans out to.
-//unsigned Netlist::
-//getfanOutDegree(VertexDesc startVertex) {
-//  const auto paths = getAllFanOut(startVertex);
-//  unsigned count = 0;
-//  for (auto &path : paths) {
-////    auto endVertex = path.back();
-////    count += graph[endVertex].width;
-//    count += 1;
-//  }
-//  return count;
-//}
-//
-///// Return he number of registers that fan into an end point.
-//unsigned Netlist::
-//getFanInDegree(VertexDesc endVertex) {
-//  const auto paths = getAllFanIn(endVertex);
-//  unsigned count = 0;
-//  for (auto &path : paths) {
-////    auto startVertex = path.front();
-////    count += graph[startVertex].width;
-//    count += 1;
-//  }
-//  return count;
-//}
+/// Return the number of registers a start point fans out to.
+size_t Graph::getfanOutDegree(VertexID startVertex) {
+  auto paths = getAllFanOut(startVertex);
+  return paths.size();
+  //size_t count = 0;
+  //for (auto &path : paths) {
+  //  auto endVertex = path.back();
+  //  count += graph[endVertex].width;
+  //}
+  //return count;
+}
+
+/// Return he number of registers that fan into an end point.
+size_t Graph::getFanInDegree(VertexID endVertex) {
+  auto paths = getAllFanIn(endVertex);
+  return paths.size();
+  //unsigned count = 0;
+  //for (auto &path : paths) {
+  //  auto startVertex = path.front();
+  //  count += graph[startVertex].width;
+  //}
+  //return count;
+}
