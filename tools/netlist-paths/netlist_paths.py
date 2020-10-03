@@ -4,7 +4,7 @@ import os
 import tempfile
 import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
-from py_netlist_paths import RunVerilator, Netlist, Options
+from py_netlist_paths import RunVerilator, Netlist, Waypoints, Options
 
 
 # Dump a table of names and their attributes matching regex to fd.
@@ -66,8 +66,12 @@ def main():
                         dest='start_point',
                         help='Start point')
     parser.add_argument('--to',
-                        dest='end_point',
-                        help='End point')
+                        dest='finish_point',
+                        help='Finish point')
+    parser.add_argument('--though',
+                        nargs=2,
+                        action='append',
+                        help='Though point')
     parser.add_argument('--regex',
                         action='store_true',
                         help='Enable regular expression matching of names')
@@ -100,21 +104,27 @@ def main():
             dump_names(netlist, args.dump_names, sys.stdout)
             return 0
         # Point-to-point path
-        if args.start_point and args.end_point:
-            netlist.add_startpoint(args.start_point)
-            netlist.add_endpoint(args.end_point)
-            path = netlist.get_any_path()
+        if args.start_point and args.finish_point:
+            waypoints = Waypoints()
+            waypoints.add(args.start_point)
+            [waypoints.add(point) for point in args.through]
+            waypoints.add(args.finish_point)
+            path = netlist.get_any_path(waypoints)
             dump_path_report(netlist, path, sys.stdout)
             return 0
-        if args.start_point and not args.end_point:
+        if args.start_point and not args.finish_point:
             # fan out
+            if len(args.though) > 0:
+                raise RuntimeError('cannot specify through points with fanout paths')
             return 0
         if args.end_point and not args.start_point:
             # fan in
+            if len(args.though) > 0:
+                raise RuntimeError('cannot specify through points with fanin paths')
             return 0
     except RuntimeError as e:
-      print('Error: '+str(e))
-      return 1
+        print('Error: '+str(e))
+        return 1
 
 
 if __name__ == '__main__':
