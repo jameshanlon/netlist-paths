@@ -33,7 +33,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
      .def("get_location",    &Vertex::getLocStr)
      .def("can_ignore",      &Vertex::canIgnore);
 
-  class_<std::vector<Vertex*> >("VertexList")
+  class_<std::vector<Vertex*> >("Path")
       .def(vector_indexing_suite<std::vector<Vertex*> >());
 
   class_<std::vector<std::vector<Vertex*> > >("PathList")
@@ -66,6 +66,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("endpoint_exists",        &Netlist::endpointExists)
     .def("path_exists",            &Netlist::pathExists)
     .def("get_any_path",           &Netlist::getAnyPath)
+    .def("get_all_fanout",         &Netlist::getAllFanOut)
+    .def("get_all_fanin",          &Netlist::getAllFanIn)
     .def("get_dtype_width",        &Netlist::getDTypeWidth)
     .def("get_vertex_dtype_str",   &Netlist::getVertexDTypeStr,
                                    get_vertex_dtype_str_overloads())

@@ -44,7 +44,7 @@ VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find start vertex "+*it));
       }
-    // End
+    // Finish
     } else if (it+1 == waypoints.end()) {
       vertex = netlist.getEndVertex(*it);
       if (vertex == netlist.nullVertex()) {

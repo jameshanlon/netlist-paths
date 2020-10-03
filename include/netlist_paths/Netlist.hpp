@@ -33,12 +33,21 @@ class Netlist {
 
   std::vector<VertexID> getNamedVertexIds(const std::string &regex="") const;
 
-  std::vector<Vertex*> createVertexPtrList(VertexIDVec vertices) const {
-    auto list = std::vector<Vertex*>();
+  std::vector<Vertex*> createVertexPtrVec(VertexIDVec vertices) const {
+    auto result = std::vector<Vertex*>();
     for (auto vertexId : vertices) {
-      list.push_back(netlist.getVertexPtr(vertexId));
+      result.push_back(netlist.getVertexPtr(vertexId));
     }
-    return list;
+    return result;
+  }
+
+  std::vector<std::vector<Vertex*> >
+  createVertexPtrVecVec(std::vector<VertexIDVec> paths) const {
+    auto result = std::vector<std::vector<Vertex*> >();
+    for (auto vertexIdVec : paths) {
+      result.push_back(createVertexPtrVec(vertexIdVec));
+    }
+    return result;
   }
 
 public:
@@ -103,16 +112,34 @@ public:
     return netlist.getRegVertex(name) != netlist.nullVertex();
   }
 
-  /// Return any path between two points.
-  std::vector<Vertex*> getAnyPath(Waypoints waypoints) {
-    auto waypointIDs = readWaypoints(waypoints);
-    return createVertexPtrList(netlist.getAnyPointToPoint(waypointIDs));
-  }
-
-  /// Return a Boolean whether any path exists between two points.
+  /// Return a Boolean to indicate whether any path exists between two points.
   bool pathExists(Waypoints waypoints) {
     auto waypointIDs = readWaypoints(waypoints);
     return !netlist.getAnyPointToPoint(waypointIDs).empty();
+  }
+
+  /// Return any path between two points.
+  std::vector<Vertex*> getAnyPath(Waypoints waypoints) {
+    auto waypointIDs = readWaypoints(waypoints);
+    return createVertexPtrVec(netlist.getAnyPointToPoint(waypointIDs));
+  }
+
+  /// Return a vector of paths fanning out from a particular start point.
+  std::vector<std::vector<Vertex*> > getAllFanOut(const std::string startName) const {
+    auto startVertex = netlist.getStartVertex(startName);
+    if (startVertex == netlist.nullVertex()) {
+      throw Exception(std::string("could not find start vertex "+startName));
+    }
+    return createVertexPtrVecVec(netlist.getAllFanOut(startVertex));
+  }
+
+  /// Return a vector of paths fanning out from a particular start point.
+  std::vector<std::vector<Vertex*> > getAllFanIn(const std::string finishName) const {
+    auto finishVertex = netlist.getEndVertex(finishName);
+    if (finishVertex == netlist.nullVertex()) {
+      throw Exception(std::string("could not find finish vertex "+finishName));
+    }
+    return createVertexPtrVecVec(netlist.getAllFanIn(finishVertex));
   }
 
   //===--------------------------------------------------------------------===//
@@ -123,7 +150,7 @@ public:
   getNamedVertices(const std::string &regex="") const;
 
   std::vector<Vertex*> getNamedVerticesPtr(const std::string &regex="") const {
-    return createVertexPtrList(getNamedVertexIds(regex));
+    return createVertexPtrVec(getNamedVertexIds(regex));
   }
 
   void dumpDotFile(const std::string &outputFilename) const {

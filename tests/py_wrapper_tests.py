@@ -148,7 +148,7 @@ class TestPyWrapper(unittest.TestCase):
         self.assertRaises(RuntimeError, np.get_vertex_dtype_str, 'foo')
         self.assertRaises(RuntimeError, np.get_vertex_dtype_width, 'foo')
 
-    def test_path_iteration(self):
+    def test_path_any_to_any(self):
         # Pipeline
         np = self.compile_test('pipeline_loops.sv')
         path = self.get_any_path(np, 'i_data', 'data_q')
@@ -157,6 +157,14 @@ class TestPyWrapper(unittest.TestCase):
         np = self.compile_test('pipeline_module.sv')
         path = self.get_any_path(np, 'i_data', 'data_q')
         self.assertTrue(len(path) == 7)
+
+    def test_path_all_fanout(self):
+        np = self.compile_test('pipeline_loops.sv')
+        paths = np.get_all_fanout('i_data')
+        for i, path in enumerate(paths):
+            print('PATH '+str(i))
+            for vertex in path:
+                print('  vertex '+vertex.get_name())
 
     def test_fsm(self):
         np = self.compile_test('fsm.sv')
