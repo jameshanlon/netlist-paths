@@ -65,17 +65,13 @@ struct TestContext {
   }
 
   bool pathExists(const std::string &start,
-                  const std::string &end) {
-    np->addStartpoint(start);
-    np->addEndpoint(end);
-    return np->pathExists();
+                  const std::string &finish) {
+    return np->pathExists(netlist_paths::Waypoints(start, finish));
   }
 
   std::vector<netlist_paths::Vertex*> getAnyPath(const std::string &start,
-                                                 const std::string &end) {
-    np->addStartpoint(start);
-    np->addEndpoint(end);
-    return np->getAnyPath();
+                                                 const std::string &finish) {
+    return np->getAnyPath(netlist_paths::Waypoints(start, finish));
   }
 };
 

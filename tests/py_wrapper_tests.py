@@ -3,7 +3,7 @@ import sys
 import unittest
 import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
-from py_netlist_paths import RunVerilator, Netlist, Options
+from py_netlist_paths import RunVerilator, Netlist, Waypoints, Options
 
 class TestPyWrapper(unittest.TestCase):
 
@@ -15,15 +15,11 @@ class TestPyWrapper(unittest.TestCase):
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, filename), 'netlist.xml')
         return Netlist('netlist.xml')
 
-    def path_exists(self, np, start, end):
-        np.add_startpoint(start)
-        np.add_endpoint(end)
-        return np.path_exists()
+    def path_exists(self, np, start, finish):
+        return np.path_exists(Waypoints(start, finish))
 
-    def get_any_path(self, np, start, end):
-        np.add_startpoint(start)
-        np.add_endpoint(end)
-        return np.get_any_path()
+    def get_any_path(self, np, start, finish):
+        return np.get_any_path(Waypoints(start, finish))
 
     def test_verilator_bin(self):
         self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))
@@ -31,7 +27,7 @@ class TestPyWrapper(unittest.TestCase):
     def test_adder_regs(self):
         np = self.compile_test('adder.sv')
         for prefix in ['', 'adder.']:
-            # Start and end points
+            # Start and finish points
             self.assertTrue(np.startpoint_exists(prefix+'i_a'))
             self.assertTrue(np.startpoint_exists(prefix+'i_b'))
             self.assertTrue(np.endpoint_exists(prefix+'o_sum'))

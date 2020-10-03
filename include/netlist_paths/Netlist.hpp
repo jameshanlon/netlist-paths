@@ -5,9 +5,10 @@
 #include <iostream>
 #include <ostream>
 #include "netlist_paths/Exception.hpp"
-#include "netlist_paths/Options.hpp"
 #include "netlist_paths/Graph.hpp"
+#include "netlist_paths/Options.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
+#include "netlist_paths/Waypoints.hpp"
 
 namespace netlist_paths {
 
@@ -84,35 +85,7 @@ public:
   // Waypoints.
   //===--------------------------------------------------------------------===//
 
-  void addStartpoint(const std::string &name) {
-    auto vertex = netlist.getStartVertex(name);
-    if (vertex != netlist.nullVertex()) {
-      waypoints.push_back(vertex);
-      return;
-    }
-    throw Exception(std::string("could not find start vertex "+name));
-  }
-
-  void addEndpoint(const std::string &name) {
-    auto vertex = netlist.getEndVertex(name);
-    if (vertex != netlist.nullVertex()) {
-      waypoints.push_back(vertex);
-      return;
-    }
-    throw Exception(std::string("could not find end vertex "+name));
-  }
-
-  void addWaypoint(const std::string &name) {
-    auto vertex = netlist.getMidVertex(name);
-    if (vertex != netlist.nullVertex()) {
-      waypoints.push_back(vertex);
-      return;
-    }
-    throw Exception(std::string("could not find vertex "+name));
-  }
-
-  std::size_t numWaypoints() const { return waypoints.size(); }
-  void clearWaypoints() { waypoints.clear(); }
+  VertexIDVec readWaypoints(Waypoints waypoints) const;
 
   //===--------------------------------------------------------------------===//
   // Basic path querying.
@@ -131,17 +104,15 @@ public:
   }
 
   /// Return any path between two points.
-  std::vector<Vertex*> getAnyPath() {
-    auto result = createVertexPtrList(netlist.getAnyPointToPoint(waypoints));
-    clearWaypoints();
-    return result;
+  std::vector<Vertex*> getAnyPath(Waypoints waypoints) {
+    auto waypointIDs = readWaypoints(waypoints);
+    return createVertexPtrList(netlist.getAnyPointToPoint(waypointIDs));
   }
 
   /// Return a Boolean whether any path exists between two points.
-  bool pathExists() {
-    auto result = !netlist.getAnyPointToPoint(waypoints).empty();
-    clearWaypoints();
-    return result;
+  bool pathExists(Waypoints waypoints) {
+    auto waypointIDs = readWaypoints(waypoints);
+    return !netlist.getAnyPointToPoint(waypointIDs).empty();
   }
 
   //===--------------------------------------------------------------------===//

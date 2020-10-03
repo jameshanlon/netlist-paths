@@ -33,3 +33,31 @@ Netlist::getNamedVertices(const std::string &regex) const {
   std::sort(vertices.begin(), vertices.end(), compare);
   return vertices;
 }
+
+VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
+  VertexIDVec waypointIDs;
+  for (auto it = waypoints.begin(); it != waypoints.end(); ++it) {
+    VertexID vertex;
+    // Start
+    if (it == waypoints.begin()) {
+      vertex = netlist.getStartVertex(*it);
+      if (vertex == netlist.nullVertex()) {
+        throw Exception(std::string("could not find start vertex "+*it));
+      }
+    // End
+    } else if (it+1 == waypoints.end()) {
+      vertex = netlist.getEndVertex(*it);
+      if (vertex == netlist.nullVertex()) {
+        throw Exception(std::string("could not find end vertex "+*it));
+      }
+    // Mid
+    } else {
+      vertex = netlist.getMidVertex(*it);
+      if (vertex == netlist.nullVertex()) {
+        throw Exception(std::string("could not find through vertex "+*it));
+      }
+    }
+    waypointIDs.push_back(vertex);
+  }
+  return waypointIDs;
+}

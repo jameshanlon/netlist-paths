@@ -4,6 +4,7 @@
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
+#include "netlist_paths/Waypoints.hpp"
 
 void translateException(const netlist_paths::Exception& e) {
   PyErr_SetString(PyExc_RuntimeError, e.what());
@@ -53,16 +54,16 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
                                            init<const std::string&>())
     .def("run", run);
 
+  class_<Waypoints>("Waypoints")
+    .def(init<const std::string, const std::string>())
+    .def("add", &Waypoints::add);
+
   class_<Netlist, boost::noncopyable>("Netlist",
                                       init<const std::string&>())
     .def("get_named_vertices",     &Netlist::getNamedVerticesPtr)
     .def("reg_exists",             &Netlist::regExists)
     .def("startpoint_exists",      &Netlist::startpointExists)
     .def("endpoint_exists",        &Netlist::endpointExists)
-    .def("clear_waypoints",        &Netlist::clearWaypoints)
-    .def("add_startpoint",         &Netlist::addStartpoint)
-    .def("add_endpoint",           &Netlist::addEndpoint)
-    .def("add_waypoint",           &Netlist::addWaypoint)
     .def("path_exists",            &Netlist::pathExists)
     .def("get_any_path",           &Netlist::getAnyPath)
     .def("get_dtype_width",        &Netlist::getDTypeWidth)
