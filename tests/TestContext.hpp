@@ -22,6 +22,8 @@ struct TestContext {
     std::vector<std::string> includes = {};
     std::vector<std::string> defines = {};
     std::vector<std::string> inputFiles = {testPath.string()};
+    // Check the Verilator binary exists.
+    BOOST_ASSERT(boost::filesystem::exists(installPrefix));
     netlist_paths::RunVerilator runVerilator(installPrefix);
     auto outTemp = fs::unique_path();
     runVerilator.run(includes,
