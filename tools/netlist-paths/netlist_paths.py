@@ -66,6 +66,9 @@ def main():
                         default=None,
                         const='.*',
                         help='Dump all names, filter by regex')
+    parser.add_argument('--dump-dot',
+                        action='store_true',
+                        help='Dump a dotfile of the netlist\'s graph')
     parser.add_argument('--from',
                         dest='start_point',
                         help='Start point')
@@ -108,9 +111,15 @@ def main():
                 raise RuntimeError('error compiling design')
         # Create the netlist
         netlist = Netlist(temp_name)
+        # Remove the temporary XML file
+        if (args.compile):
+            os.remove(temp_name)
         # Dump names
         if args.dump_names:
             dump_names(netlist, args.dump_names, sys.stdout)
+            return 0
+        if args.dump_dot:
+            netlist.dump_dot_file('graph.dot')
             return 0
         # Point-to-point path
         if args.start_point and args.finish_point:

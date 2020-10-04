@@ -75,5 +75,6 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("get_vertex_dtype_str",   &Netlist::getVertexDTypeStr,
                                    get_vertex_dtype_str_overloads())
     .def("get_vertex_dtype_width", &Netlist::getVertexDTypeWidth,
-                                   get_vertex_dtype_width_overloads());
+                                   get_vertex_dtype_width_overloads())
+    .def("dump_dot_file",          &Netlist::dumpDotFile);
 }
