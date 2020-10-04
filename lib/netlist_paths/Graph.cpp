@@ -182,7 +182,7 @@ VertexID Graph::getVertexDesc(const std::string &name) const {
 
 /// Lookup a vertex using a regex pattern and function specifying a type.
 VertexID Graph::getVertexDescRegex(const std::string &name,
-                                       VertexGraphType graphType) const {
+                                   VertexGraphType graphType) const {
   auto nameRegexStr(name);
   // Ignoring '/' (when supplying a heirarchical ref).
   std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
@@ -224,16 +224,16 @@ void Graph::dumpPath(const VertexIDVec &path) const {
 VertexIDVec Graph::determinePath(ParentMap &parentMap,
                                  VertexIDVec path,
                                  VertexID startVertex,
-                                 VertexID endVertex) const {
-  path.push_back(endVertex);
-  if (endVertex == startVertex) {
+                                 VertexID finishVertex) const {
+  path.push_back(finishVertex);
+  if (finishVertex == startVertex) {
     return path;
   }
-  if (parentMap[endVertex].size() == 0) {
+  if (parentMap[finishVertex].size() == 0) {
     return VertexIDVec();
   }
-  assert(parentMap[endVertex].size() == 1);
-  auto nextVertex = parentMap[endVertex].front();
+  assert(parentMap[finishVertex].size() == 1);
+  auto nextVertex = parentMap[finishVertex].front();
   assert(std::find(std::begin(path),
                    std::end(path),
                    nextVertex) == std::end(path));
@@ -247,18 +247,18 @@ void Graph::determineAllPaths(ParentMap &parentMap,
                               std::vector<VertexIDVec> &result,
                               VertexIDVec path,
                               VertexID startVertex,
-                              VertexID endVertex) const {
-  path.push_back(endVertex);
-  if (endVertex == startVertex) {
+                              VertexID finishVertex) const {
+  path.push_back(finishVertex);
+  if (finishVertex == startVertex) {
     INFO(std::cout << "FOUND PATH\n");
     result.push_back(path);
     return;
   }
   INFO(std::cout<<"length "<<path.size()
-                <<" vertex "<<graph[endVertex].toString()<<"\n");
+                <<" vertex "<<graph[finishVertex].toString()<<"\n");
   INFO(dumpPath(path));
-  INFO(std::cout<<(parentMap[endVertex].empty()?"DEAD END\n":""));
-  for (auto vertex : parentMap[endVertex]) {
+  INFO(std::cout<<(parentMap[finishVertex].empty()?"DEAD END\n":""));
+  for (auto vertex : parentMap[finishVertex]) {
     if (std::find(std::begin(path), std::end(path), vertex) == std::end(path)) {
       determineAllPaths(parentMap, result, path, startVertex, vertex);
     } else {
@@ -279,7 +279,7 @@ Graph::getAllFanOut(VertexID startVertex) const {
   // Check for a path between startPoint and each register.
   std::vector<VertexIDVec> paths;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    if (graph[v].isEndPoint()) {
+    if (graph[v].isFinishPoint()) {
       auto path = determinePath(parentMap,
                                 VertexIDVec(),
                                 startVertex,
@@ -295,21 +295,21 @@ Graph::getAllFanOut(VertexID startVertex) const {
 
 /// Report all paths fanning into a net/register/port.
 std::vector<VertexIDVec>
-Graph::getAllFanIn(VertexID endVertex) const {
+Graph::getAllFanIn(VertexID finishVertex) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
   INFO(std::cout << "Performing DFS in reverse graph from "
-                 << graph[endVertex].getName() << "\n");
+                 << graph[finishVertex].getName() << "\n");
   ParentMap parentMap;
   boost::depth_first_search(reverseGraph,
       boost::visitor(DfsVisitor(parentMap, false))
-        .root_vertex(endVertex));
+        .root_vertex(finishVertex));
   // Check for a path between endPoint and each register.
   std::vector<VertexIDVec> paths;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isStartPoint()) {
       auto path = determinePath(parentMap,
                                 VertexIDVec(),
-                                endVertex,
+                                finishVertex,
                                 static_cast<VertexID>(v));
       if (!path.empty()) {
         paths.push_back(path);
@@ -319,7 +319,7 @@ Graph::getAllFanIn(VertexID endVertex) const {
   return paths;
 }
 
-/// Report all paths between start and end points.
+/// Report all paths between start and finish points.
 std::vector<VertexIDVec>
 Graph::getAllPointToPoint(const VertexIDVec &waypoints) const {
   assert(waypoints.size() > 2 && "invlalid waypoints");
@@ -347,7 +347,7 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
   // Construct the path between each adjacent waypoints.
   for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
     auto startVertex = waypoints[i];
-    auto endVertex = waypoints[i+1];
+    auto finishVertex = waypoints[i+1];
     INFO(std::cout << "Performing DFS from "
                    << graph[startVertex].getName() << "\n");
     ParentMap parentMap;
@@ -355,11 +355,11 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
     INFO(std::cout << "Determining a path to "
-                   << graph[endVertex].getName() << "\n");
+                   << graph[finishVertex].getName() << "\n");
     auto subPath = determinePath(parentMap,
                                  VertexIDVec(),
                                  startVertex,
-                                 endVertex);
+                                 finishVertex);
     if (subPath.empty()) {
       // No path exists.
       return VertexIDVec();
@@ -384,8 +384,8 @@ size_t Graph::getfanOutDegree(VertexID startVertex) {
 }
 
 /// Return he number of registers that fan into an end point.
-size_t Graph::getFanInDegree(VertexID endVertex) {
-  auto paths = getAllFanIn(endVertex);
+size_t Graph::getFanInDegree(VertexID finishVertex) {
+  auto paths = getAllFanIn(finishVertex);
   return paths.size();
   //unsigned count = 0;
   //for (auto &path : paths) {
