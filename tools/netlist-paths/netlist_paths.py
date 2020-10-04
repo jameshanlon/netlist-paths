@@ -72,6 +72,9 @@ def main():
                         nargs=2,
                         action='append',
                         help='Though point')
+    parser.add_argument('--all-paths',
+                        action='store_true',
+                        help='Find all paths between two points (exponential time)')
     parser.add_argument('--regex',
                         action='store_true',
                         help='Enable regular expression matching of names')
@@ -109,7 +112,10 @@ def main():
             waypoints.add(args.start_point)
             [waypoints.add(point) for point in args.through]
             waypoints.add(args.finish_point)
-            path = netlist.get_any_path(waypoints)
+            if args.all_paths:
+                path = netlist.get_all_paths(waypoints)
+            else:
+                path = netlist.get_any_path(waypoints)
             dump_path_report(netlist, path, sys.stdout)
             return 0
         if args.start_point and not args.finish_point:

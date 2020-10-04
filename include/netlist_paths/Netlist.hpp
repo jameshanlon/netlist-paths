@@ -124,6 +124,12 @@ public:
     return createVertexPtrVec(netlist.getAnyPointToPoint(waypointIDs));
   }
 
+  /// Return any path between two points.
+  std::vector<std::vector<Vertex*> > getAllPaths(Waypoints waypoints) {
+    auto waypointIDs = readWaypoints(waypoints);
+    return createVertexPtrVecVec(netlist.getAllPointToPoint(waypointIDs));
+  }
+
   /// Return a vector of paths fanning out from a particular start point.
   std::vector<std::vector<Vertex*> > getAllFanOut(const std::string startName) const {
     auto startVertex = netlist.getStartVertex(startName);
