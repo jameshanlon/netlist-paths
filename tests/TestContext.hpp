@@ -7,6 +7,7 @@
 #include <boost/test/unit_test.hpp>
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/RunVerilator.hpp"
+#include "netlist_paths/Waypoints.hpp"
 
 namespace fs = boost::filesystem;
 
@@ -17,7 +18,7 @@ struct TestContext {
   std::unique_ptr<netlist_paths::Netlist> np;
   /// Compile a test and create a netlist object.
   void compile(const std::string &inFilename,
-               const std::string &topName) {
+               const std::string &topName="") {
     auto testPath = fs::path(testPrefix) / inFilename;
     std::vector<std::string> includes = {};
     std::vector<std::string> defines = {};
@@ -33,7 +34,11 @@ struct TestContext {
     np = std::make_unique<netlist_paths::Netlist>(outTemp.native());
     fs::remove(outTemp);
     uniqueNames();
-    qualifiedNames(topName);
+    if (topName.empty()) {
+      qualifiedNames(boost::filesystem::change_extension(inFilename, "").string());
+    } else {
+      qualifiedNames(topName);
+    }
   }
 
   /// Check all names are unique.
@@ -58,20 +63,6 @@ struct TestContext {
         BOOST_TEST(boost::starts_with(name, topName));
       }
     }
-  }
-
-  bool regExists(const std::string &name) {
-    return np->regExists(name);
-  }
-
-  bool pathExists(const std::string &start,
-                  const std::string &finish) {
-    return np->pathExists(netlist_paths::Waypoints(start, finish));
-  }
-
-  std::vector<netlist_paths::Vertex*> getAnyPath(const std::string &start,
-                                                 const std::string &finish) {
-    return np->getAnyPath(netlist_paths::Waypoints(start, finish));
   }
 };
 

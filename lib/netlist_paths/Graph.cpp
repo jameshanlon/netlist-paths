@@ -320,9 +320,10 @@ Graph::getAllFanIn(VertexID finishVertex) const {
 }
 
 /// Report all paths between start and finish points.
+/// Though points currently unsupported.
 std::vector<VertexIDVec>
 Graph::getAllPointToPoint(const VertexIDVec &waypoints) const {
-  assert(waypoints.size() > 2 && "invlalid waypoints");
+  assert(waypoints.size() == 2 && "through points not supported with all point to point");
   INFO(std::cout << "Performing DFS\n");
   ParentMap parentMap;
   boost::depth_first_search(graph,

@@ -33,7 +33,6 @@ def dump_names(netlist, regex, fd):
     for row in rows:
         fd.write(fmt.format(row=row, widths=widths))
 
-
 # Report the details of a path.
 def dump_path_report(netlist, path, fd):
     for vertex in path:
@@ -42,6 +41,11 @@ def dump_path_report(netlist, path, fd):
                                                    vertex.get_dtype_width(),
                                                    vertex.get_name()))
 
+# Report a list of paths
+def dump_path_list_report(netlist, paths, fd):
+    for i, path in enumerate(paths):
+        print('Path {}'.format(i))
+        dump_path_report(netlist, path, fd)
 
 def main():
     parser = argparse.ArgumentParser(description="Query a Verilog netlist")
@@ -71,6 +75,8 @@ def main():
     parser.add_argument('--though',
                         nargs=2,
                         action='append',
+                        dest='through_points',
+                        default=[],
                         help='Though point')
     parser.add_argument('--all-paths',
                         action='store_true',
@@ -111,22 +117,27 @@ def main():
             waypoints = Waypoints()
             waypoints.add_start_point(args.start_point)
             waypoints.add_finish_point(args.finish_point)
-            [waypoints.add_through_point(point) for point in args.through]
+            [waypoints.add_through_point(point) for point in args.through_points]
             if args.all_paths:
                 path = netlist.get_all_paths(waypoints)
+                dump_path_list_report(netlist, path, sys.stdout)
             else:
                 path = netlist.get_any_path(waypoints)
-            dump_path_report(netlist, path, sys.stdout)
+                dump_path_report(netlist, path, sys.stdout)
             return 0
+        # Fan out paths
         if args.start_point and not args.finish_point:
-            # fan out
-            if len(args.though) > 0:
+            if len(args.through_points) > 0:
                 raise RuntimeError('cannot specify through points with fanout paths')
+            paths = netlist.get_all_fanout_paths(args.start_point)
+            dump_path_list_report(netlist, paths, sys.stdout)
             return 0
-        if args.end_point and not args.start_point:
-            # fan in
-            if len(args.though) > 0:
+        # Fan in paths
+        if args.finish_point and not args.start_point:
+            if len(args.through_points) > 0:
                 raise RuntimeError('cannot specify through points with fanin paths')
+            paths = netlist.get_all_fanin_paths(args.finish_point)
+            dump_path_list_report(netlist, paths, sys.stdout)
             return 0
     except RuntimeError as e:
         print('Error: '+str(e))

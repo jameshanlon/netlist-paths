@@ -23,7 +23,7 @@ module pipestage
 endmodule
 
 // Pipeline a data signal over a number of stages.
-module pipeline
+module pipeline_module
   #(
     parameter p_width = 32,
               p_stages = 8
