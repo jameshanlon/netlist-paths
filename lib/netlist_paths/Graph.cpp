@@ -370,27 +370,3 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
   path.push_back(waypoints.back());
   return path;
 }
-
-/// Return the number of registers a start point fans out to.
-size_t Graph::getfanOutDegree(VertexID startVertex) {
-  auto paths = getAllFanOut(startVertex);
-  return paths.size();
-  //size_t count = 0;
-  //for (auto &path : paths) {
-  //  auto endVertex = path.back();
-  //  count += graph[endVertex].width;
-  //}
-  //return count;
-}
-
-/// Return he number of registers that fan into an end point.
-size_t Graph::getFanInDegree(VertexID finishVertex) {
-  auto paths = getAllFanIn(finishVertex);
-  return paths.size();
-  //unsigned count = 0;
-  //for (auto &path : paths) {
-  //  auto startVertex = path.front();
-  //  count += graph[startVertex].width;
-  //}
-  //return count;
-}

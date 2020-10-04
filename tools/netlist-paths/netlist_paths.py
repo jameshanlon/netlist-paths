@@ -109,9 +109,9 @@ def main():
         # Point-to-point path
         if args.start_point and args.finish_point:
             waypoints = Waypoints()
-            waypoints.add(args.start_point)
-            [waypoints.add(point) for point in args.through]
-            waypoints.add(args.finish_point)
+            waypoints.add_start_point(args.start_point)
+            waypoints.add_finish_point(args.finish_point)
+            [waypoints.add_through_point(point) for point in args.through]
             if args.all_paths:
                 path = netlist.get_all_paths(waypoints)
             else:

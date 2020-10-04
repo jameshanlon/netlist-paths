@@ -232,7 +232,7 @@ public:
       case VertexGraphType::DST_REG:     return isSrcReg();
       case VertexGraphType::LOGIC:       return isLogic();
       case VertexGraphType::START_POINT: return isStartPoint();
-      case VertexGraphType::END_POINT:   return isEndPoint();
+      case VertexGraphType::END_POINT:   return isFinishPoint();
       case VertexGraphType::MID_POINT:   return isMidPoint();
       default:                           return false;
     }
@@ -283,7 +283,7 @@ public:
             (direction == VertexDirection::INOUT && isTop));
   }
 
-  inline bool isEndPoint() const {
+  inline bool isFinishPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
             (direction == VertexDirection::OUTPUT && isTop) ||
