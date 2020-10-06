@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import sys
 import os
@@ -65,21 +67,25 @@ def main():
                         nargs='?',
                         default=None,
                         const='.*',
+                        metavar='regex',
                         help='Dump all names, filter by regex')
     parser.add_argument('--dump-dot',
                         action='store_true',
                         help='Dump a dotfile of the netlist\'s graph')
     parser.add_argument('--from',
                         dest='start_point',
+                        metavar='point',
                         help='Start point')
     parser.add_argument('--to',
                         dest='finish_point',
+                        metavar='point',
                         help='Finish point')
     parser.add_argument('--though',
-                        nargs=2,
+                        nargs=1,
                         action='append',
                         dest='through_points',
                         default=[],
+                        metavar='point',
                         help='Though point')
     parser.add_argument('--all-paths',
                         action='store_true',

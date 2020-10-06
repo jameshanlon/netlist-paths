@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.12.0)
 project(netlist-paths)
 include(ExternalProject)
+include(GNUInstallDirs)
 #set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Python REQUIRED COMPONENTS

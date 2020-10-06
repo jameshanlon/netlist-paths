@@ -3,7 +3,7 @@ import subprocess
 import unittest
 import definitions as defs
 
-NETLIST_PATHS=os.path.join(defs.INSTALL_PREFIX, 'netlist-paths')
+NETLIST_PATHS=os.path.join(defs.INSTALL_PREFIX, 'netlist_paths.py')
 
 def run(args):
     return subprocess.check_call([NETLIST_PATHS]+args)
