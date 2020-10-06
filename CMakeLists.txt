@@ -2,11 +2,17 @@ cmake_minimum_required(VERSION 3.12.0)
 project(netlist-paths)
 include(ExternalProject)
 include(GNUInstallDirs)
+
 #set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
+
+# Use local find scripts
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 find_package(Python REQUIRED COMPONENTS
              Interpreter
              Development)
+
 find_package(Boost 1.68.0 REQUIRED COMPONENTS
              graph
              regex
@@ -15,6 +21,7 @@ find_package(Boost 1.68.0 REQUIRED COMPONENTS
              filesystem
              python
              unit_test_framework)
+
 message(STATUS "Python_LIBRARIES    = ${Python_LIBRARIES}")
 message(STATUS "Python_EXECUTABLE   = ${Python_EXECUTABLE}")
 message(STATUS "Python_INCLUDE_DIRS = ${Python_INCLUDE_DIRS}")
@@ -62,3 +69,7 @@ ExternalProject_Add_Step(Verilator add_executable_prefix
 add_subdirectory(lib)
 add_subdirectory(tools)
 add_subdirectory(tests)
+option(BUILD_DOCS "Create and install HTML documentation" OFF)
+if (BUILD_DOCS)
+  add_subdirectory(docs)
+endif()

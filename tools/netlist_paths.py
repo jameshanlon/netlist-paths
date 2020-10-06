@@ -9,6 +9,8 @@ sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
 from py_netlist_paths import RunVerilator, Netlist, Waypoints, Options
 
 
+DEFAULT_DOT_FILE = 'graph.dot'
+
 # Dump a table of names and their attributes matching regex to fd.
 def dump_names(netlist, regex, fd):
     rows = []
@@ -63,6 +65,11 @@ def main():
     parser.add_argument('-D',
                         metavar='definition',
                         help='Define a preprocessor macro (only with --compile)')
+    parser.add_argument('-o,--output',
+                        default=None,
+                        dest='output_file',
+                        metavar='output file',
+                        help='Specify an output file')
     parser.add_argument('--dump-names',
                         nargs='?',
                         default=None,
@@ -117,15 +124,22 @@ def main():
                 raise RuntimeError('error compiling design')
         # Create the netlist
         netlist = Netlist(temp_name)
-        # Remove the temporary XML file
-        if (args.compile):
-            os.remove(temp_name)
+        # If compiling and no no further steps performed and an output file is
+        # specified, rename XML to the output, otherwise delete it.
+        if args.compile:
+            if args.output_file and \
+              not args.dump_names and \
+              not args.dump_dot and \
+              not (args.start_point or args.finish_point):
+                os.rename(temp_name, args.output_file)
+            else:
+                os.remove(temp_name)
         # Dump names
         if args.dump_names:
             dump_names(netlist, args.dump_names, sys.stdout)
             return 0
         if args.dump_dot:
-            netlist.dump_dot_file('graph.dot')
+            netlist.dump_dot_file(args.output_file if args.output_file else DEFAULT_DOT_FILE)
             return 0
         # Point-to-point path
         if args.start_point and args.finish_point:
