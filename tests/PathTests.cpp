@@ -17,6 +17,8 @@
 #define CHECK_LOG_REPORT(vertex, astTypeStr) \
   BOOST_TEST(vertex->getAstTypeStr() == astTypeStr)
 
+// Test path exists
+
 BOOST_FIXTURE_TEST_CASE(path_exists, TestContext) {
   BOOST_CHECK_NO_THROW(compile("adder.sv"));
   // Check paths between all start and end points are reported.
@@ -30,6 +32,8 @@ BOOST_FIXTURE_TEST_CASE(path_exists, TestContext) {
     }
   }
 }
+
+// Test reporting of the correct path components
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv"));
@@ -113,6 +117,8 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
   CHECK_VAR_REPORT(vertices[2], "DST_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
 }
 
+// Test all paths query.
+
 BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   auto paths = np->getAllPaths(netlist_paths::Waypoints("in", "out"));
@@ -130,6 +136,8 @@ BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
   CHECK_VAR_REPORT(paths[2][2], "VAR", "logic", "multiple_paths.c");
   CHECK_VAR_REPORT(paths[2][4], "VAR", "logic", "out");
 }
+
+// Test fan in/out
 
 BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
   // Test paths fanning out to three end points.
@@ -201,18 +209,27 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   CHECK_VAR_REPORT(paths[2][5], "VAR", "logic", "out");
 }
 
+// Test avoid points.
+
 BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
   // Test that avoiding a net prevents a path from being found.
   BOOST_CHECK_NO_THROW(compile("one_avoid_point.sv"));
-  auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
   {
+    auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
     auto vertices = np->getAnyPath(waypoints);
     BOOST_TEST(vertices.size() > 0);
   }
   {
+    auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
     waypoints.addAvoidPoint("foo");
     auto vertices = np->getAnyPath(waypoints);
     BOOST_TEST(vertices.size() == 0);
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
+    waypoints.addAvoidPoint("foo");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 0);
   }
 }
 
@@ -251,4 +268,3 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
     BOOST_TEST(paths.size() == 0);
   }
 }
-
