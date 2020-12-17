@@ -36,28 +36,43 @@ Netlist::getNamedVertices(const std::string &regex) const {
 
 VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
   VertexIDVec waypointIDs;
-  for (auto it = waypoints.begin(); it != waypoints.end(); ++it) {
+  for (auto it = waypoints.getWaypoints().begin();
+            it != waypoints.getWaypoints().end(); ++it) {
     VertexID vertex;
     // Start
-    if (it == waypoints.begin()) {
+    if (it == waypoints.getWaypoints().begin()) {
       vertex = netlist.getStartVertex(*it);
       if (vertex == netlist.nullVertex()) {
-        throw Exception(std::string("could not find start vertex "+*it));
+        throw Exception(std::string("could not find start vertex ")+*it);
       }
     // Finish
-    } else if (it+1 == waypoints.end()) {
+    } else if (it+1 == waypoints.getWaypoints().end()) {
       vertex = netlist.getEndVertex(*it);
       if (vertex == netlist.nullVertex()) {
-        throw Exception(std::string("could not find end vertex "+*it));
+        throw Exception(std::string("could not find end vertex ")+*it);
       }
     // Mid
     } else {
       vertex = netlist.getMidVertex(*it);
       if (vertex == netlist.nullVertex()) {
-        throw Exception(std::string("could not find through vertex "+*it));
+        throw Exception(std::string("could not find through vertex ")+*it);
       }
     }
     waypointIDs.push_back(vertex);
   }
   return waypointIDs;
+}
+
+VertexIDVec Netlist::readAvoidPoints(Waypoints waypoints) const {
+  VertexIDVec avoidPointIDs;
+  for (auto name : waypoints.getAvoidPoints()) {
+    auto vertexID = netlist.getMidVertex(name);
+    if (vertexID == netlist.nullVertex()) {
+      throw Exception(std::string("could not find vertex to avoid ")+name);
+    }
+    avoidPointIDs.push_back(vertexID);
+  }
+  // Sort the IDs so they can be binary searched.
+  std::sort(avoidPointIDs.begin(), avoidPointIDs.end());
+  return avoidPointIDs;
 }

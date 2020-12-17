@@ -205,3 +205,54 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   checkVarReport(paths[2][5], "VAR", "logic", "out");
 }
 
+BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
+  // Test that avoiding a net prevents a path from being found.
+  BOOST_CHECK_NO_THROW(compile("one_avoid_point.sv"));
+  auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
+  {
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.size() > 0);
+  }
+  {
+    waypoints.addAvoidPoint("foo");
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.size() == 0);
+  }
+}
+
+BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
+  // Test that avoiding combinations of alternative paths results in the correct
+  // paths being found.
+  BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 3);
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addAvoidPoint("multiple_paths.a");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 2);
+    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.a");
+    BOOST_TEST(paths[1][3]->getName() != "multiple_paths.a");
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addAvoidPoint("multiple_paths.a");
+    waypoints.addAvoidPoint("multiple_paths.b");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 1);
+    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.a");
+    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.b");
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addAvoidPoint("multiple_paths.a");
+    waypoints.addAvoidPoint("multiple_paths.b");
+    waypoints.addAvoidPoint("multiple_paths.c");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 0);
+  }
+}
+

@@ -87,13 +87,18 @@ def main():
                         dest='finish_point',
                         metavar='point',
                         help='Finish point')
-    parser.add_argument('--though',
-                        nargs=1,
+    parser.add_argument('--through',
                         action='append',
-                        dest='through_points',
                         default=[],
+                        dest='through_points',
                         metavar='point',
                         help='Though point')
+    parser.add_argument('--avoid',
+                        action='append',
+                        default=[],
+                        dest='avoid_points',
+                        metavar='point',
+                        help='Avoid point')
     parser.add_argument('--all-paths',
                         action='store_true',
                         help='Find all paths between two points (exponential time)')
@@ -107,6 +112,7 @@ def main():
                         action='store_true',
                         help='Print debugging information')
     args = parser.parse_args()
+
     # Setup options
     if args.regex:
         Options.get_instance().set_match_regex()
@@ -114,16 +120,20 @@ def main():
         Options.get_instance().set_verbose()
     if args.debug:
         Options.get_instance().set_debug()
+
     try:
+
         # Verilator compilation
-        # (Only support one source file.)
+        # (Only supports one source file currently, useful for testing.)
         if (args.compile):
             comp = RunVerilator(defs.INSTALL_PREFIX)
             temp_name = next(tempfile._get_candidate_names())
             if comp.run(args.files[0], temp_name) > 0:
                 raise RuntimeError('error compiling design')
+
         # Create the netlist
         netlist = Netlist(temp_name)
+
         # If compiling and no no further steps performed and an output file is
         # specified, rename XML to the output, otherwise delete it.
         if args.compile:
@@ -134,6 +144,7 @@ def main():
                 os.rename(temp_name, args.output_file)
             else:
                 os.remove(temp_name)
+
         # Dump names
         if args.dump_names:
             dump_names(netlist, args.dump_names, sys.stdout)
@@ -141,12 +152,14 @@ def main():
         if args.dump_dot:
             netlist.dump_dot_file(args.output_file if args.output_file else DEFAULT_DOT_FILE)
             return 0
+
         # Point-to-point path
         if args.start_point and args.finish_point:
             waypoints = Waypoints()
             waypoints.add_start_point(args.start_point)
             waypoints.add_finish_point(args.finish_point)
             [waypoints.add_through_point(point) for point in args.through_points]
+            [waypoints.add_avoid_point(point) for point in args.avoid_points]
             if args.all_paths:
                 path = netlist.get_all_paths(waypoints)
                 dump_path_list_report(netlist, path, sys.stdout)
@@ -154,20 +167,27 @@ def main():
                 path = netlist.get_any_path(waypoints)
                 dump_path_report(netlist, path, sys.stdout)
             return 0
+
         # Fan out paths
         if args.start_point and not args.finish_point:
             if len(args.through_points) > 0:
                 raise RuntimeError('cannot specify through points with fanout paths')
+            if len(args.avoid_points) > 0:
+                raise RuntimeError('cannot specify avoid points with fanout paths')
             paths = netlist.get_all_fanout_paths(args.start_point)
             dump_path_list_report(netlist, paths, sys.stdout)
             return 0
+
         # Fan in paths
         if args.finish_point and not args.start_point:
             if len(args.through_points) > 0:
                 raise RuntimeError('cannot specify through points with fanin paths')
+            if len(args.avoid_points) > 0:
+                raise RuntimeError('cannot specify avoid points with fanin paths')
             paths = netlist.get_all_fanin_paths(args.finish_point)
             dump_path_list_report(netlist, paths, sys.stdout)
             return 0
+
     except RuntimeError as e:
         print('Error: '+str(e))
         return 1

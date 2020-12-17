@@ -58,7 +58,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def(init<const std::string, const std::string>())
     .def("add_start_point",   &Waypoints::addStartPoint)
     .def("add_finish_point",  &Waypoints::addFinishPoint)
-    .def("add_through_point", &Waypoints::addThroughPoint);
+    .def("add_through_point", &Waypoints::addThroughPoint)
+    .def("add_avoid_point",   &Waypoints::addAvoidPoint);
 
   class_<Netlist, boost::noncopyable>("Netlist",
                                       init<const std::string&>())

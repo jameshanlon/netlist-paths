@@ -322,11 +322,14 @@ Graph::getAllFanIn(VertexID finishVertex) const {
 /// Report all paths between start and finish points.
 /// Though points currently unsupported.
 std::vector<VertexIDVec>
-Graph::getAllPointToPoint(const VertexIDVec &waypoints) const {
+Graph::getAllPointToPoint(const VertexIDVec &waypoints,
+                          const VertexIDVec &avoidPointIDs) const {
   assert(waypoints.size() == 2 && "through points not supported with all point to point");
+  FilteredInternalGraph filteredGraph(graph, boost::keep_all(),
+                                      VertexPredicate(&avoidPointIDs));
   INFO(std::cout << "Performing DFS\n");
   ParentMap parentMap;
-  boost::depth_first_search(graph,
+  boost::depth_first_search(filteredGraph,
       boost::visitor(DfsVisitor(parentMap, true))
         .root_vertex(waypoints[0]));
   INFO(std::cout << "Determining all paths\n");
@@ -343,16 +346,19 @@ Graph::getAllPointToPoint(const VertexIDVec &waypoints) const {
 }
 
 /// Report a single path between a set of named points.
-VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
+VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
+                                      const VertexIDVec &avoidPointIDs) const {
+  FilteredInternalGraph filteredGraph(graph, boost::keep_all(),
+                                      VertexPredicate(&avoidPointIDs));
   std::vector<VertexID> path;
-  // Construct the path between each adjacent waypoints.
-  for (std::size_t i = 0; i < waypoints.size()-1; ++i) {
-    auto startVertex = waypoints[i];
-    auto finishVertex = waypoints[i+1];
+  // Construct the path between each adjacent waypoint.
+  for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
+    auto startVertex = waypointIDs[i];
+    auto finishVertex = waypointIDs[i+1];
     INFO(std::cout << "Performing DFS from "
                    << graph[startVertex].getName() << "\n");
     ParentMap parentMap;
-    boost::depth_first_search(graph,
+    boost::depth_first_search(filteredGraph,
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
     INFO(std::cout << "Determining a path to "
@@ -368,6 +374,6 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypoints) const {
     std::reverse(std::begin(subPath), std::end(subPath));
     path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
   }
-  path.push_back(waypoints.back());
+  path.push_back(waypointIDs.back());
   return path;
 }
