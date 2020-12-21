@@ -10,6 +10,7 @@
 /// Test string representations of types.
 BOOST_FIXTURE_TEST_CASE(dtype_strings, TestContext) {
   BOOST_CHECK_NO_THROW(compile("dtypes.sv", "dtypes"));
+  netlist_paths::Options::getInstance().setMatchExact();
   // Logic declarations with packed and unpacked arrays.
   BOOST_TEST(np->getVertexDTypeStr("dtypes.logic_bit") == "logic");
   BOOST_TEST(np->getVertexDTypeStr("dtypes.logic_vector") == "[3:0] logic");
@@ -50,6 +51,7 @@ BOOST_FIXTURE_TEST_CASE(dtype_strings, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
   BOOST_CHECK_NO_THROW(compile("dtypes.sv", "dtypes"));
+  netlist_paths::Options::getInstance().setMatchExact();
   // Logic
   BOOST_TEST(np->getVertexDTypeWidth("dtypes.logic_bit") == 1);
   BOOST_TEST(np->getVertexDTypeWidth("dtypes.logic_vector") == 4);

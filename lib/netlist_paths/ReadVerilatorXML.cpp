@@ -196,7 +196,7 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
   // of the netlist.
   if (node->first_attribute("origName")) {
     auto origName = node->first_attribute("origName")->value();
-    auto publicVertex = netlist.getVertexDesc(origName);
+    auto publicVertex = netlist.getVertexExact(origName);
     if (publicVertex != netlist.nullVertex() && !isParam) {
       assert(netlist.getVertex(publicVertex).isPort() &&
        "expect original-named var to be a port");

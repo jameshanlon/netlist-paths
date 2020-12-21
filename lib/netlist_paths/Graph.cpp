@@ -20,6 +20,7 @@
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Graph.hpp"
 #include "netlist_paths/Options.hpp"
+#include "netlist_paths/Utilities.hpp"
 
 using namespace netlist_paths;
 
@@ -170,45 +171,89 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   INFO(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
 }
 
-/// Lookup a vertex by name.
-VertexID Graph::getVertexDesc(const std::string &name) const {
+/// Match a VertexGraphType against a vertex.
+/// Special case for registers since they can be duplicate for SRC and DST.
+bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
+  return (graphType == VertexGraphType::ANY) ? true :
+         (graphType == VertexGraphType::REG) ? graph[vertex].isDstReg()
+                                             : graph[vertex].isGraphType(graphType);
+}
+
+/// Return a list of vertices matching a wildcard pattern.
+/// This implementation will allow the name to contain other regular expression
+/// syntax, and should be improved to match the wildcards directly.
+VertexIDVec Graph::getVerticesWildcard(const std::string &name,
+                                       VertexGraphType graphType) const {
+  auto nameStr(name);
+  if (Options::getInstance().shouldIgnoreHierarchyMarkers()) {
+    // Ignore '/', '.' and '_' characters.
+    std::replace(nameStr.begin(), nameStr.end(), '/', '?');
+    std::replace(nameStr.begin(), nameStr.end(), '.', '?');
+    std::replace(nameStr.begin(), nameStr.end(), '_', '?');
+  }
+  VertexIDVec vertexIDs;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    if (graph[v].getName() == name) {
+    if (vertexTypeMatch(v, graphType) &&
+        wildcardMatch(graph[v].getName(), nameStr)) {
+      vertexIDs.push_back(v);
+    }
+  }
+  return vertexIDs;
+}
+
+/// Return a list of vertices matching a regex pattern.
+VertexIDVec Graph::getVerticesRegex(const std::string &name,
+                                    VertexGraphType graphType) const {
+  auto nameStr(name);
+  if (Options::getInstance().shouldIgnoreHierarchyMarkers()) {
+    // Ignore '/' or '_' ('.' already matches any character).
+    std::replace(nameStr.begin(), nameStr.end(), '/', '.');
+    std::replace(nameStr.begin(), nameStr.end(), '_', '.');
+  }
+  // Catch any errors in the regex string.
+  std::regex nameRegex;
+  try {
+    nameRegex.assign(nameStr);
+  } catch(std::regex_error e) {
+    throw Exception(std::string("malformed regular expression: ")+e.what());
+  }
+  // Search the vertices.
+  VertexIDVec vertexIDs;
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (vertexTypeMatch(v, graphType) &&
+        std::regex_search(graph[v].getName(), nameRegex)) {
+      vertexIDs.push_back(v);
+    }
+  }
+  return vertexIDs;
+}
+
+/// Lookup a vertex by matching its name exactly.
+VertexID Graph::getVertexExact(const std::string &name,
+                               VertexGraphType graphType) const {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (vertexTypeMatch(v, graphType) &&
+        graph[v].getName() == name) {
       return v;
     }
   }
   return nullVertex();
 }
 
-/// Lookup a vertex using a regex pattern and function specifying a type.
-VertexID Graph::getVertexDescRegex(const std::string &name,
-                                   VertexGraphType graphType) const {
-  auto nameRegexStr(name);
-  // Ignoring '/' (when supplying a heirarchical ref).
-  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '/', '.');
-  // Or '_' (when supplying a flattened name).
-  std::replace(nameRegexStr.begin(), nameRegexStr.end(), '_', '.');
-  // Wildcard matching.
-  if (Options::getInstance().getMatchWildcard()) {
-    boost::replace_all(nameRegexStr, "?", ".");
-    boost::replace_all(nameRegexStr, "*", ".*");
+/// Return a list of vertices that match the pattern.
+VertexIDVec Graph::getVertices(const std::string &name,
+                               VertexGraphType graphType) const {
+  if (Options::getInstance().isMatchExact()) {
+    auto vertex = getVertexExact(name, graphType);
+    return vertex != nullVertex() ? VertexIDVec{vertex} : VertexIDVec{};
   }
-  // Catch any errors in the regex string.
-  std::regex nameRegex;
-  try {
-    nameRegex.assign(nameRegexStr);
-  } catch(std::regex_error e) {
-    throw Exception(std::string("malformed regular expression: ")+e.what());
+  if (Options::getInstance().isMatchRegex()) {
+    return getVerticesRegex(name, graphType);
   }
-  // Search the vertices.
-  // TODO: create a list of candidate vertices, rather than iterating all vertices.
-  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    if (((graphType == VertexGraphType::ANY) ? true : graph[v].isGraphType(graphType)) &&
-        std::regex_search(graph[v].getName(), nameRegex)) {
-      return v;
-    }
+  if (Options::getInstance().isMatchWildcard()) {
+    return getVerticesWildcard(name, graphType);
   }
-  return nullVertex();
+  return {};
 }
 
 void Graph::dumpPath(const VertexIDVec &path) const {

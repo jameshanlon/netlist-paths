@@ -4,9 +4,9 @@
 #ifdef NDEBUG
 #define DEBUG(x) do {} while (false)
 #else
-#define DEBUG(x) do { if (netlist_paths::Options::getInstance().debugMode) { x; } } while (false)
+#define DEBUG(x) do { if (netlist_paths::Options::getInstance().isDebugMode()) { x; } } while (false)
 #endif
 
-#define INFO(x) do { if (netlist_paths::Options::getInstance().verboseMode) { x; } } while (false)
+#define INFO(x) do { if (netlist_paths::Options::getInstance().isVerboseMode()) { x; } } while (false)
 
 #endif // NETLIST_PATHS_DEBUG_HPP

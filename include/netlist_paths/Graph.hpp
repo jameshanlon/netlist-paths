@@ -9,7 +9,6 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/tokenizer.hpp>
 #include "netlist_paths/DTypes.hpp"
-#include "netlist_paths/Edge.hpp"
 #include "netlist_paths/Vertex.hpp"
 
 namespace netlist_paths {
@@ -17,8 +16,7 @@ namespace netlist_paths {
 using InternalGraph = boost::adjacency_list<boost::vecS,
                                             boost::vecS,
                                             boost::bidirectionalS,
-                                            Vertex,
-                                            Edge>;
+                                            Vertex>;
 using VertexID = boost::graph_traits<InternalGraph>::vertex_descriptor;
 using EdgeID = boost::graph_traits<InternalGraph>::edge_descriptor;
 using ParentMap = std::map<VertexID, std::vector<VertexID>>;
@@ -43,6 +41,8 @@ using FilteredInternalGraph = boost::filtered_graph<InternalGraph,
 class Graph {
 private:
   InternalGraph graph;
+
+  bool vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const;
 
   void dumpPath(const VertexIDVec &path) const;
 
@@ -91,20 +91,25 @@ public:
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
   std::vector<VertexID> getAllVertices() const;
-  VertexID getVertexDesc(const std::string &name) const;
-  VertexID getVertexDescRegex(const std::string &name,
-                                VertexGraphType graphType) const;
-  VertexID getStartVertex(const std::string &name) const {
-    return getVertexDescRegex(name, VertexGraphType::START_POINT);
+  VertexID getVertexExact(const std::string &name,
+                          VertexGraphType graphType=VertexGraphType::ANY) const;
+  VertexIDVec getVerticesRegex(const std::string &name,
+                               VertexGraphType graphType=VertexGraphType::ANY) const;
+  VertexIDVec getVerticesWildcard(const std::string &name,
+                                  VertexGraphType graphType=VertexGraphType::ANY) const;
+  VertexIDVec getVertices(const std::string &name,
+                          VertexGraphType graphType=VertexGraphType::ANY) const;
+  VertexIDVec getStartVertices(const std::string &name) const {
+    return getVertices(name, VertexGraphType::START_POINT);
   }
-  VertexID getEndVertex(const std::string &name) const {
-    return getVertexDescRegex(name, VertexGraphType::END_POINT);
+  VertexIDVec getEndVertices(const std::string &name) const {
+    return getVertices(name, VertexGraphType::END_POINT);
   }
-  VertexID getMidVertex(const std::string &name) const {
-    return getVertexDescRegex(name, VertexGraphType::MID_POINT);
+  VertexIDVec getMidVertices(const std::string &name) const {
+    return getVertices(name, VertexGraphType::MID_POINT);
   }
-  VertexID getRegVertex(const std::string &name) const {
-    return getVertexDescRegex(name, VertexGraphType::REG);
+  VertexIDVec getRegVertices(const std::string &name) const {
+    return getVertices(name, VertexGraphType::REG);
   }
   std::vector<VertexIDVec> getAllFanOut(VertexID startVertex) const;
   std::vector<VertexIDVec> getAllFanIn(VertexID endVertex) const;

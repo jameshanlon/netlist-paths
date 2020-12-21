@@ -43,10 +43,13 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("get_instance",       &Options::getInstancePtr,
                                return_value_policy<reference_existing_object>())
     .staticmethod("get_instance")
-    .def("set_verbose",        &Options::setVerbose)
-    .def("set_debug",          &Options::setDebug)
-    .def("set_match_wildcard", &Options::setMatchWildcard)
-    .def("set_match_regex",    &Options::setMatchRegex);
+    .def("set_verbose",                   &Options::setVerbose)
+    .def("set_debug",                     &Options::setDebug)
+    .def("set_match_exact",               &Options::setMatchExact)
+    .def("set_match_wildcard",            &Options::setMatchWildcard)
+    .def("set_match_regex",               &Options::setMatchRegex)
+    .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers)
+    .def("set_respect_hierarchy_markers", &Options::setRespectHierarchyMarkers);
 
   int (RunVerilator::*run)(const std::string&, const std::string&) const = &RunVerilator::run;
 

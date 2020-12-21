@@ -39,6 +39,9 @@ struct TestContext {
     } else {
       qualifiedNames(topName);
     }
+    // Default options.
+    netlist_paths::Options::getInstance().setMatchExact();
+    netlist_paths::Options::getInstance().setRespectHierarchyMarkers();
   }
 
   /// Check all names are unique.
