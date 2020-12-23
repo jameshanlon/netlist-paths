@@ -17,7 +17,9 @@
 #define CHECK_LOG_REPORT(vertex, astTypeStr) \
   BOOST_TEST(vertex->getAstTypeStr() == astTypeStr)
 
+//===----------------------------------------------------------------------===//
 // Test path exists
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(path_exists_adder, TestContext) {
   BOOST_CHECK_NO_THROW(compile("adder.sv"));
@@ -56,6 +58,7 @@ BOOST_FIXTURE_TEST_CASE(path_exists_counter, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
+  // Check paths exist between all stages.
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[0].u_pipestage.data_q",
                                                      "pipeline_module.g_pipestage[1].u_pipestage.data_q")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[1].u_pipestage.data_q",
@@ -70,9 +73,23 @@ BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
                                                      "pipeline_module.g_pipestage[6].u_pipestage.data_q")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[6].u_pipestage.data_q",
                                                      "pipeline_module.g_pipestage[7].u_pipestage.data_q")));
+
+  // Check multiple matching start/end points raise exception.
+  netlist_paths::Options::getInstance().setMatchWildcard();
+  BOOST_CHECK_THROW(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[?].u_pipestage.data_q",
+                                                            "pipeline_module.g_pipestage[1].u_pipestage.data_q")),
+                    netlist_paths::Exception);
+  BOOST_CHECK_THROW(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[0].u_pipestage.data_q",
+                                                            "pipeline_module.g_pipestage[?].u_pipestage.data_q")),
+                    netlist_paths::Exception);
+  BOOST_CHECK_THROW(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[?].u_pipestage.data_q",
+                                                            "pipeline_module.g_pipestage[?].u_pipestage.data_q")),
+                    netlist_paths::Exception);
 }
 
+//===----------------------------------------------------------------------===//
 // Test reporting of the correct path components
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv"));
@@ -156,7 +173,9 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
   CHECK_VAR_REPORT(vertices[2], "DST_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
 }
 
+//===----------------------------------------------------------------------===//
 // Test all paths query.
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
@@ -176,7 +195,9 @@ BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
   CHECK_VAR_REPORT(paths[2][4], "VAR", "logic", "out");
 }
 
+//===----------------------------------------------------------------------===//
 // Test fan in/out
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
   // Test paths fanning out to three end points.
@@ -248,7 +269,9 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   CHECK_VAR_REPORT(paths[2][5], "VAR", "logic", "out");
 }
 
+//===----------------------------------------------------------------------===//
 // Test avoid points.
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
   // Test that avoiding a net prevents a path from being found.
@@ -308,7 +331,9 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
   }
 }
 
+//===----------------------------------------------------------------------===//
 // Vlvbound bug
+//===----------------------------------------------------------------------===//
 
 /// Test that the inlined tasks do not share a merged VlVbound node.
 /// See https://www.veripool.org/boards/3/topics/2619

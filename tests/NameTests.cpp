@@ -8,23 +8,9 @@
 #include "TestContext.hpp"
 #include "netlist_paths/Utilities.hpp"
 
-BOOST_AUTO_TEST_CASE(wildcard_matching) {
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "foo"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "fo?"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "?o?"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "???"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "f*"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "*o"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "*"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "**"));
-  BOOST_TEST(netlist_paths::wildcardMatch("foo", "***"));
-  BOOST_TEST(netlist_paths::wildcardMatch("dadadadado", "*do"));
-  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*sip*"));
-  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*s?p*"));
-  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*s*p*"));
-  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "**s*p**"));
-  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "mi*i*i*i"));
-}
+//===----------------------------------------------------------------------===//
+// Test exact matching.
+//===----------------------------------------------------------------------===//
 
 BOOST_FIXTURE_TEST_CASE(exact_name_matching_counter, TestContext) {
   BOOST_CHECK_NO_THROW(compile("counter.sv"));
@@ -58,25 +44,58 @@ BOOST_FIXTURE_TEST_CASE(exact_name_matching_pipeline_module, TestContext) {
   BOOST_TEST(np->regExists("pipeline_module.g_pipestage[7].u_pipestage.data_q"));
 }
 
+//===----------------------------------------------------------------------===//
+// Test wildcard matching.
+//===----------------------------------------------------------------------===//
+
+/// Test the implemenation of wildcard matching.
+BOOST_AUTO_TEST_CASE(wildcard_matching) {
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "foo"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "fo?"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "?o?"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "???"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "f*"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "*o"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "*"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "**"));
+  BOOST_TEST(netlist_paths::wildcardMatch("foo", "***"));
+  BOOST_TEST(netlist_paths::wildcardMatch("dadadadado", "*do"));
+  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*sip*"));
+  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*s?p*"));
+  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "*s*p*"));
+  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "**s*p**"));
+  BOOST_TEST(netlist_paths::wildcardMatch("mississippi", "mi*i*i*i"));
+}
+
 /// Test matching of names by wildcards and regexes.
 BOOST_FIXTURE_TEST_CASE(wildcard_name_matching, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Wildcard
   netlist_paths::Options::getInstance().setMatchWildcard();
   BOOST_TEST(np->anyRegExists("*data_q*"));
   BOOST_TEST(np->anyRegExists("*d?t?_q*"));
   BOOST_TEST(np->anyRegExists("pipeline*data_q*"));
+
+  // Check mutliple matching registers raises exception.
+  BOOST_CHECK_THROW(np->regExists("pipeline_module.g_pipestage[?].u_pipestage.data_q"), netlist_paths::Exception);
 }
+
+//===----------------------------------------------------------------------===//
+// Test regex matching.
+//===----------------------------------------------------------------------===//
 
 /// Test matching of names by wildcards and regexes.
 BOOST_FIXTURE_TEST_CASE(regex_name_matching, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Regex
   netlist_paths::Options::getInstance().setMatchRegex();
   BOOST_TEST(np->anyRegExists(".*data_q.*"));
   BOOST_TEST(np->anyRegExists(".*d.t._q.*"));
   BOOST_TEST(np->anyRegExists("pipeline..*.data_q.*"));
   BOOST_TEST(np->anyRegExists("pipeline..*.*data_q.*"));
+
+  // Check mutliple matching registers raises exception.
+  BOOST_CHECK_THROW(np->regExists("pipeline_module.g_pipestage\\[.\\].u_pipestage.data_q"), netlist_paths::Exception);
 }
 
 /// Test malform regexes are caught.
@@ -87,7 +106,9 @@ BOOST_FIXTURE_TEST_CASE(malformed_regex, TestContext) {
   BOOST_CHECK_THROW(np->anyRegExists("?data_q"), netlist_paths::Exception);
 }
 
+//===----------------------------------------------------------------------===//
 // Test ignoring of heirarchy separators.
+//===----------------------------------------------------------------------===//
 
 /// counter
 BOOST_FIXTURE_TEST_CASE(heirarchy_separators_counter, TestContext) {
