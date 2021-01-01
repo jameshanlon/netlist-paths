@@ -364,28 +364,67 @@ Graph::getAllFanIn(VertexID finishVertex) const {
   return paths;
 }
 
+/// Given a vector of vectors of paths (the set of all paths between each
+/// through point), return a vector of paths that is the cartesian product of
+/// the paths in each stage. Based on code in:
+///   https://stackoverflow.com/questions/5279051/how-can-i-create-cartesian-product-of-vector-of-vectors
+std::vector<VertexIDVec>
+pathProduct(const std::vector<std::vector<VertexIDVec>>& intPaths) {
+  std::vector<VertexIDVec> resultPaths = {{}};
+  for (const auto& stagePaths : intPaths) {
+    std::vector<VertexIDVec> newPaths;
+    // Multiply each of the existing (sub) paths, with the next sub paths.
+    // Ie for each path create a new path with the next sub path appended.
+    for (const auto& resultPath : resultPaths) {
+      for (const auto &subPath : stagePaths) {
+        VertexIDVec path(subPath);
+        std::reverse(path.begin(), path.end());
+        // Append the new sub path to the existing 'resultPath'.
+        newPaths.push_back(resultPath);
+        newPaths.back().insert(newPaths.back().end(), path.begin(), path.end()-1);
+      }
+    }
+    resultPaths = std::move(newPaths);
+  }
+  return resultPaths;
+}
+
 /// Report all paths between start and finish points.
 /// Though points currently unsupported.
 std::vector<VertexIDVec>
-Graph::getAllPointToPoint(const VertexIDVec &waypoints,
+Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
                           const VertexIDVec &avoidPointIDs) const {
-  assert(waypoints.size() == 2 && "through points not supported with all point to point");
   FilteredInternalGraph filteredGraph(graph, boost::keep_all(),
                                       VertexPredicate(&avoidPointIDs));
-  INFO(std::cout << "Performing DFS\n");
-  ParentMap parentMap;
-  boost::depth_first_search(filteredGraph,
-      boost::visitor(DfsVisitor(parentMap, true))
-        .root_vertex(waypoints[0]));
-  INFO(std::cout << "Determining all paths\n");
-  std::vector<VertexIDVec> paths;
-  determineAllPaths(parentMap,
-                    paths,
-                    VertexIDVec(),
-                    waypoints[0],
-                    waypoints[1]);
+  std::vector<std::vector<VertexIDVec> > intPaths;
+  // Elaborate all paths between each adjacent waypoint.
+  for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
+    auto beginVertex = waypointIDs[i];
+    auto endVertex = waypointIDs[i+1];
+    INFO(std::cout << "Performing DFS from "
+                   << graph[beginVertex].getName() << "\n");
+    ParentMap parentMap;
+    boost::depth_first_search(filteredGraph,
+        boost::visitor(DfsVisitor(parentMap, true))
+          .root_vertex(beginVertex));
+    INFO(std::cout << "Determining all paths to "
+                   << graph[endVertex].getName() << "\n");
+    std::vector<VertexIDVec> paths;
+    determineAllPaths(parentMap,
+                      paths,
+                      VertexIDVec(),
+                      beginVertex,
+                      endVertex);
+    if (paths.empty()) {
+      // No paths exist.
+      return {};
+    }
+    intPaths.push_back(paths);
+  }
+  // Construct the final paths.
+  auto paths = pathProduct(intPaths);
   for (auto &path : paths) {
-    std::reverse(std::begin(path), std::end(path));
+    path.push_back(waypointIDs.back());
   }
   return paths;
 }

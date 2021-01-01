@@ -291,10 +291,7 @@ public:
   }
 
   inline bool isMidPoint() const {
-    return !deleted &&
-           (astType == VertexAstType::VAR ||
-            astType == VertexAstType::WIRE ||
-            astType == VertexAstType::PORT);
+    return !isStartPoint() && !isFinishPoint();
   }
 
   inline bool canIgnore() const {
