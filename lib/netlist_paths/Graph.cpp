@@ -274,7 +274,7 @@ VertexIDVec Graph::determinePath(ParentMap &parentMap,
   if (finishVertex == startVertex) {
     return path;
   }
-  if (parentMap[finishVertex].size() == 0) {
+  if (parentMap[finishVertex].empty()) {
     return VertexIDVec();
   }
   assert(parentMap[finishVertex].size() == 1);
