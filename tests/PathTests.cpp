@@ -91,7 +91,16 @@ BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
 // Test reporting of the correct path components.
 //===----------------------------------------------------------------------===//
 
-// TODO: empty path returned.
+/// Test when there are no paths.
+BOOST_FIXTURE_TEST_CASE(path_none, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("empty_module.sv"));
+  // Any path.
+  auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+  BOOST_TEST(vertices.empty());
+  // All paths.
+  auto paths = np->getAllPaths(netlist_paths::Waypoints("in", "out"));
+  BOOST_TEST(paths.empty());
+}
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv"));
@@ -201,10 +210,15 @@ BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
 // Test fan in/out
 //===----------------------------------------------------------------------===//
 
-// TODO: empty paths returned.
+/// Test empty fan in and out paths.
+BOOST_FIXTURE_TEST_CASE(path_fan_out_empty, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("empty_module.sv"));
+  BOOST_TEST(np->getAllFanOut("in").empty());
+  BOOST_TEST(np->getAllFanIn("out").empty());
+}
 
+/// Test paths fanning out to three end points.
 BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
-  // Test paths fanning out to three end points.
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanOut("in");
   BOOST_TEST(paths.size() == 3);
@@ -219,8 +233,8 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
   CHECK_VAR_REPORT(paths[2][2], "DST_REG", "logic", "fan_out_in.c");
 }
 
+/// Test paths fanning into an end point.
 BOOST_FIXTURE_TEST_CASE(path_fan_in, TestContext) {
-  // Test paths fanning into an end point.
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanIn("out");
   BOOST_TEST(paths.size() == 3);
@@ -233,6 +247,21 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in, TestContext) {
   BOOST_TEST(paths[2].size() == 3);
   CHECK_VAR_REPORT(paths[2][0], "SRC_REG", "logic", "fan_out_in.c");
   CHECK_VAR_REPORT(paths[2][2], "VAR", "logic", "out");
+}
+
+/// Test that invalid through points throw exceptions.
+BOOST_FIXTURE_TEST_CASE(path_fan_out_exceptions, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
+  // Fan out.
+  // Invalid vertex.
+  BOOST_CHECK_THROW(np->getAllFanOut("foo"), netlist_paths::Exception);
+  // Not a start point.
+  BOOST_CHECK_THROW(np->getAllFanOut("out"), netlist_paths::Exception);
+  // Fan in.
+  // Invalid vertex.
+  BOOST_CHECK_THROW(np->getAllFanIn("foo"), netlist_paths::Exception);
+  // Not a start point.
+  BOOST_CHECK_THROW(np->getAllFanIn("in"), netlist_paths::Exception);
 }
 
 BOOST_FIXTURE_TEST_CASE(path_fan_out_modules, TestContext) {
@@ -277,22 +306,88 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
 // Test through points.
 //===----------------------------------------------------------------------===//
 
-// All paths.
-
-BOOST_FIXTURE_TEST_CASE(single_through_point, TestContext) {
-  // Test querying paths when a single through point is provided.
+/// All paths: test querying paths when a single through point is provided.
+BOOST_FIXTURE_TEST_CASE(all_paths_single_through_point, TestContext) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
-  auto waypoints = netlist_paths::Waypoints("in", "out");
-  waypoints.addThroughPoint("multiple_paths.a");
-  auto paths = np->getAllPaths(waypoints);
-  BOOST_TEST(paths.size() == 1);
-  BOOST_TEST(paths.front()[2]->getName() == "multiple_paths.a");
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.a");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 1);
+    BOOST_TEST(paths.front()[2]->getName() == "multiple_paths.a");
+  }
+  {
+    // No valid path (no route between a and b).
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.a");
+    waypoints.addThroughPoint("multiple_paths.b");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.empty());
+  }
 }
 
-// TODO: using any paths.
+/// All paths: test querying paths when multiple through points are provided.
+BOOST_FIXTURE_TEST_CASE(all_paths_multiple_through_points, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("three_multi_path_stages.sv"));
+  {
+    // Check the number of paths without through points.
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 27);
+  }
+  {
+    // Add the two intermediate fan-in/out points.
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("three_multi_path_stages.all_a");
+    waypoints.addThroughPoint("three_multi_path_stages.all_b");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 27);
+  }
+}
 
+/// Any path: test querying paths when a single through point is provided.
+BOOST_FIXTURE_TEST_CASE(any_path_single_through_point, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.a");
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.size() == 5);
+    BOOST_TEST(vertices[2]->getName() == "multiple_paths.a");
+  }
+  {
+    // No valid path (no route between a and b).
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.a");
+    waypoints.addThroughPoint("multiple_paths.b");
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.empty());
+  }
+}
+
+/// Any path: test querying paths when multiple through points are provided.
+BOOST_FIXTURE_TEST_CASE(any_path_multiple_through_points, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("three_multi_path_stages.sv"));
+  {
+    // Add the two intermediate fan-in/out points.
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("three_multi_path_stages.all_a");
+    waypoints.addThroughPoint("three_multi_path_stages.all_b");
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.size() == 13);
+  }
+  {
+    // No valid path (ordering of through points).
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("three_multi_path_stages.all_b");
+    waypoints.addThroughPoint("three_multi_path_stages.all_a");
+    auto vertices = np->getAnyPath(waypoints);
+    BOOST_TEST(vertices.empty());
+  }
+}
+
+// Test that invalid through points throw exceptions.
 BOOST_FIXTURE_TEST_CASE(through_point_exception, TestContext) {
-  // Test that an invalid through point throws an exception.
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -327,13 +422,13 @@ BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
     auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
     waypoints.addAvoidPoint("one_avoid_point.foo");
     auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.size() == 0);
+    BOOST_TEST(vertices.empty());
   }
   {
     auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
     waypoints.addAvoidPoint("one_avoid_point.foo");
     auto paths = np->getAllPaths(waypoints);
-    BOOST_TEST(paths.size() == 0);
+    BOOST_TEST(paths.empty());
   }
 }
 
@@ -369,7 +464,7 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
     waypoints.addAvoidPoint("multiple_paths.b");
     waypoints.addAvoidPoint("multiple_paths.c");
     auto paths = np->getAllPaths(waypoints);
-    BOOST_TEST(paths.size() == 0);
+    BOOST_TEST(paths.empty());
   }
 }
 
