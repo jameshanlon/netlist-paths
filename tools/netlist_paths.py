@@ -3,6 +3,7 @@
 import argparse
 import sys
 import os
+from itertools import zip_longest
 import tempfile
 import definitions as defs
 sys.path.insert(0, os.path.join(defs.BINARY_DIR_PREFIX, 'lib', 'netlist_paths'))
@@ -11,10 +12,28 @@ from py_netlist_paths import RunVerilator, Netlist, Waypoints, Options
 
 DEFAULT_DOT_FILE = 'graph.dot'
 
-# Dump a table of names and their attributes matching regex to fd.
+def write_table(rows, fd):
+    """
+    Write the table rows out to fd and calculate max widths for each column.
+    """
+    widths = [0] * len(rows[0])
+    for row in rows:
+        for i, col in enumerate(row):
+            widths[i] = max(widths[i], len(col))
+    fmt = ' '.join('{row['+str(i)+']:<{widths['+str(i)+']}}' for i in range(len(rows[0])))
+    fmt += '\n'
+    fd.write(fmt.format(row=rows[0], widths=widths))
+    fd.write(fmt.format(row=['-'*w for w in widths], widths=widths))
+    for row in rows[1:]:
+        fd.write(fmt.format(row=row, widths=widths))
+
 def dump_names(netlist, regex, fd):
+    """
+    Dump a table of names and their attributes matching regex to fd.
+    """
     rows = []
     HDR = ['Name', 'Type', 'DType', 'Direction', 'Location']
+    rows.append(HDR)
     vertices = netlist.get_named_vertices(regex)
     vertices = sorted(vertices, key=lambda x: (x.get_name(),
                                                x.get_ast_type(),
@@ -25,25 +44,34 @@ def dump_names(netlist, regex, fd):
                      vertex.get_ast_type(),
                      vertex.get_dtype_str(),
                      vertex.get_direction(),
-                     vertex.get_location()))
-    # Calculate max widths for each column
-    widths = [len(x) for x in HDR]
-    for row in rows:
-        for i, col in enumerate(row):
-            widths[i] = max(widths[i], len(col))
-    fmt = ' '.join('{row['+str(i)+']:<{widths['+str(i)+']}}' for i in range(len(HDR)))
-    fmt += '\n'
-    fd.write(fmt.format(row=HDR, widths=widths))
-    for row in rows:
-        fd.write(fmt.format(row=row, widths=widths))
+                     vertex.get_location_str()))
+    # Write the table out.
+    write_table(rows, fd)
 
-# Report the details of a path.
 def dump_path_report(netlist, path, fd):
-    for vertex in path:
-        print('{:<16} {:<16} {:<16} {:<16}'.format(vertex.get_ast_type(),
-                                                   vertex.get_dtype_str(),
-                                                   vertex.get_dtype_width(),
-                                                   vertex.get_name()))
+    """
+    Report the details of a path. Items in the path alternate between variable
+    and statement, starting and ending with a variable.
+    """
+    def grouper(iterable, n, fillvalue=None):
+        """
+        Collect data into fixed-length chunks or blocks
+          grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+        From https://docs.python.org/3/library/itertools.html#recipes
+        """
+        args = [iter(iterable)] * n
+        return zip_longest(*args, fillvalue=fillvalue)
+
+    rows = []
+    rows.append(('Name', 'Type', 'Statement', 'Location'))
+    rows.append((path[0].get_name(), path[0].get_dtype_str(), '', ''))
+    for stmt, var in grouper(path[1:], 2):
+        rows.append((var.get_name(),
+                     var.get_dtype_str(),
+                     stmt.get_ast_type(),
+                     stmt.get_location_str()))
+    # Write the table out.
+    write_table(rows, fd)
 
 # Report a list of paths
 def dump_path_list_report(netlist, paths, fd):

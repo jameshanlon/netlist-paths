@@ -25,13 +25,13 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   register_exception_translator<Exception>(&translateException);
 
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
-     .def("get_name",        &Vertex::getName)
-     .def("get_ast_type",    &Vertex::getAstTypeStr)
-     .def("get_direction",   &Vertex::getDirStr)
-     .def("get_dtype_str",   &Vertex::getDTypeStr)
-     .def("get_dtype_width", &Vertex::getDTypeWidth)
-     .def("get_location",    &Vertex::getLocStr)
-     .def("can_ignore",      &Vertex::canIgnore);
+     .def("get_name",         &Vertex::getName)
+     .def("get_ast_type",     &Vertex::getAstTypeStr)
+     .def("get_direction",    &Vertex::getDirStr)
+     .def("get_dtype_str",    &Vertex::getDTypeStr)
+     .def("get_dtype_width",  &Vertex::getDTypeWidth)
+     .def("get_location_str", &Vertex::getLocationStr)
+     .def("can_ignore",       &Vertex::canIgnore);
 
   class_<std::vector<Vertex*> >("Path")
       .def(vector_indexing_suite<std::vector<Vertex*> >());

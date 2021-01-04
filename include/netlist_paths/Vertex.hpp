@@ -329,7 +329,7 @@ public:
   const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
   const std::string getDirStr() const { return getVertexDirectionStr(direction); }
   const std::string getDTypeStr() const { return dtype != nullptr ? dtype->toString() : "none"; }
-  const std::string getLocStr() const { return location.toString(); }
+  const std::string getLocationStr() const { return location.getLocationStr(); }
   bool isDeleted() const { return deleted; }
 };
 

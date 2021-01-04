@@ -42,10 +42,13 @@ public:
            a.endLine == b.endLine &&
            a.endCol == b.endCol;
   }
-  /// String representation.
-  std::string toString() const {
+  std::string getLocationStrExact() const {
     auto s = boost::format("%s %d:%d,%d:%d")
                % getFilename() % startLine % startCol % endLine % endCol;
+    return s.str();
+  }
+  std::string getLocationStr() const {
+    auto s = boost::format("%s:%d") % getFilename() % startLine;
     return s.str();
   }
 };
