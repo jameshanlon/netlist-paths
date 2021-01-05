@@ -73,8 +73,10 @@ def dump_path_report(netlist, path, fd):
     # Write the table out.
     write_table(rows, fd)
 
-# Report a list of paths
 def dump_path_list_report(netlist, paths, fd):
+    """
+    Report a list of paths.
+    """
     for i, path in enumerate(paths):
         print('Path {}'.format(i))
         dump_path_report(netlist, path, fd)
