@@ -160,6 +160,10 @@ def main():
             temp_name = next(tempfile._get_candidate_names())
             if comp.run(args.files[0], temp_name) > 0:
                 raise RuntimeError('error compiling design')
+        else:
+            if len(args.files) != 1:
+                raise RuntimeError('cannot specify multiple netlist XML files')
+            temp_name = args.files[0]
 
         # Create the netlist
         netlist = Netlist(temp_name)
