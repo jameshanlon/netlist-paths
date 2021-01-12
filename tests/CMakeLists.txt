@@ -21,9 +21,10 @@ function(add_test_exe binary_name source_files)
            COMMAND ./${binary_name})
 endfunction()
 
-add_test_exe(NameTests  NameTests.cpp)
-add_test_exe(DTypeTests DTypeTests.cpp)
-add_test_exe(PathTests  PathTests.cpp)
+add_test_exe(VerilatorXMLTests  VerilatorXMLTests.cpp)
+add_test_exe(NameTests          NameTests.cpp)
+add_test_exe(DTypeTests         DTypeTests.cpp)
+add_test_exe(PathTests          PathTests.cpp)
 
 # Python wrapper tests.
 

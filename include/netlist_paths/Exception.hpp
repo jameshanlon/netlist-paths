@@ -13,6 +13,10 @@ struct Exception : public std::exception {
    const char* what() const throw() { return msg.c_str(); }
 };
 
+struct XMLException : public Exception {
+  XMLException(std::string msg) : Exception(msg) {}
+};
+
 } // End namespace.
 
 #endif // NETLIST_PATHS_EXCEPTION_HPP

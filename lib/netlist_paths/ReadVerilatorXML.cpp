@@ -261,12 +261,12 @@ void ReadVerilatorXML::newVarRef(XMLNode *node) {
   if (currentScope) {
     if (!currentLogic) {
       auto name = std::string(node->first_attribute("name")->value());
-      throw Exception(std::string("var ")+name+" not under a logic block");
+      throw XMLException(std::string("var ")+name+" not under a logic block");
     }
     auto varName = node->first_attribute("name")->value();
     auto varVertex = lookupVarVertex(varName);
     if (varVertex == netlist.nullVertex()) {
-      throw Exception(std::string("var ")+varName+" does not have a VAR_SCOPE");
+      throw XMLException(std::string("var ")+varName+" does not have a VAR_SCOPE");
     }
     if (isLValue) {
       // Assignment to var
@@ -481,7 +481,7 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   INFO(std::cout << "Parsing input XML file\n");
   std::fstream inputFile(filename);
   if (!inputFile.is_open()) {
-    throw Exception("could not open file");
+    throw XMLException("could not open file");
   }
   // Parse the buffered XML.
   rapidxml::xml_document<> doc;
@@ -502,16 +502,18 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   }
   // Netlist section.
   XMLNode *netlistNode = rootNode->first_node("netlist");
-  assert(numChildren(netlistNode) == 2 &&
-         "expected module and typetable children");
+  if (numChildren(netlistNode) != 2) {
+    throw XMLException("expected one module, is the netlist flattened?");
+  }
   // Typetable.
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
   visitTypeTable(typeTableNode);
   // Module (single instance).
   XMLNode *topModuleNode = netlistNode->first_node("module");
   visitModule(topModuleNode);
-  assert(std::string(topModuleNode->first_attribute("name")->value()) == "TOP" &&
-         "top module name does not equal TOP");
+  if (std::string(topModuleNode->first_attribute("name")->value()) != "TOP") {
+    throw XMLException("unexpected top module name, is the netlist flattened?");
+  }
   INFO(std::cout << "Netlist contains " << netlist.numVertices()
                  << " vertices and " << netlist.numEdges() << " edges\n");
 }
