@@ -32,7 +32,7 @@ message(STATUS "Boost_LIBRARIES     = ${Boost_LIBRARIES}")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_compile_options(-Wall -pedantic -march=native)
+add_compile_options(-Wall -pedantic)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # Set default install prefix.

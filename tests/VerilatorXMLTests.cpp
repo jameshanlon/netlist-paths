@@ -27,4 +27,3 @@ BOOST_FIXTURE_TEST_CASE(module_no_inline, TestContext) {
 BOOST_FIXTURE_TEST_CASE(module_class_inline, TestContext) {
   BOOST_CHECK_THROW(compile("module_class_inline.sv"), netlist_paths::XMLException);
 }
-
