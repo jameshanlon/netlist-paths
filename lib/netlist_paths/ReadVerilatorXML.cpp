@@ -505,6 +505,7 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   // Typetable.
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
   visitTypeTable(typeTableNode);
+  INFO(std::cout << "Type table contains " << dtypes.size() << " entries\n");
   // Module (single instance).
   if (numChildren(netlistNode) == 2) {
     XMLNode *topModuleNode = netlistNode->first_node("module");
@@ -515,7 +516,7 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
     INFO(std::cout << "Netlist contains " << netlist.numVertices()
                    << " vertices and " << netlist.numEdges() << " edges\n");
   } else {
-    INFO(std::cout << "Netlist is not flat, just reading type table\n");
+    INFO(std::cout << "Netlist is not flat, skipping modules\n");
   }
 }
 
