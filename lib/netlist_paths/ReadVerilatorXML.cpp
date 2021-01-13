@@ -502,20 +502,21 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   }
   // Netlist section.
   XMLNode *netlistNode = rootNode->first_node("netlist");
-  if (numChildren(netlistNode) != 2) {
-    throw XMLException("expected one module, is the netlist flattened?");
-  }
   // Typetable.
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
   visitTypeTable(typeTableNode);
   // Module (single instance).
-  XMLNode *topModuleNode = netlistNode->first_node("module");
-  visitModule(topModuleNode);
-  if (std::string(topModuleNode->first_attribute("name")->value()) != "TOP") {
-    throw XMLException("unexpected top module name, is the netlist flattened?");
+  if (numChildren(netlistNode) == 2) {
+    XMLNode *topModuleNode = netlistNode->first_node("module");
+    visitModule(topModuleNode);
+    if (std::string(topModuleNode->first_attribute("name")->value()) != "TOP") {
+      throw XMLException("unexpected top module name");
+    }
+    INFO(std::cout << "Netlist contains " << netlist.numVertices()
+                   << " vertices and " << netlist.numEdges() << " edges\n");
+  } else {
+    INFO(std::cout << "Netlist is not flat, just reading type table\n");
   }
-  INFO(std::cout << "Netlist contains " << netlist.numVertices()
-                 << " vertices and " << netlist.numEdges() << " edges\n");
 }
 
 ReadVerilatorXML::ReadVerilatorXML(Graph &netlist,

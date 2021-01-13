@@ -10,20 +10,24 @@
 
 /// Verilator cannot flatten modules with interfaces.
 BOOST_FIXTURE_TEST_CASE(module_interface, TestContext) {
-  BOOST_CHECK_THROW(compile("module_interface_inline.sv"), netlist_paths::XMLException);
+  BOOST_CHECK_NO_THROW(compile("module_interface_inline.sv"));
+  BOOST_TEST(np->isEmpty());
 }
 
 /// Verilator cannot flatten public modules.
 BOOST_FIXTURE_TEST_CASE(module_public_inline, TestContext) {
-  BOOST_CHECK_THROW(compile("module_public_inline.sv"), netlist_paths::XMLException);
+  BOOST_CHECK_NO_THROW(compile("module_public_inline.sv"));
+  BOOST_TEST(np->isEmpty());
 }
 
 /// Verilator cannot flatten public modules.
 BOOST_FIXTURE_TEST_CASE(module_no_inline, TestContext) {
-  BOOST_CHECK_THROW(compile("module_no_inline.sv"), netlist_paths::XMLException);
+  BOOST_CHECK_NO_THROW(compile("module_no_inline.sv"));
+  BOOST_TEST(np->isEmpty());
 }
 
 /// Verilator cannot flatten modules with classes.
 BOOST_FIXTURE_TEST_CASE(module_class_inline, TestContext) {
-  BOOST_CHECK_THROW(compile("module_class_inline.sv"), netlist_paths::XMLException);
+  BOOST_CHECK_NO_THROW(compile("module_class_inline.sv"));
+  BOOST_TEST(np->isEmpty());
 }

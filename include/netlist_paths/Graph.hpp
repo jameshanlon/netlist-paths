@@ -85,8 +85,8 @@ public:
     graph[vertex].setDirection(direction);
   }
   VertexID nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
-  std::size_t numVertices() { return boost::num_vertices(graph); }
-  std::size_t numEdges() { return boost::num_edges(graph); }
+  std::size_t numVertices() const { return boost::num_vertices(graph); }
+  std::size_t numEdges() const { return boost::num_edges(graph); }
   void splitRegVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;

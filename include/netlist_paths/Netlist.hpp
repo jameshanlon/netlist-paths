@@ -249,6 +249,8 @@ public:
   void dumpDotFile(const std::string &outputFilename) const {
     netlist.dumpDotFile(outputFilename);
   }
+
+  bool isEmpty() const { return netlist.numVertices() == 0; }
 };
 
 }; // End namespace.
