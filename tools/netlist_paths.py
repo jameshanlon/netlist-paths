@@ -95,7 +95,7 @@ def main():
     parser.add_argument('-D',
                         metavar='definition',
                         help='Define a preprocessor macro (only with --compile)')
-    parser.add_argument('-o,--output',
+    parser.add_argument('-o', '--output',
                         default=None,
                         dest='output_file',
                         metavar='output file',
@@ -155,34 +155,32 @@ def main():
 
         # Verilator compilation
         # (Only supports one source file currently, useful for testing.)
-        if (args.compile):
+        if args.compile:
+            if args.output_file == None:
+                output_filename = next(tempfile._get_candidate_names())
+            else:
+                output_filename = args.output_file
             comp = RunVerilator(defs.INSTALL_PREFIX)
-            temp_name = next(tempfile._get_candidate_names())
-            if comp.run(args.files[0], temp_name) > 0:
+            if comp.run(args.files[0], output_filename) > 0:
                 raise RuntimeError('error compiling design')
         else:
             if len(args.files) != 1:
                 raise RuntimeError('cannot specify multiple netlist XML files')
-            temp_name = args.files[0]
+            output_filename = args.files[0]
 
         # Create the netlist
-        netlist = Netlist(temp_name)
+        netlist = Netlist(output_filename)
 
-        # If compiling and no no further steps performed and an output file is
-        # specified, rename XML to the output, otherwise delete it.
-        if args.compile:
-            if args.output_file and \
-              not args.dump_names and \
-              not args.dump_dot and \
-              not (args.start_point or args.finish_point):
-                os.rename(temp_name, args.output_file)
-            else:
-                os.remove(temp_name)
+        # Delete the temporary XML output file.
+        if args.compile and args.output_file == None:
+            os.remove(output_filename)
 
         # Dump names
         if args.dump_names:
             dump_names(netlist, args.dump_names, sys.stdout)
             return 0
+
+        # Dump graph dotfile
         if args.dump_dot:
             netlist.dump_dot_file(args.output_file if args.output_file else DEFAULT_DOT_FILE)
             return 0

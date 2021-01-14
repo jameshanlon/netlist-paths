@@ -8,26 +8,33 @@
 #include "TestContext.hpp"
 #include "netlist_paths/Utilities.hpp"
 
-/// Verilator cannot flatten modules with interfaces.
-BOOST_FIXTURE_TEST_CASE(module_interface, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("module_interface_inline.sv"));
+
+/// Verilator cannot inline packages with functions.
+BOOST_FIXTURE_TEST_CASE(orphan_package, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("orphan_package.sv"));
+  BOOST_TEST(!np->isEmpty());
+}
+
+/// Verilator cannot inline classes.
+BOOST_FIXTURE_TEST_CASE(module_class_no_inline, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("module_class_no_inline.sv"));
+  BOOST_TEST(!np->isEmpty());
+}
+
+/// Verilator cannot inline interfaces.
+BOOST_FIXTURE_TEST_CASE(interface_no_inline, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("interface_no_inline.sv"));
   BOOST_TEST(np->isEmpty());
 }
 
 /// Verilator cannot flatten public modules.
-BOOST_FIXTURE_TEST_CASE(module_public_inline, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("module_public_inline.sv"));
+BOOST_FIXTURE_TEST_CASE(module_public_no_inline, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("public_module_no_inline.sv"));
   BOOST_TEST(np->isEmpty());
 }
 
 /// Verilator cannot flatten public modules.
-BOOST_FIXTURE_TEST_CASE(module_no_inline, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("module_no_inline.sv"));
-  BOOST_TEST(np->isEmpty());
-}
-
-/// Verilator cannot flatten modules with classes.
-BOOST_FIXTURE_TEST_CASE(module_class_inline, TestContext) {
-  BOOST_CHECK_NO_THROW(compile("module_class_inline.sv"));
+BOOST_FIXTURE_TEST_CASE(module_no_inline_pragma, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("module_no_inline_pragma.sv"));
   BOOST_TEST(np->isEmpty());
 }

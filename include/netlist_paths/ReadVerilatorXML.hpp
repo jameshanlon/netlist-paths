@@ -85,6 +85,7 @@ private:
   void visitAssign(XMLNode *node);
   void visitAssignDly(XMLNode *node);
   void visitInitial(XMLNode *node);
+  void visitInstance(XMLNode *node);
   void visitSenItem(XMLNode *node);
   void visitSenGate(XMLNode *node);
   void visitCFunc(XMLNode *node);
@@ -92,8 +93,10 @@ private:
   void visitVar(XMLNode *node);
   void visitVarScope(XMLNode *node);
   void visitVarRef(XMLNode *node);
+  void visitInterfaceRef(XMLNode *node);
   void visitBasicDtype(XMLNode *node);
   void visitRefDtype(XMLNode *node);
+  void visitInterfaceRefDType(XMLNode *node);
   size_t visitConst(XMLNode *node);
   std::pair<size_t, size_t> visitRange(XMLNode *node);
   MemberDType visitMemberDType(XMLNode *node);

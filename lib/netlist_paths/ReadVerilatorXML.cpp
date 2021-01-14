@@ -18,11 +18,14 @@ enum class AstNode {
   ASSIGN_DLY,
   ASSIGN_W,
   BASIC_DTYPE,
-  CONT_ASSIGN,
   CONST,
+  CONT_ASSIGN,
   C_FUNC,
   ENUM,
+  IFACE_REF_DTYPE,
   INITIAL,
+  INSTANCE,
+  INTF_REF,
   MEMBER_DTYPE,
   MODULE,
   PACKED_ARRAY,
@@ -33,8 +36,8 @@ enum class AstNode {
   SEN_ITEM,
   STRUCT_DTYPE,
   TOP_SCOPE,
-  TYPE_TABLE,
   TYPEDEF,
+  TYPE_TABLE,
   UNION_DTYPE,
   UNPACKED_ARRAY,
   VAR,
@@ -54,10 +57,13 @@ static AstNode resolveNode(const char *name) {
       { "assignw",          AstNode::ASSIGN_W },
       { "basicdtype",       AstNode::BASIC_DTYPE },
       { "cfunc",            AstNode::C_FUNC },
-      { "contassign",       AstNode::CONT_ASSIGN },
       { "const",            AstNode::CONST },
+      { "contassign",       AstNode::CONT_ASSIGN },
       { "enumdtype",        AstNode::ENUM },
+      { "ifacerefdtype",    AstNode::IFACE_REF_DTYPE },
       { "initial",          AstNode::INITIAL },
+      { "instance",         AstNode::INSTANCE },
+      { "intfref",          AstNode::INTF_REF },
       { "memberdtype",      AstNode::MEMBER_DTYPE },
       { "module",           AstNode::MODULE },
       { "packarraydtype",   AstNode::PACKED_ARRAY },
@@ -67,8 +73,8 @@ static AstNode resolveNode(const char *name) {
       { "senitem",          AstNode::SEN_ITEM },
       { "structdtype",      AstNode::STRUCT_DTYPE },
       { "topscope",         AstNode::TOP_SCOPE },
-      { "typetable",        AstNode::TYPE_TABLE },
       { "typedef",          AstNode::TYPEDEF },
+      { "typetable",        AstNode::TYPE_TABLE },
       { "uniondtype",       AstNode::UNION_DTYPE },
       { "unpackarraydtype", AstNode::UNPACKED_ARRAY },
       { "var",              AstNode::VAR },
@@ -82,31 +88,34 @@ static AstNode resolveNode(const char *name) {
 void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   // Handle node by type.
   switch (resolveNode(node->name())) {
-  case AstNode::ALWAYS:         visitAlways(node);                      break;
-  case AstNode::ALWAYS_PUBLIC:  visitAlways(node);                      break;
-  case AstNode::ASSIGN:         visitAssign(node);                      break;
-  case AstNode::ASSIGN_ALIAS:   visitAssign(node);                      break;
-  case AstNode::ASSIGN_DLY:     visitAssignDly(node);                   break;
-  case AstNode::ASSIGN_W:       visitAssign(node);                      break;
-  case AstNode::BASIC_DTYPE:    visitBasicDtype(node);                  break;
-  case AstNode::CONT_ASSIGN:    visitAssign(node);                      break;
-  case AstNode::C_FUNC:         visitCFunc(node);                       break;
-  case AstNode::ENUM:           visitEnumDType(node);                   break;
-  case AstNode::INITIAL:        visitInitial(node);                     break;
-  case AstNode::MEMBER_DTYPE:   visitMemberDType(node);                 break;
-  case AstNode::PACKED_ARRAY:   visitArrayDType(node, true);            break;
-  case AstNode::REF_DTYPE:      visitRefDtype(node);                    break;
-  case AstNode::SCOPE:          visitScope(node);                       break;
-  case AstNode::SEN_GATE:       visitSenGate(node);                     break;
-  case AstNode::SEN_ITEM:       visitSenItem(node);                     break;
-  case AstNode::STRUCT_DTYPE:   visitAggregateDType<StructDType>(node); break;
-  case AstNode::TOP_SCOPE:      visitScope(node);                       break;
-  case AstNode::TYPEDEF:        visitTypedef(node);                     break;
-  case AstNode::UNION_DTYPE:    visitAggregateDType<UnionDType>(node);  break;
-  case AstNode::UNPACKED_ARRAY: visitArrayDType(node, false);           break;
-  case AstNode::VAR:            visitVar(node);                         break;
-  case AstNode::VAR_REF:        visitVarRef(node);                      break;
-  case AstNode::VAR_SCOPE:      visitVarScope(node);                    break;
+  case AstNode::ALWAYS:          visitAlways(node);                      break;
+  case AstNode::ALWAYS_PUBLIC:   visitAlways(node);                      break;
+  case AstNode::ASSIGN:          visitAssign(node);                      break;
+  case AstNode::ASSIGN_ALIAS:    visitAssign(node);                      break;
+  case AstNode::ASSIGN_DLY:      visitAssignDly(node);                   break;
+  case AstNode::ASSIGN_W:        visitAssign(node);                      break;
+  case AstNode::BASIC_DTYPE:     visitBasicDtype(node);                  break;
+  case AstNode::CONT_ASSIGN:     visitAssign(node);                      break;
+  case AstNode::C_FUNC:          visitCFunc(node);                       break;
+  case AstNode::ENUM:            visitEnumDType(node);                   break;
+  case AstNode::IFACE_REF_DTYPE: visitInterfaceRefDType(node);           break;
+  case AstNode::INITIAL:         visitInitial(node);                     break;
+  case AstNode::INSTANCE:        visitInstance(node);                    break;
+  case AstNode::INTF_REF:        visitInterfaceRef(node);                break;
+  case AstNode::MEMBER_DTYPE:    visitMemberDType(node);                 break;
+  case AstNode::PACKED_ARRAY:    visitArrayDType(node, true);            break;
+  case AstNode::REF_DTYPE:       visitRefDtype(node);                    break;
+  case AstNode::SCOPE:           visitScope(node);                       break;
+  case AstNode::SEN_GATE:        visitSenGate(node);                     break;
+  case AstNode::SEN_ITEM:        visitSenItem(node);                     break;
+  case AstNode::STRUCT_DTYPE:    visitAggregateDType<StructDType>(node); break;
+  case AstNode::TOP_SCOPE:       visitScope(node);                       break;
+  case AstNode::TYPEDEF:         visitTypedef(node);                     break;
+  case AstNode::UNION_DTYPE:     visitAggregateDType<UnionDType>(node);  break;
+  case AstNode::UNPACKED_ARRAY:  visitArrayDType(node, false);           break;
+  case AstNode::VAR:             visitVar(node);                         break;
+  case AstNode::VAR_REF:         visitVarRef(node);                      break;
+  case AstNode::VAR_SCOPE:       visitVarScope(node);                    break;
   default:
     DEBUG(std::cout << "Unrecognised node: " << node->name() << "\n");
     visitNode(node);
@@ -323,6 +332,10 @@ void ReadVerilatorXML::visitInitial(XMLNode *node) {
   newStatement(node, VertexAstType::INITIAL);
 }
 
+void ReadVerilatorXML::visitInstance(XMLNode *node) {
+  newStatement(node, VertexAstType::INSTANCE);
+}
+
 void ReadVerilatorXML::visitSenItem(XMLNode *node) {
   if (currentLogic) {
     iterateChildren(node);
@@ -349,6 +362,11 @@ void ReadVerilatorXML::visitVarScope(XMLNode *node) {
 
 void ReadVerilatorXML::visitVarRef(XMLNode *node) {
   newVarRef(node);
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitInterfaceRef(XMLNode *node) {
+  // No newVarRef(node); since interfaces are not supported in flat netlists.
   iterateChildren(node);
 }
 
@@ -477,6 +495,10 @@ void ReadVerilatorXML::visitEnumDType(XMLNode *node) {
   addDtype(dtype);
 }
 
+void ReadVerilatorXML::visitInterfaceRefDType(XMLNode *node) {
+ // To do.
+}
+
 void ReadVerilatorXML::readXML(const std::string &filename) {
   INFO(std::cout << "Parsing input XML file\n");
   std::fstream inputFile(filename);
@@ -502,12 +524,25 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   }
   // Netlist section.
   XMLNode *netlistNode = rootNode->first_node("netlist");
+  // Count the nubmer of modules.
+  size_t moduleCount = 0;
+  size_t interfaceCount = 0;
+  size_t packageCount = 0;
+  for (XMLNode *moduleNode = netlistNode->first_node("module");
+       moduleNode; moduleNode = moduleNode->next_sibling()) {
+    if (std::string(moduleNode->name()) == "iface") { interfaceCount++; }
+    if (std::string(moduleNode->name()) == "module") { moduleCount++; }
+    if (std::string(moduleNode->name()) == "package") { packageCount++; }
+  }
+  INFO(std::cout << moduleCount    << " modules in netlist\n");
+  INFO(std::cout << interfaceCount << " interfaces in netlist\n");
+  INFO(std::cout << packageCount   << " packages in netlist\n");
   // Typetable.
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
   visitTypeTable(typeTableNode);
   INFO(std::cout << "Type table contains " << dtypes.size() << " entries\n");
   // Module (single instance).
-  if (numChildren(netlistNode) == 2) {
+  if (moduleCount == 1 && interfaceCount == 0) {
     XMLNode *topModuleNode = netlistNode->first_node("module");
     visitModule(topModuleNode);
     if (std::string(topModuleNode->first_attribute("name")->value()) != "TOP") {

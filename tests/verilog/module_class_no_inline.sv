@@ -11,7 +11,7 @@ class foo;
 
 endclass
 
-module top(input logic i_clk);
+module module_class_no_inline(input logic i_clk);
   foo f;
   initial begin
     f = new();

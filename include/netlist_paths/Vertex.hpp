@@ -23,6 +23,7 @@ enum class VertexAstType {
   ASSIGN_W,
   ALWAYS,
   INITIAL,
+  INSTANCE,
   SRC_REG,
   DST_REG,
   SEN_GATE,
@@ -66,6 +67,7 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "ASSIGN_W",     VertexAstType::ASSIGN_W },
       { "ALWAYS",       VertexAstType::ALWAYS },
       { "INITIAL",      VertexAstType::INITIAL },
+      { "INSTANCE",     VertexAstType::INSTANCE },
       { "SRC_REG",      VertexAstType::SRC_REG },
       { "DST_REG",      VertexAstType::DST_REG },
       { "SEN_GATE",     VertexAstType::SEN_GATE },
@@ -88,6 +90,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::ASSIGN_W:     return "ASSIGN_W";
     case VertexAstType::ALWAYS:       return "ALWAYS";
     case VertexAstType::INITIAL:      return "INITIAL";
+    case VertexAstType::INSTANCE:     return "INSTANCE";
     case VertexAstType::SRC_REG:      return "SRC_REG";
     case VertexAstType::DST_REG:      return "DST_REG";
     case VertexAstType::SEN_GATE:     return "SEN_GATE";
