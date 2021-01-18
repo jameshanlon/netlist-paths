@@ -27,14 +27,14 @@ BOOST_FIXTURE_TEST_CASE(interface_no_inline, TestContext) {
   BOOST_TEST(np->isEmpty());
 }
 
-/// Verilator cannot flatten public modules.
+/// Verilator can flatten public modules.
 BOOST_FIXTURE_TEST_CASE(module_public_no_inline, TestContext) {
   BOOST_CHECK_NO_THROW(compile("public_module_no_inline.sv"));
-  BOOST_TEST(np->isEmpty());
+  BOOST_TEST(!np->isEmpty());
 }
 
-/// Verilator cannot flatten public modules.
+/// Verilator can flatten public modules.
 BOOST_FIXTURE_TEST_CASE(module_no_inline_pragma, TestContext) {
   BOOST_CHECK_NO_THROW(compile("module_no_inline_pragma.sv"));
-  BOOST_TEST(np->isEmpty());
+  BOOST_TEST(!np->isEmpty());
 }

@@ -1,6 +1,6 @@
 module foo(input logic i_clk); /* verilator public_module */
 endmodule
 
-module top(input logic i_clk);
+module public_module_no_inline(input logic i_clk);
   foo f(.*);
 endmodule
