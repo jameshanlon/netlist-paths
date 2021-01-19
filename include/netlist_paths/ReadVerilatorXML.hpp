@@ -50,13 +50,14 @@ private:
   Graph &netlist;
   std::vector<File> &files;
   std::vector<std::shared_ptr<DType>> &dtypes;
-  std::vector<std::unique_ptr<VarNode>> vars;
+  std::map<std::string, VertexID> vars;
   std::map<std::string, std::shared_ptr<File>> fileIdMappings;
   std::map<std::string, std::shared_ptr<DType>> dtypeMappings;
   std::stack<std::unique_ptr<LogicNode>> logicParents;
   std::stack<std::unique_ptr<ScopeNode>> scopeParents;
   std::unique_ptr<LogicNode> currentLogic;
   std::unique_ptr<ScopeNode> currentScope;
+  std::string topName;
   bool isDelayedAssign;
   bool isLValue;
 
@@ -71,6 +72,7 @@ private:
   void dispatchVisitor(XMLNode *node);
   void iterateChildren(XMLNode *node);
   Location parseLocation(const std::string location);
+  std::string addTopPrefix(std::string name);
   VertexID lookupVarVertex(const std::string &name);
   void newVar(XMLNode *node);
   void newScope(XMLNode *node);

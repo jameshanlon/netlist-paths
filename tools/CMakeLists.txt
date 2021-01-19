@@ -13,3 +13,5 @@ install(FILES netlist_paths.py
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/definitions.py
         DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_subdirectory(netlist-paths)

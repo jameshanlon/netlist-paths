@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <boost/format.hpp>
 
 #include "netlist_paths/DTypes.hpp"
 #include "netlist_paths/Debug.hpp"
@@ -148,14 +149,28 @@ void ReadVerilatorXML::newScope(XMLNode *node) {
   scopeParents.pop();
 }
 
+/// Canonicalise a name by adding the top prefix '<module_name>.' if it is not
+/// already a prefix. This is used for associating variable declarations with
+/// references.
+std::string ReadVerilatorXML::addTopPrefix(std::string name) {
+  if (!topName.empty() && name.rfind(topName, 0) == std::string::npos) {
+    return topName + "." + name;
+  }
+  return name;
+}
+
 VertexID ReadVerilatorXML::lookupVarVertex(const std::string &name) {
-  // Check the var ref is a suffix of a VAR_SCOPE.
-  // (This is simplistic and should be improved, and/or check added for multiple matches.)
-  auto equals = [&name](const std::unique_ptr<VarNode> &node) {
-      return boost::algorithm::ends_with(node->getName(), name); };
-  auto it = std::find_if(std::begin(vars), std::end(vars), equals);
-  return (it != std::end(vars)) ? (*it)->getVertex()
-                                : netlist.nullVertex();
+  // Lookup the vertex name directly.
+  if (vars.count(name)) {
+    return vars[name];
+  }
+  // Try to remove the top suffix.
+  auto extendedName = addTopPrefix(name);
+  if (vars.count(extendedName)) {
+    return vars[extendedName];
+  }
+  // Not found.
+  return netlist.nullVertex();
 }
 
 Location ReadVerilatorXML::parseLocation(const std::string location) {
@@ -175,7 +190,7 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
   // version of the netlist, all <var> nodes occur at the module level, and are
   // followed by a <topscope>, <scope> and then <varscopes>. There is no other
   // scoping in the netlist.
-  auto name = node->first_attribute("name")->value();
+  auto name = std::string(node->first_attribute("name")->value());
   auto location = parseLocation(node->first_attribute("loc")->value());
   auto dtypeID = node->first_attribute("dtype_id")->value();
   auto direction = (node->first_attribute("dir")) ?
@@ -190,33 +205,54 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
     paramValue = node->first_node()->first_attribute("name")->value();
   }
   auto isPublic = node->first_attribute("public") != nullptr;
-  auto vertex = netlist.addVarVertex(VertexAstType::VAR,
-                                     direction,
-                                     location,
-                                     dtypeMappings[dtypeID],
-                                     name,
-                                     isParam,
-                                     paramValue,
-                                     isPublic);
-  vars.push_back(std::make_unique<VarNode>(name, vertex));
-  DEBUG(std::cout << "Add var '" << name << "' to scope\n");
-  // Add edges between public/top-level vars and their internal instances
-  // eg i_clk and <module>.i_clk (to work around the flattened representation
-  // of the netlist.
+
+  // Determine the top name of the by inspecting the prefixes of names, outside
+  // of the main scope. Ideally the top name would be specified in the netlist
+  // XML, but this is a solution until it is.
+  if (scopeParents.empty()) {
+    size_t pos = name.find_first_of('.');
+    // If it has a dot prefix, and that isn't a Verilator generated name.
+    if (pos != std::string::npos &&
+        name.rfind("__V", 0) == std::string::npos) {
+      if (topName.empty()) {
+        topName = name.substr(0, pos);
+      } else {
+        std::cout << "topname "<< topName << " name " << name << "\n";
+        assert(topName == name.substr(0, pos) && "all name prefixes should match the top name");
+      }
+    }
+  }
+
+  // Canonicalise the variable name by adding a top prefix if it is known.
+  auto canonicalName = addTopPrefix(name);
+  auto vertex = netlist.addVarVertex(VertexAstType::VAR, direction, location,
+                                     dtypeMappings[dtypeID], canonicalName,
+                                     isParam, paramValue, isPublic);
+  if (vars.count(canonicalName) == 0) {
+    vars[canonicalName] = vertex;
+    DEBUG(std::cout << boost::format("Add var %s (canonical %s)' to scope\n") % name % canonicalName);
+  } else {
+    DEBUG(std::cout << boost::format("Var %s (canonical %s) already exists\n") % name % canonicalName);
+  }
+
+  // Add edges between public/top-level port variables and their internal
+  // instances eg i_clk and <module>.i_clk. This is a work around the flattened
+  // representation of the netlist.
   if (node->first_attribute("origName")) {
     auto origName = node->first_attribute("origName")->value();
-    auto publicVertex = netlist.getVertexExact(origName);
-    if (publicVertex != netlist.nullVertex() && !isParam) {
-      assert(netlist.getVertex(publicVertex).isPort() &&
-       "expect original-named var to be a port");
+    auto publicVertex = lookupVarVertex(origName);
+    if (publicVertex != netlist.nullVertex() &&
+        publicVertex != vertex &&
+        netlist.getVertex(publicVertex).isPort() &&
+        !isParam) {
       netlist.addEdge(publicVertex, vertex);
       netlist.addEdge(vertex, publicVertex);
       // The direction attribute is only on the top-level/public var, so copy it
       // onto the prefixed version so that they are both identified as ports.
       netlist.setVertexDirection(vertex, netlist.getVertex(publicVertex).getDirection());
       DEBUG(std::cout << "Edge to/from original var "
-          << netlist.getVertex(publicVertex).toString() << " to "
-          << netlist.getVertex(vertex).toString() << "\n");
+                      << netlist.getVertex(publicVertex).toString() << " to "
+                      << netlist.getVertex(vertex).toString() << "\n");
     }
   }
 }
