@@ -217,7 +217,6 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
       if (topName.empty()) {
         topName = name.substr(0, pos);
       } else {
-        std::cout << "topname "<< topName << " name " << name << "\n";
         assert(topName == name.substr(0, pos) && "all name prefixes should match the top name");
       }
     }
