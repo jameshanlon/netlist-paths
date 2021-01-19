@@ -62,10 +62,10 @@ int main(int argc, char **argv) {
                           ->value_name("path"),
                         "define a preprocessor macro (only with --compile)")
       ("dotfile",       "Dump dotfile of netlist graph")
-      ("dumpnames",     "Dump list of names in netlist")
+      ("dump-names",    "Dump list of names in netlist")
       ("match",         po::value<std::string>(&nameRegex)
                           ->value_name("name regex"),
-                        "Regex to match names against (only with --dumpnames)")
+                        "Regex to match names against (only with --dump-names)")
       ("outfile,o",     po::value<std::string>(&outputFilename)
                           ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
                           ->value_name("filename"),

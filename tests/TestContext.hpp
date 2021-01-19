@@ -13,36 +13,9 @@ namespace fs = boost::filesystem;
 
 struct TestContext {
 
-  TestContext() {}
-
   std::unique_ptr<netlist_paths::Netlist> np;
-  /// Compile a test and create a netlist object.
-  void compile(const std::string &inFilename,
-               const std::string &topName="") {
-    auto testPath = fs::path(testPrefix) / inFilename;
-    std::vector<std::string> includes = {};
-    std::vector<std::string> defines = {};
-    std::vector<std::string> inputFiles = {testPath.string()};
-    // Check the Verilator binary exists.
-    BOOST_ASSERT(boost::filesystem::exists(installPrefix));
-    netlist_paths::RunVerilator runVerilator(installPrefix);
-    auto outTemp = fs::unique_path();
-    runVerilator.run(includes,
-                     defines,
-                     inputFiles,
-                     outTemp.native());
-    np = std::make_unique<netlist_paths::Netlist>(outTemp.native());
-    fs::remove(outTemp);
-    uniqueNames();
-    if (topName.empty()) {
-      qualifiedNames(boost::filesystem::change_extension(inFilename, "").string());
-    } else {
-      qualifiedNames(topName);
-    }
-    // Default options.
-    netlist_paths::Options::getInstance().setMatchExact();
-    netlist_paths::Options::getInstance().setRespectHierarchyMarkers();
-  }
+
+  TestContext() {}
 
   /// Check all names are unique.
   void uniqueNames() {
@@ -66,6 +39,47 @@ struct TestContext {
         BOOST_TEST(boost::starts_with(name, topName));
       }
     }
+  }
+
+  void init(const std::string &topName) {
+    // Check names.
+    uniqueNames();
+    qualifiedNames(topName);
+    // Default options.
+    netlist_paths::Options::getInstance().setMatchExact();
+    netlist_paths::Options::getInstance().setRespectHierarchyMarkers();
+  }
+
+  /// Compile a test and create a netlist object.
+  void compile(const std::string inFilename, std::string topName="") {
+    auto testPath = fs::path(testPrefix) / inFilename;
+    std::vector<std::string> includes = {};
+    std::vector<std::string> defines = {};
+    std::vector<std::string> inputFiles = {testPath.string()};
+    // Check the Verilator binary exists.
+    BOOST_ASSERT(boost::filesystem::exists(installPrefix));
+    netlist_paths::RunVerilator runVerilator(installPrefix);
+    auto outTemp = fs::unique_path();
+    runVerilator.run(includes,
+                     defines,
+                     inputFiles,
+                     outTemp.native());
+    np = std::make_unique<netlist_paths::Netlist>(outTemp.native());
+    fs::remove(outTemp);
+    if (topName.empty()) {
+      topName = boost::filesystem::change_extension(inFilename, "").string();
+    }
+    init(topName);
+  }
+
+  /// Create a netlist object from XML.
+  void load(const std::string inFilename, std::string topName="") {
+    auto xmlPath = fs::path(xmlPrefix) / inFilename;
+    np = std::make_unique<netlist_paths::Netlist>(xmlPath.string());
+    if (topName.empty()) {
+      topName = boost::filesystem::change_extension(inFilename, "").string();
+    }
+    init(topName);
   }
 };
 

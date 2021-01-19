@@ -52,9 +52,9 @@ public:
 class RefDType : public DType {
   std::shared_ptr<DType> subDType;
 public:
-  RefDType(const std::string &name, Location &location,
-           std::shared_ptr<DType> subDType) :
-      DType(name, location), subDType(subDType) {}
+  RefDType(const std::string &name, Location &location) :
+      DType(name, location) {}
+  void setSubDType(std::shared_ptr<DType> sdt) { subDType = sdt; }
   virtual const std::string toString(const std::string suffix="") const override {
     return (boost::format("%s%s") % subDType->toString() % suffix).str();
   }
@@ -69,9 +69,9 @@ class ArrayDType : public DType {
   size_t end;
   bool packed;
 public:
-  ArrayDType(Location &location, std::shared_ptr<DType> subDType,
-             size_t start, size_t end, bool packed) :
-      DType(location), subDType(subDType), start(start), end(end), packed(packed) {}
+  ArrayDType(Location &location, size_t start, size_t end, bool packed) :
+      DType(location), start(start), end(end), packed(packed) {}
+  void setSubDType(std::shared_ptr<DType> sdt) { subDType = sdt; }
   virtual const std::string toString(const std::string suffix="") const override {
     if (packed) {
       // Packed array range specifications are prepended. Eg:
@@ -95,10 +95,8 @@ public:
 class MemberDType : public DType {
   std::shared_ptr<DType> subDType;
 public:
-  MemberDType(const std::string &name, Location &location,
-              std::shared_ptr<DType> subDType) :
-      DType(name, location), subDType(subDType) {};
-  std::shared_ptr<DType> getSubDType() const { return subDType; }
+  MemberDType(const std::string &name, Location &location, std::shared_ptr<DType> sdt) :
+      DType(name, location), subDType(sdt) {};
   virtual size_t getWidth() const override {
     return subDType->getWidth();
   }
@@ -155,10 +153,10 @@ class EnumDType : public DType {
   std::vector<EnumItem> items;
   std::shared_ptr<DType> subDType;
 public:
-  EnumDType(const std::string &name, Location &location,
-              std::shared_ptr<DType> subDType) :
-      DType(name, location), subDType(subDType) {}
+  EnumDType(const std::string &name, Location &location):
+      DType(name, location) {}
   void addItem(EnumItem item) { items.push_back(item); }
+  void setSubDType(std::shared_ptr<DType> sdt) { subDType = sdt; }
   virtual const std::string toString(const std::string suffix="") const override {
     return std::string("emum") + suffix;
   }

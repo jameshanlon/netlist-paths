@@ -415,34 +415,45 @@ void ReadVerilatorXML::visitTypedef(XMLNode *node) {
 
 void ReadVerilatorXML::visitBasicDtype(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
-  auto name = node->first_attribute("name")->value();
-  auto location = parseLocation(node->first_attribute("loc")->value());
-  if (node->first_attribute("left") && node->first_attribute("right")) {
-    auto left = std::stoul(node->first_attribute("left")->value());
-    auto right = std::stoul(node->first_attribute("right")->value());
-    dtypeMappings[id] = std::make_shared<BasicDType>(BasicDType(name, location,
-                                                                left, right));
-  } else {
-    dtypeMappings[id] = std::make_shared<BasicDType>(BasicDType(name, location));
+  if (dtypeMappings.count(id) == 0) {
+    auto name = node->first_attribute("name")->value();
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    if (node->first_attribute("left") && node->first_attribute("right")) {
+      auto left = std::stoul(node->first_attribute("left")->value());
+      auto right = std::stoul(node->first_attribute("right")->value());
+      dtypeMappings[id] = std::make_shared<BasicDType>(name, location, left, right);
+    } else {
+      dtypeMappings[id] = std::make_shared<BasicDType>(name, location);
+    }
+    addDtype(dtypeMappings[id]);
   }
-  addDtype(dtypeMappings[id]);
 }
 
 void ReadVerilatorXML::visitRefDtype(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
-  auto name = node->first_attribute("name")->value();
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
-  auto location = parseLocation(node->first_attribute("loc")->value());
-  dtypeMappings[id] = std::make_shared<RefDType>(RefDType(name, location,
-                                                          dtypeMappings[subDTypeId]));
-  addDtype(dtypeMappings[id]);
+  if (dtypeMappings.count(id) == 0) {
+    auto name = node->first_attribute("name")->value();
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    dtypeMappings[id] = std::make_shared<RefDType>(name, location);
+    addDtype(dtypeMappings[id]);
+  } else {
+    // Second pass (sub DType declaration can occur after).
+    if (dtypeMappings.count(subDTypeId) == 0) {
+      throw XMLException(std::string("could not find ref sub dtype ID ")+subDTypeId);
+    }
+    dynamic_cast<RefDType*>(dtypeMappings[id].get())->setSubDType(dtypeMappings[subDTypeId]);
+  }
 }
 
 MemberDType ReadVerilatorXML::visitMemberDType(XMLNode *node) {
   auto name = node->first_attribute("name")->value();
   auto location = parseLocation(node->first_attribute("loc")->value());
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
-  return MemberDType(name, location, dtypeMappings[std::string(subDTypeId)]);
+  if (dtypeMappings.count(subDTypeId) == 0) {
+    throw XMLException(std::string("could not find member sub dtype ID ")+subDTypeId);
+  }
+  return MemberDType(name, location, dtypeMappings[subDTypeId]);
 }
 
 size_t ReadVerilatorXML::visitConst(XMLNode *node) {
@@ -473,38 +484,49 @@ ReadVerilatorXML::visitRange(XMLNode *node) {
 void ReadVerilatorXML::visitArrayDType(XMLNode *node, bool packed) {
   auto id = node->first_attribute("id")->value();
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
-  auto location = parseLocation(node->first_attribute("loc")->value());
-  assert(numChildren(node) == 1 && "arraydtype expects one range child");
-  auto range = visitRange(node->first_node());
-  dtypeMappings[id] = std::make_shared<ArrayDType>(ArrayDType(location,
-                                                              dtypeMappings[subDTypeId],
-                                                              range.first,
-                                                              range.second,
-                                                              packed));
-  addDtype(dtypeMappings[id]);
+  if (dtypeMappings.count(id) == 0) {
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    assert(numChildren(node) == 1 && "arraydtype expects one range child");
+    auto range = visitRange(node->first_node());
+    dtypeMappings[id] = std::make_shared<ArrayDType>(location,
+                                                     range.first,
+                                                     range.second,
+                                                     packed);
+    addDtype(dtypeMappings[id]);
+  } else {
+    // Second pass (sub DType declaration can occur after).
+    if (dtypeMappings.count(subDTypeId) == 0) {
+      throw XMLException(std::string("could not find array sub dtype ID ")+subDTypeId);
+    }
+    dynamic_cast<ArrayDType*>(dtypeMappings[id].get())->setSubDType(dtypeMappings[subDTypeId]);
+  }
 }
 
 /// Shared handling for structs and unions.
 template<typename T>
 void ReadVerilatorXML::visitAggregateDType(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
-  auto location = parseLocation(node->first_attribute("loc")->value());
-  std::shared_ptr<T> dtype;
-  // Struct or union may not be named, and defined inline with a declaration.
-  if (node->first_attribute("name")) {
-    auto name = node->first_attribute("name")->value();
-    dtype = std::make_shared<T>(T(name, location));
+  if (dtypeMappings.count(id) == 0) {
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    std::shared_ptr<T> dtype;
+    // Struct or union may not be named, and defined inline with a declaration.
+    if (node->first_attribute("name")) {
+      auto name = node->first_attribute("name")->value();
+      dtype = std::make_shared<T>(name, location);
+    } else {
+      dtype = std::make_shared<T>(location);
+    }
+    dtypeMappings[id] = dtype;
+    addDtype(dtype);
   } else {
-    dtype = std::make_shared<T>(T(location));
+    // Second pass to resolve sub DTypes.
+    for (XMLNode *child = node->first_node();
+         child; child = child->next_sibling()) {
+      assert(std::string(child->name()) == "memberdtype" &&
+             "aggregate dtype expects memberdtype children");
+      dynamic_cast<T*>(dtypeMappings[id].get())->addMemberDType(visitMemberDType(child));
+    }
   }
-  for (XMLNode *child = node->first_node();
-       child; child = child->next_sibling()) {
-    assert(std::string(child->name()) == "memberdtype" &&
-           "aggregate dtype expects memberdtype children");
-    dtype->addMemberDType(visitMemberDType(child));
-  }
-  dtypeMappings[id] = dtype;
-  addDtype(dtype);
 }
 
 EnumItem ReadVerilatorXML::visitEnumItem(XMLNode *node) {
@@ -516,18 +538,25 @@ EnumItem ReadVerilatorXML::visitEnumItem(XMLNode *node) {
 void ReadVerilatorXML::visitEnumDType(XMLNode *node) {
   auto id = node->first_attribute("id")->value();
   auto subDTypeId = node->first_attribute("sub_dtype_id")->value();
-  auto location = parseLocation(node->first_attribute("loc")->value());
-  auto name = node->first_attribute("name")->value();
-  auto dtype = std::make_shared<EnumDType>(EnumDType(name, location,
-                                                     dtypeMappings[subDTypeId]));
-  for (XMLNode *child = node->first_node();
-       child; child = child->next_sibling()) {
-    assert(std::string(child->name()) == "enumitem" &&
-           "enumdtype expects enumitem children");
-    dtype->addItem(visitEnumItem(child));
+  if (dtypeMappings.count(id) == 0) {
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    auto name = node->first_attribute("name")->value();
+    auto dtype = std::make_shared<EnumDType>(name, location);
+    for (XMLNode *child = node->first_node();
+         child; child = child->next_sibling()) {
+      assert(std::string(child->name()) == "enumitem" &&
+             "enumdtype expects enumitem children");
+      dtype->addItem(visitEnumItem(child));
+    }
+    dtypeMappings[id] = dtype;
+    addDtype(dtype);
+  } else {
+    // Second pass (sub DType declaration can occur after).
+    if (dtypeMappings.count(subDTypeId) == 0) {
+      throw XMLException(std::string("could not find enum sub dtype ID ")+subDTypeId);
+    }
+    dynamic_cast<EnumDType*>(dtypeMappings[id].get())->setSubDType(dtypeMappings[subDTypeId]);
   }
-  dtypeMappings[id] = dtype;
-  addDtype(dtype);
 }
 
 void ReadVerilatorXML::visitInterfaceRefDType(XMLNode *node) {
@@ -572,8 +601,9 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
   INFO(std::cout << moduleCount    << " modules in netlist\n");
   INFO(std::cout << interfaceCount << " interfaces in netlist\n");
   INFO(std::cout << packageCount   << " packages in netlist\n");
-  // Typetable.
+  // Typetable (two passes to resolve forward dtype ID references).
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
+  visitTypeTable(typeTableNode);
   visitTypeTable(typeTableNode);
   INFO(std::cout << "Type table contains " << dtypes.size() << " entries\n");
   // Module (single instance).

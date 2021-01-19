@@ -38,3 +38,7 @@ BOOST_FIXTURE_TEST_CASE(module_no_inline_pragma, TestContext) {
   BOOST_CHECK_NO_THROW(compile("module_no_inline_pragma.sv"));
   BOOST_TEST(!np->isEmpty());
 }
+
+BOOST_FIXTURE_TEST_CASE(dtype_forward_refs, TestContext) {
+  BOOST_CHECK_NO_THROW(load("dtype_forward_refs.xml"));
+}
