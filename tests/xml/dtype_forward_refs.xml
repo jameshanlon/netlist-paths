@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<!-- DESCRIPTION: Verilator output: XML representation of netlist -->
+<verilator_xml>
+  <files>
+    <file id="c" filename="../tests/verilog/dtypes.sv" language="1800-2017"/>
+    <file id="a" filename="&lt;built-in&gt;" language="1800-2017"/>
+    <file id="b" filename="&lt;command-line&gt;" language="1800-2017"/>
+  </files>
+  <netlist>
+    <module fl="c1" loc="c,1,8,1,14" name="TOP" origName="TOP" topModule="1" public="true">
+    </module>
+    <typetable fl="a0" loc="a,0,0,0,0">
+
+      <!-- Sub DTypes declarations appear after they are referenced -->
+
+      <refdtype fl="c19" loc="c,19,3,19,9" id="40" name="__typeimpsu0" sub_dtype_id="11"/>
+      <basicdtype fl="c8" loc="c,8,3,8,8" id="11" name="logic" left="2" right="0"/>
+      
+      <packarraydtype fl="c8" loc="c,8,9,8,10" id="3" sub_dtype_id="23">
+        <range fl="c8" loc="c,8,9,8,10">
+          <const fl="c8" loc="c,8,10,8,11" name="32&apos;sh3" dtype_id="30"/>
+          <const fl="c8" loc="c,8,12,8,13" name="32&apos;sh0" dtype_id="30"/>
+        </range>
+      </packarraydtype>
+      <basicdtype fl="c8" loc="c,8,3,8,8" id="23" name="logic" left="2" right="0"/>
+      
+      <unpackarraydtype fl="c10" loc="c,10,27,10,28" id="5" sub_dtype_id="1">
+        <range fl="c10" loc="c,10,27,10,28">
+          <const fl="c10" loc="c,10,28,10,29" name="32&apos;sh3" dtype_id="30"/>
+          <const fl="c10" loc="c,10,30,10,31" name="32&apos;sh0" dtype_id="30"/>
+        </range>
+      </unpackarraydtype>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="1" name="logic"/>
+
+      <unpackarraydtype fl="c11" loc="c,11,29,11,30" id="6" sub_dtype_id="32">
+        <range fl="c11" loc="c,11,29,11,30">
+          <const fl="c11" loc="c,11,30,11,31" name="32&apos;sh3" dtype_id="30"/>
+          <const fl="c11" loc="c,11,32,11,33" name="32&apos;sh0" dtype_id="30"/>
+        </range>
+      </unpackarraydtype>
+      <unpackarraydtype fl="c11" loc="c,11,35,11,36" id="32" sub_dtype_id="2">
+        <range fl="c11" loc="c,11,35,11,36">
+          <const fl="c11" loc="c,11,36,11,37" name="32&apos;sh2" dtype_id="30"/>
+          <const fl="c11" loc="c,11,38,11,39" name="32&apos;sh0" dtype_id="30"/>
+        </range>
+      </unpackarraydtype>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="2" name="logic"/>
+      
+      <structdtype fl="c19" loc="c,19,3,19,9" id="12" name="dtypes.__typeimpsu0">
+        <memberdtype fl="c20" loc="c,20,11,20,12" id="41" name="a" sub_dtype_id="38"/>
+        <memberdtype fl="c21" loc="c,21,11,21,12" id="42" name="b" sub_dtype_id="39"/>
+      </structdtype>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="38" name="logic"/>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="39" name="logic"/>
+      
+      <uniondtype fl="c86" loc="c,86,3,86,8" id="25" name="dtypes.__typeimpsu8">
+        <memberdtype fl="c87" loc="c,87,11,87,12" id="94" name="a" sub_dtype_id="91"/>
+        <memberdtype fl="c88" loc="c,88,11,88,12" id="95" name="b" sub_dtype_id="92"/>
+      </uniondtype>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="91" name="logic"/>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="92" name="logic"/>
+
+      <enumdtype fl="c61" loc="c,61,3,61,7" id="82" name="dtypes.__typeimpenum5" sub_dtype_id="13">
+        <enumitem fl="c62" loc="c,62,5,62,10" name="FOO_A" dtype_id="1">
+          <const fl="c62" loc="c,62,5,62,10" name="1&apos;h0" dtype_id="1"/>
+        </enumitem>
+        <enumitem fl="c63" loc="c,63,5,63,10" name="FOO_B" dtype_id="1">
+          <const fl="c63" loc="c,63,5,63,10" name="1&apos;h1" dtype_id="1"/>
+        </enumitem>
+      </enumdtype>
+      <basicdtype fl="c6" loc="c,6,3,6,8" id="13" name="logic"/>
+      
+    </typetable>
+  </netlist>
+</verilator_xml>
