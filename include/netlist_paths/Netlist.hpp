@@ -185,6 +185,16 @@ public:
     return getEndVertex(name) != netlist.nullVertex();
   }
 
+  bool anyStartpointExists(const std::string &name) const {
+    auto vertices = netlist.getStartVertices(name);
+    return vertices.size() != 0;
+  }
+
+  bool anyEndpointExists(const std::string &name) const {
+    auto vertices = netlist.getEndVertices(name);
+    return vertices.size() != 0;
+  }
+
   bool anyRegExists(const std::string &name) const {
     auto vertices = netlist.getRegVertices(name);
     return vertices.size() != 0;

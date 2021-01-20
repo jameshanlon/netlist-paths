@@ -23,15 +23,23 @@ class TestPyWrapper(unittest.TestCase):
     def test_verilator_bin(self):
         self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))
 
-    def test_adder_regs(self):
+    def test_adder_path_points(self):
         np = self.compile_test('adder.sv')
-        Options.get_instance().set_match_exact()
         for prefix in ['', 'adder.']:
             # Start and finish points
             self.assertTrue(np.startpoint_exists(prefix+'i_a'))
             self.assertTrue(np.startpoint_exists(prefix+'i_b'))
             self.assertTrue(np.endpoint_exists(prefix+'o_sum'))
             self.assertTrue(np.endpoint_exists(prefix+'o_co'))
+            # Any start and finish points.
+            self.assertTrue(np.any_startpoint_exists(prefix+'i_a'))
+            self.assertTrue(np.any_startpoint_exists(prefix+'i_b'))
+            self.assertTrue(np.any_endpoint_exists(prefix+'o_sum'))
+            self.assertTrue(np.any_endpoint_exists(prefix+'o_co'))
+            Options.get_instance().set_match_regex()
+            self.assertTrue(np.any_startpoint_exists(prefix+'i_.*'))
+            self.assertTrue(np.any_endpoint_exists(prefix+'o_.*'))
+            Options.get_instance().set_match_exact()
             # Invalid start and end points
             self.assertFalse(np.endpoint_exists(prefix+'i_a'))
             self.assertFalse(np.endpoint_exists(prefix+'i_b'))
