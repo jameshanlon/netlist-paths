@@ -67,6 +67,21 @@ class TestPyWrapper(unittest.TestCase):
         self.assertRaises(RuntimeError, np.get_vertex_dtype_str, 'foo')
         self.assertRaises(RuntimeError, np.get_vertex_dtype_width, 'foo')
 
+    def test_counter_regs(self):
+        np = self.compile_test('counter.sv')
+        self.assertTrue(np.reg_exists('counter.counter_q'))
+        self.assertTrue(np.any_reg_exists('counter.counter_q'))
+
+    def test_pipeline_module_regs(self):
+        np = self.compile_test('pipeline_module.sv')
+        # Register exists
+        for i in list(range(8)):
+            self.assertTrue(np.reg_exists('pipeline_module.g_pipestage['+str(i)+'].u_pipestage.data_q'))
+        # Any register exists
+        Options.get_instance().set_match_regex()
+        self.assertTrue(np.any_reg_exists('pipeline_module.g_pipestage\[.\].u_pipestage.data_q'))
+        self.assertTrue(np.any_reg_exists('pipeline_module..*.u_pipestage.data_q'))
+
     def test_path_any_to_any(self):
         # Pipeline
         np = self.compile_test('pipeline_loops.sv')
