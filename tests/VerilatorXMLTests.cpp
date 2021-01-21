@@ -39,6 +39,17 @@ BOOST_FIXTURE_TEST_CASE(module_no_inline_pragma, TestContext) {
   BOOST_TEST(!np->isEmpty());
 }
 
+/// Verilator can order variable declarations after their references in the
+/// typetable.
 BOOST_FIXTURE_TEST_CASE(dtype_forward_refs, TestContext) {
   BOOST_CHECK_NO_THROW(load("dtype_forward_refs.xml"));
+}
+
+/// Verilator can introduce new variables that are the target of delayed
+/// assignments. Since the LHS of delayed assignments are how registers are
+/// identified, register types are propagated through assign aliases.
+BOOST_FIXTURE_TEST_CASE(assign_alias_regs, TestContext) {
+  BOOST_CHECK_NO_THROW(load("assign_alias_regs.xml"));
+  BOOST_TEST(np->regExists("assign_alias_regs.sum.add.register_q"));
+  BOOST_TEST(np->regExists("assign_alias_regs.__Vcellout__sum.add__register_q"));
 }

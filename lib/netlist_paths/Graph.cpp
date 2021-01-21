@@ -55,6 +55,34 @@ public:
   }
 };
 
+VertexIDVec Graph::getTargetNodes(VertexID vertex) const {
+  std::vector<VertexID> targets;
+  BGL_FORALL_OUTEDGES(vertex, outEdge, graph, InternalGraph) {
+    targets.push_back(boost::target(outEdge, graph));
+  }
+  return targets;
+}
+
+/// For any register vertex that is alias assigned to another variable,
+/// propagate the register status to that variable. This fixes issues with the
+/// way that Verilator inlines modules, ensuring that the target variable of a
+/// delayed assignment is always correctly marked as a register.
+void Graph::propagateRegisters() {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (graph[v].isReg()) {
+      for (auto target : getTargetNodes(v)) {
+        if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
+          VertexIDVec assignAliasTargets = getTargetNodes(target);
+          assert(assignAliasTargets.size() == 1);
+          graph[assignAliasTargets.front()].setDstReg();
+          DEBUG(std::cout << boost::format("Moved REG from %s to %s\n")
+                                 % graph[v].getName() % graph[assignAliasTargets.front()].getName());
+        }
+      }
+    }
+  }
+}
+
 /// Register vertices are split into 'destination' registers only with in edges
 /// and 'source' registers only with out edges. This implies graph connectivity
 /// follows combinatorial paths in the netlist and allows traversals of the
@@ -62,7 +90,7 @@ public:
 void Graph::splitRegVertices() {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
-      // Collect all adjacent vertices.
+      // Collect all adjacent vertices (to which there are out edges).
       std::vector<VertexID> adjacentVertices;
       BGL_FORALL_ADJ(v, adjVertex, graph, InternalGraph) {
         adjacentVertices.push_back(adjVertex);
