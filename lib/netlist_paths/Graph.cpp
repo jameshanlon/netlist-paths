@@ -108,39 +108,6 @@ void Graph::splitRegVertices() {
   }
 }
 
-///// Remove duplicate vertices from the graph by sorting them comparing each
-///// vertex to its neighbours.
-//void Netlist::mergeDuplicateVertices() {
-//  std::vector<VertexDesc> vs;
-//  BGL_FORALL_VERTICES(v, graph, Graph) {
-//    if (!graph[v].isLogic()) {
-//      vs.push_back(v);
-//    }
-//  }
-//  auto compare = [this](const VertexDesc a, const VertexDesc b) {
-//                   return graph[a].compareLessThan(graph[b]); };
-//  std::sort(std::begin(vs), std::end(vs), compare);
-//  VertexDesc current = vs[0];
-//  unsigned count = 0;
-//  for (size_t i=1; i<vs.size(); i++) {
-//    if (graph[vs[i]].compareEqual(graph[current])) {
-//      DEBUG(std::cout << "DUPLICATE VERTEX " << graph[vs[i]].name << "\n");
-//      BGL_FORALL_ADJ(vs[i], v, graph, Graph) {
-//        boost::add_edge(current, v, graph);
-//        boost::remove_edge(vs[i], v, graph);
-//      }
-//      // We mark duplicate vertices as deleted since it is expensive to remove
-//      // them from the graph as vertices are stored in a vecS. Using a listS
-//      // is less performant.
-//      graph[vs[i]].setDeleted();
-//      ++count;
-//    } else {
-//      current = vs[i];
-//    }
-//  }
-//  INFO(std::cout << "Removed " << count << " duplicate vertices\n");
-//}
-
 /// Perform some checks on the netlist and emit warnings if necessary.
 void Graph::checkGraph() const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
