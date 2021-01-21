@@ -115,6 +115,16 @@ class TestPyWrapper(unittest.TestCase):
         paths = np.get_all_fanin_paths('out')
         self.assertTrue(len(paths) == 3)
 
+    def test_any_start_finish_points(self):
+        np = self.compile_test('multiple_separate_paths.sv')
+        Options.get_instance().set_match_wildcard()
+        path = np.get_any_path(Waypoints('i_*', 'o_*', True))
+        self.assertTrue(len(path))
+        path = np.get_any_path(Waypoints('i_b', 'o_b', True))
+        self.assertTrue(len(path))
+        path = np.get_any_path(Waypoints('i_c', 'o_c', False))
+        self.assertTrue(len(path))
+
 
 if __name__ == '__main__':
     unittest.main()

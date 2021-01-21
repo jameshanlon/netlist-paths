@@ -9,24 +9,30 @@ namespace netlist_paths {
 class Waypoints {
   std::vector<std::string> waypoints;
   std::vector<std::string> avoidPoints;
-  bool got_start_point;
-  bool got_finish_point;
+  bool gotStartPoint;
+  bool gotFinishPoint;
+  bool matchAnyStartPoint;
+  bool matchAnyFinishPoint;
 
 public:
-  Waypoints() : got_start_point(false), got_finish_point(false) {}
+  Waypoints() :
+      gotStartPoint(false), gotFinishPoint(false),
+      matchAnyStartPoint(false), matchAnyFinishPoint(false) {}
 
   Waypoints(const std::string start,
-            const std::string finish) :
-      got_start_point(false), got_finish_point(false) {
+            const std::string finish,
+            bool matchAny=false) :
+      gotStartPoint(false), gotFinishPoint(false),
+      matchAnyStartPoint(matchAny), matchAnyFinishPoint(matchAny) {
     addStartPoint(start);
     addFinishPoint(finish);
   }
 
   void addStartPoint(const std::string name) {
-    if (got_start_point) {
+    if (gotStartPoint) {
       throw Exception("start point already defined");
     }
-    got_start_point = true;
+    gotStartPoint = true;
     if (waypoints.size() > 0) {
       waypoints.insert(waypoints.begin(), name);
     } else {
@@ -35,10 +41,10 @@ public:
   }
 
   void addFinishPoint(const std::string name) {
-    if (got_finish_point) {
+    if (gotFinishPoint) {
       throw Exception("finish point already defined");
     }
-    got_finish_point = true;
+    gotFinishPoint = true;
     if (waypoints.size() > 0) {
       waypoints.insert(waypoints.end(), name);
     } else {
@@ -46,9 +52,19 @@ public:
     }
   }
 
+  void addAnyStartPoint(const std::string name) {
+    addStartPoint(name);
+    matchAnyStartPoint = true;
+  }
+
+  void addAnyFinishPoint(const std::string name) {
+    addFinishPoint(name);
+    matchAnyFinishPoint = true;
+  }
+
   void addThroughPoint(const std::string name) {
     if (waypoints.size() > 0) {
-      waypoints.insert(waypoints.end()-(got_finish_point?1:0), name);
+      waypoints.insert(waypoints.end()-(gotFinishPoint?1:0), name);
     } else {
       waypoints.push_back(name);
     }
@@ -60,6 +76,8 @@ public:
 
   const std::vector<std::string> &getWaypoints() const { return waypoints; }
   const std::vector<std::string> &getAvoidPoints() const { return avoidPoints; }
+  bool anyStart() const { return matchAnyStartPoint; }
+  bool anyFinish() const { return matchAnyFinishPoint; }
 };
 
 }; // End namespace.

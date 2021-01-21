@@ -94,12 +94,28 @@ class Netlist {
     return netlist.nullVertex();
   }
 
+  VertexID getAnyBeginVertex(const std::string &name) const {
+    auto vertices = netlist.getStartVertices(name);
+    if (vertices.size()) {
+      return vertices.front();
+    }
+    return netlist.nullVertex();
+  }
+
   VertexID getEndVertex(const std::string &name) const {
     auto vertices = netlist.getEndVertices(name);
     if (vertices.size() > 1) {
       throw Exception(reportMultipleMatches(vertices, name, "end point"));
     }
     if (vertices.size() == 1) {
+      return vertices.front();
+    }
+    return netlist.nullVertex();
+  }
+
+  VertexID getAnyEndVertex(const std::string &name) const {
+    auto vertices = netlist.getEndVertices(name);
+    if (vertices.size()) {
       return vertices.front();
     }
     return netlist.nullVertex();

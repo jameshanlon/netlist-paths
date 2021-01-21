@@ -41,15 +41,15 @@ VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
     VertexID vertex;
     // Start
     if (it == waypoints.getWaypoints().begin()) {
-      vertex = getBeginVertex(*it);
+      vertex = waypoints.anyStart() ? getAnyBeginVertex(*it) : getBeginVertex(*it);
       if (vertex == netlist.nullVertex()) {
-        throw Exception(std::string("could not find start vertex ")+*it);
+        throw Exception(std::string("could not find start vertex matching ")+*it);
       }
     // Finish
     } else if (it+1 == waypoints.getWaypoints().end()) {
-      vertex = getEndVertex(*it);
+      vertex = waypoints.anyFinish() ? getAnyEndVertex(*it) : getEndVertex(*it);
       if (vertex == netlist.nullVertex()) {
-        throw Exception(std::string("could not find end vertex ")+*it);
+        throw Exception(std::string("could not find end vertex matching ")+*it);
       }
     // Mid
     } else {
