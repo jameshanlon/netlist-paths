@@ -273,6 +273,18 @@ public:
     return createVertexPtrVec(getNamedVertexIds(regex));
   }
 
+  std::vector<Vertex*> getNetVerticesPtr(const std::string &regex="") const {
+    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::NET));
+  }
+
+  std::vector<Vertex*> getPortVerticesPtr(const std::string &regex="") const {
+    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::PORT));
+  }
+
+  std::vector<Vertex*> getRegVerticesPtr(const std::string &regex="") const {
+    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::REG));
+  }
+
   void dumpDotFile(const std::string &outputFilename) const {
     netlist.dumpDotFile(outputFilename);
   }

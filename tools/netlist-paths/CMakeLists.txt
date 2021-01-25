@@ -6,5 +6,5 @@ target_link_libraries(netlist-paths
                       ${CMAKE_DL_LIBS} # Required for Boost_DLL
                       pthread)
 
-install(TARGETS netlist-paths
-        DESTINATION bin)
+#install(TARGETS netlist-paths
+#        DESTINATION bin)

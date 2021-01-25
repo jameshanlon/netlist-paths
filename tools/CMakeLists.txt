@@ -7,6 +7,7 @@ configure_file(definitions.py.in
 
 install(FILES netlist_paths.py
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+        RENAME netlist-paths
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                     GROUP_READ GROUP_EXECUTE
                     WORLD_READ WORLD_EXECUTE)

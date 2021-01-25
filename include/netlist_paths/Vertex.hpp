@@ -40,10 +40,12 @@ enum class VertexGraphType {
   REG,
   DST_REG,
   SRC_REG,
+  NET,
   LOGIC,
+  PORT,
   START_POINT,
-  END_POINT,
   MID_POINT,
+  END_POINT,
   ANY
 };
 
@@ -234,6 +236,8 @@ public:
       case VertexGraphType::SRC_REG:     return isDstReg();
       case VertexGraphType::DST_REG:     return isSrcReg();
       case VertexGraphType::LOGIC:       return isLogic();
+      case VertexGraphType::NET:         return isNet();
+      case VertexGraphType::PORT:        return isPort();
       case VertexGraphType::START_POINT: return isStartPoint();
       case VertexGraphType::END_POINT:   return isFinishPoint();
       case VertexGraphType::MID_POINT:   return isMidPoint();
@@ -263,6 +267,10 @@ public:
 
   inline bool isParameter() const {
     return isParam;
+  }
+
+  inline bool isNet() const {
+    return !deleted && !isPort() && !isReg() && !isLogic() && !isParameter();
   }
 
   inline bool isReg() const {

@@ -24,6 +24,7 @@ endfunction()
 add_test_exe(VerilatorXMLTests  VerilatorXMLTests.cpp)
 add_test_exe(NameTests          NameTests.cpp)
 add_test_exe(DTypeTests         DTypeTests.cpp)
+add_test_exe(VertexTests        VertexTests.cpp)
 add_test_exe(PathTests          PathTests.cpp)
 
 # Python wrapper tests.

@@ -27,14 +27,13 @@ def write_table(rows, fd):
     for row in rows[1:]:
         fd.write(fmt.format(row=row, widths=widths))
 
-def dump_names(netlist, regex, fd):
+def dump_names(vertices, fd):
     """
     Dump a table of names and their attributes matching regex to fd.
     """
     rows = []
     HDR = ['Name', 'Type', 'DType', 'Direction', 'Location']
     rows.append(HDR)
-    vertices = netlist.get_named_vertices(regex)
     vertices = sorted(vertices, key=lambda x: (x.get_name(),
                                                x.get_ast_type(),
                                                x.get_dtype_str(),
@@ -53,23 +52,26 @@ def dump_path_report(netlist, path, fd):
     Report the details of a path. Items in the path alternate between variable
     and statement, starting and ending with a variable.
     """
-    def grouper(iterable, n, fillvalue=None):
-        """
-        Collect data into fixed-length chunks or blocks
-          grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
-        From https://docs.python.org/3/library/itertools.html#recipes
-        """
-        args = [iter(iterable)] * n
-        return zip_longest(*args, fillvalue=fillvalue)
-
     rows = []
     rows.append(('Name', 'Type', 'Statement', 'Location'))
-    rows.append((path[0].get_name(), path[0].get_dtype_str(), '', ''))
-    for stmt, var in grouper(path[1:], 2):
-        rows.append((var.get_name(),
-                     var.get_dtype_str(),
-                     stmt.get_ast_type(),
-                     stmt.get_location_str()))
+    index = 0;
+    while index < len(path):
+        # Var reference and logic statement.
+        if index+1 < len(path) and \
+            not path[index].is_logic() and \
+            path[index+1].is_logic():
+            row = (path[index].get_name(), path[index].get_dtype_str(),
+                   path[index+1].get_ast_type(), path[index+1].get_location_str())
+            index += 2
+        # Var reference only.
+        elif not path[index].is_logic():
+            row = (path[index].get_name(), path[index].get_dtype_str(), '', '')
+            index += 1
+        # Statement only.
+        else:
+            row = ('', '', path[index].get_ast_type(), path[index].get_location_str())
+            index += 1
+        rows.append(row)
     # Write the table out.
     write_table(rows, fd)
 
@@ -78,7 +80,7 @@ def dump_path_list_report(netlist, paths, fd):
     Report a list of paths.
     """
     for i, path in enumerate(paths):
-        print('Path {}'.format(i))
+        fd.write('\nPath {}\n'.format(i))
         dump_path_report(netlist, path, fd)
 
 def main():
@@ -105,36 +107,67 @@ def main():
                         default=None,
                         const='.*',
                         metavar='regex',
-                        help='Dump all names, filter by regex')
+                        help='Dump all named entities, filter by regex')
+    parser.add_argument('--dump-nets',
+                        nargs='?',
+                        default=None,
+                        const='.*',
+                        metavar='regex',
+                        help='Dump all nets, filter by regex')
+    parser.add_argument('--dump-ports',
+                        nargs='?',
+                        default=None,
+                        const='.*',
+                        metavar='regex',
+                        help='Dump all ports, filter by regex')
+    parser.add_argument('--dump-regs',
+                        nargs='?',
+                        default=None,
+                        const='.*',
+                        metavar='regex',
+                        help='Dump all registers, filter by regex')
+    parser.add_argument('--dump-types',
+                        nargs='?',
+                        default=None,
+                        const='.*',
+                        metavar='regex',
+                        help='Dump all types, filter by regex')
     parser.add_argument('--dump-dot',
                         action='store_true',
                         help='Dump a dotfile of the netlist\'s graph')
     parser.add_argument('--from',
                         dest='start_point',
                         metavar='point',
-                        help='Start point')
+                        help='Specify a path start point')
     parser.add_argument('--to',
                         dest='finish_point',
                         metavar='point',
-                        help='Finish point')
+                        help='Specify a path finish point')
     parser.add_argument('--through',
                         action='append',
                         default=[],
                         dest='through_points',
                         metavar='point',
-                        help='Though point')
+                        help='Specify a path though point')
     parser.add_argument('--avoid',
                         action='append',
                         default=[],
                         dest='avoid_points',
                         metavar='point',
-                        help='Avoid point')
+                        help='Specify a point for a path to avoid')
     parser.add_argument('--all-paths',
                         action='store_true',
                         help='Find all paths between two points (exponential time)')
+    # FIXME: ordering of regex and wildcard should be respected.
     parser.add_argument('--regex',
                         action='store_true',
                         help='Enable regular expression matching of names')
+    parser.add_argument('--wildcard',
+                        action='store_true',
+                        help='Enable wildcard matching of names')
+    parser.add_argument('--ignore-hierarchy-markers',
+                        action='store_true',
+                        help='Ignore hierarchy markers: _ . /')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='Print execution information')
@@ -144,8 +177,12 @@ def main():
     args = parser.parse_args()
 
     # Setup options
+    if args.wildcard:
+        Options.get_instance().set_match_wildcard()
     if args.regex:
         Options.get_instance().set_match_regex()
+    if args.ignore_hierarchy_markers:
+        Options.ignore_hierarchy_markers()
     if args.verbose:
         Options.get_instance().set_verbose()
     if args.debug:
@@ -175,10 +212,29 @@ def main():
         if args.compile and args.output_file == None:
             os.remove(output_filename)
 
-        # Dump names
+        # Dump all names
         if args.dump_names:
-            dump_names(netlist, args.dump_names, sys.stdout)
+            dump_names(netlist.get_named_vertices(args.dump_names), sys.stdout)
             return 0
+
+        # Dump nets
+        if args.dump_nets:
+            dump_names(netlist.get_net_vertices(args.dump_nets), sys.stdout)
+            return 0
+
+        # Dump ports
+        if args.dump_ports:
+            dump_names(netlist.get_port_vertices(args.dump_ports), sys.stdout)
+            return 0
+
+        # Dump regs
+        if args.dump_regs:
+            dump_names(netlist.get_reg_vertices(args.dump_regs), sys.stdout)
+            return 0
+
+        # Dump types
+        if args.dump_types:
+            raise RuntimeError('dumping types not implemented')
 
         # Dump graph dotfile
         if args.dump_dot:

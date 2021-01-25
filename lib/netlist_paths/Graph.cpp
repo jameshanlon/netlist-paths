@@ -132,15 +132,6 @@ void Graph::checkGraph() const {
   }
 }
 
-/// Return a list of Vertex objects in the graph.
-VertexIDVec Graph::getAllVertices() const {
-  VertexIDVec vs;
-  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    vs.push_back(v);
-  }
-  return vs;
-}
-
 /// Dump a Graphviz dotfile of the netlist graph for visualisation.
 void Graph::dumpDotFile(const std::string &outputFilename) const {
   std::ofstream outputFile(outputFilename);

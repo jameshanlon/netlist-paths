@@ -8,11 +8,8 @@ using namespace netlist_paths;
 std::vector<VertexID>
 Netlist::getNamedVertexIds(const std::string &regex) const {
   std::vector<VertexID> vertices;
-  std::regex nameRegex(regex);
-  for (auto vertexId : netlist.getAllVertices()) {
-    if (netlist.getVertex(vertexId).isNamed() &&
-        (regex.empty() ||
-         std::regex_search(netlist.getVertex(vertexId).getName(), nameRegex))) {
+  for (auto vertexId : netlist.getVerticesRegex(regex)) {
+    if (netlist.getVertex(vertexId).isNamed()) {
       vertices.push_back(vertexId);
     }
   }

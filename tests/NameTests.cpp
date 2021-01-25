@@ -111,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE(malformed_regex, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// counter
-BOOST_FIXTURE_TEST_CASE(heirarchy_separators_counter, TestContext) {
+BOOST_FIXTURE_TEST_CASE(hierarchy_separators_counter, TestContext) {
   BOOST_CHECK_NO_THROW(compile("counter.sv", "counter"));
   netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers();
 
@@ -127,7 +127,7 @@ BOOST_FIXTURE_TEST_CASE(heirarchy_separators_counter, TestContext) {
 }
 
 /// pipeline_module
-BOOST_FIXTURE_TEST_CASE(heirarchy_separators_pipeline_module, TestContext) {
+BOOST_FIXTURE_TEST_CASE(hierarchy_separators_pipeline_module, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline_module"));
   netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers();
 

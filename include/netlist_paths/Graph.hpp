@@ -93,7 +93,6 @@ public:
   void splitRegVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
-  std::vector<VertexID> getAllVertices() const;
   VertexID getVertexExact(const std::string &name,
                           VertexGraphType graphType=VertexGraphType::ANY) const;
   VertexIDVec getVerticesRegex(const std::string &name,
