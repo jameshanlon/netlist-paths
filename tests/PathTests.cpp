@@ -302,6 +302,19 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   CHECK_VAR_REPORT(paths[2][5], "VAR", "logic", "out");
 }
 
+BOOST_FIXTURE_TEST_CASE(path_false_fan_in_out, TestContext) {
+  // Demonstrate the false connections though an array variable used in a generate statement.
+  BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
+  {
+    auto paths = np->getAllFanOut("pipeline_module.g_pipestage[6].u_pipestage.data_q");
+    BOOST_TEST(paths.size() == 10);
+  }
+  {
+    auto paths = np->getAllFanIn("pipeline_module.g_pipestage[6].u_pipestage.data_q");
+    BOOST_TEST(paths.size() == 14);
+  }
+}
+
 //===----------------------------------------------------------------------===//
 // Test through points.
 //===----------------------------------------------------------------------===//
