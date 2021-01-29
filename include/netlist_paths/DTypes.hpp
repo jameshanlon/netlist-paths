@@ -9,6 +9,7 @@
 
 class DType {
 public:
+  DType() {}
   /// Return the string representation of the dtype. The suffix agrument allows
   /// unpacked array range specifications to be appended with the inner-most
   /// dimension on the LHS and outermost on the RHS.

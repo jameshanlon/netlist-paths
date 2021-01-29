@@ -139,8 +139,8 @@ class Vertex {
   std::string name;
   bool isParam;
   std::string paramValue;
-  bool isPublic;
-  bool isTop;
+  bool publicVisibility;
+  bool top;
   bool deleted;
 
 public:
@@ -153,8 +153,8 @@ public:
       direction(VertexDirection::NONE),
       location(location),
       isParam(false),
-      isPublic(false),
-      isTop(false),
+      publicVisibility(false),
+      top(false),
       deleted(false) {}
 
   /// Var vertex.
@@ -165,7 +165,7 @@ public:
          const std::string &name,
          bool isParam,
          const std::string &paramValue,
-         bool isPublic) :
+         bool publicVisibility) :
       astType(type),
       direction(direction),
       location(location),
@@ -173,8 +173,8 @@ public:
       name(name),
       isParam(isParam),
       paramValue(paramValue),
-      isPublic(isPublic),
-      isTop(determineIsTop(name)),
+      publicVisibility(publicVisibility),
+      top(determineIsTop(name)),
       deleted(false) {}
 
   /// Copy constructor.
@@ -185,7 +185,7 @@ public:
       dtype(v.dtype),
       name(v.name),
       isParam(v.isParam),
-      isTop(v.isTop),
+      top(v.top),
       deleted(v.deleted) {}
 
   /// A Vertex is in the 'top' scope when has one or two hierarchical components.
@@ -218,15 +218,16 @@ public:
 
   /// Equality comparison
   bool compareEqual(const Vertex &b) const {
-    return astType    == b.astType &&
-           direction  == b.direction &&
-           location   == b.location &&
-           dtype      == b.dtype &&
-           name       == b.name &&
-           isParam    == b.isParam &&
-           paramValue == b.paramValue &&
-           isTop      == b.isTop &&
-           deleted    == b.deleted;
+    return astType          == b.astType &&
+           direction        == b.direction &&
+           location         == b.location &&
+           dtype            == b.dtype &&
+           name             == b.name &&
+           isParam          == b.isParam &&
+           paramValue       == b.paramValue &&
+           publicVisibility == b.publicVisibility &&
+           top              == b.top &&
+           deleted          == b.deleted;
   }
 
   /// Match this vertex against different graph types.
@@ -244,6 +245,9 @@ public:
       default:                           return false;
     }
   }
+
+  inline bool isTop() const { return top; }
+  inline bool isPublic() const { return publicVisibility; }
 
   inline bool isSrcReg() const {
     return !deleted && astType == VertexAstType::SRC_REG;
@@ -281,7 +285,7 @@ public:
 
   inline bool isPort() const {
     return !deleted &&
-           isTop &&
+           top &&
            (direction == VertexDirection::INPUT ||
             direction == VertexDirection::OUTPUT ||
             direction == VertexDirection::INOUT);
@@ -290,15 +294,15 @@ public:
   inline bool isStartPoint() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
-            (direction == VertexDirection::INPUT && isTop) ||
-            (direction == VertexDirection::INOUT && isTop));
+            (direction == VertexDirection::INPUT && top) ||
+            (direction == VertexDirection::INOUT && top));
   }
 
   inline bool isFinishPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
-            (direction == VertexDirection::OUTPUT && isTop) ||
-            (direction == VertexDirection::INOUT && isTop));
+            (direction == VertexDirection::OUTPUT && top) ||
+            (direction == VertexDirection::INOUT && top));
   }
 
   inline bool isMidPoint() const {
@@ -336,7 +340,10 @@ public:
   VertexAstType getAstType() const { return astType; }
   VertexDirection getDirection() const { return direction; }
   size_t getDTypeWidth() const { return dtype != nullptr ? dtype->getWidth() : 0; }
-  bool getIsPublic() const { return isPublic; }
+  DType *getDTypePtr() const {
+    // Remove the const cast to make it compatible with the boost::python wrappers.
+    return const_cast<DType*>(dtype.get());
+  }
   const std::string getName() const { return name; }
   const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
   const std::string getDirStr() const { return getVertexDirectionStr(direction); }

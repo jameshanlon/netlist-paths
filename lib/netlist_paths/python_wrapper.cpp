@@ -1,9 +1,11 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "netlist_paths/DTypes.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
+#include "netlist_paths/Vertex.hpp"
 #include "netlist_paths/Waypoints.hpp"
 
 void translateException(const netlist_paths::Exception& e) {
@@ -24,19 +26,31 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   // Setup exception translation.
   register_exception_translator<Exception>(&translateException);
 
+  class_<DType, DType*, boost::noncopyable>("DType")
+     .def("get_name",   &DType::getName)
+     .def("get_width",  &DType::getWidth)
+     .def("to_str",     &DType::toString);
+
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
-     .def("get_name",         &Vertex::getName)
-     .def("get_ast_type",     &Vertex::getAstTypeStr)
-     .def("get_direction",    &Vertex::getDirStr)
-     .def("get_dtype_str",    &Vertex::getDTypeStr)
-     .def("get_dtype_width",  &Vertex::getDTypeWidth)
-     .def("get_location_str", &Vertex::getLocationStr)
-     .def("is_logic",         &Vertex::isLogic)
-     .def("is_parameter",     &Vertex::isParameter)
-     .def("is_net",           &Vertex::isNet)
-     .def("is_reg",           &Vertex::isReg)
-     .def("is_port",          &Vertex::isPort)
-     .def("can_ignore",       &Vertex::canIgnore);
+     .def("get_name",          &Vertex::getName)
+     .def("get_ast_type_str",  &Vertex::getAstTypeStr)
+     .def("get_direction_str", &Vertex::getDirStr)
+     .def("get_dtype",         &Vertex::getDTypePtr,
+                               return_value_policy<reference_existing_object>())
+     .def("get_dtype_str",     &Vertex::getDTypeStr)
+     .def("get_dtype_width",   &Vertex::getDTypeWidth)
+     .def("get_location_str",  &Vertex::getLocationStr)
+     .def("is_top",            &Vertex::isTop)
+     .def("is_logic",          &Vertex::isLogic)
+     .def("is_parameter",      &Vertex::isParameter)
+     .def("is_net",            &Vertex::isNet)
+     .def("is_reg",            &Vertex::isReg)
+     .def("is_port",           &Vertex::isPort)
+     .def("is_start_point",    &Vertex::isStartPoint)
+     .def("is_finish_point",   &Vertex::isFinishPoint)
+     .def("is_mid_point",      &Vertex::isMidPoint)
+     .def("is_public",         &Vertex::isPublic)
+     .def("can_ignore",        &Vertex::canIgnore);
 
   class_<std::vector<Vertex*> >("Path")
       .def(vector_indexing_suite<std::vector<Vertex*> >());

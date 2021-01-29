@@ -35,14 +35,14 @@ def dump_names(vertices, fd):
     HDR = ['Name', 'Type', 'DType', 'Direction', 'Location']
     rows.append(HDR)
     vertices = sorted(vertices, key=lambda x: (x.get_name(),
-                                               x.get_ast_type(),
+                                               x.get_ast_type_str(),
                                                x.get_dtype_str(),
-                                               x.get_direction()))
+                                               x.get_direction_str()))
     for vertex in vertices:
         rows.append((vertex.get_name(),
-                     vertex.get_ast_type(),
+                     vertex.get_ast_type_str(),
                      vertex.get_dtype_str(),
-                     vertex.get_direction(),
+                     vertex.get_direction_str(),
                      vertex.get_location_str()))
     # Write the table out.
     write_table(rows, fd)
@@ -61,7 +61,7 @@ def dump_path_report(netlist, path, fd):
             not path[index].is_logic() and \
             path[index+1].is_logic():
             row = (path[index].get_name(), path[index].get_dtype_str(),
-                   path[index+1].get_ast_type(), path[index+1].get_location_str())
+                   path[index+1].get_ast_type_str(), path[index+1].get_location_str())
             index += 2
         # Var reference only.
         elif not path[index].is_logic():
@@ -69,7 +69,7 @@ def dump_path_report(netlist, path, fd):
             index += 1
         # Statement only.
         else:
-            row = ('', '', path[index].get_ast_type(), path[index].get_location_str())
+            row = ('', '', path[index].get_ast_type_str(), path[index].get_location_str())
             index += 1
         rows.append(row)
     # Write the table out.
