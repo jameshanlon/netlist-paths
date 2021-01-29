@@ -33,7 +33,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
      .def("get_name",          &Vertex::getName)
-     .def("get_ast_type_str",  &Vertex::getAstTypeStr)
+     .def("get_ast_type_str",  &Vertex::getSimpleAstTypeStr)
      .def("get_direction_str", &Vertex::getDirStr)
      .def("get_dtype",         &Vertex::getDTypePtr,
                                return_value_policy<reference_existing_object>())

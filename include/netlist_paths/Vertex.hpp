@@ -106,6 +106,29 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
   }
 }
 
+inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
+  switch (type) {
+    case VertexAstType::LOGIC:        return "LOGIC";
+    case VertexAstType::ASSIGN:       return "ASSIGN";
+    case VertexAstType::ASSIGN_ALIAS: return "ASSIGN";
+    case VertexAstType::ASSIGN_DLY:   return "ASSIGN";
+    case VertexAstType::ASSIGN_W:     return "ASSIGN";
+    case VertexAstType::ALWAYS:       return "ALWAYS";
+    case VertexAstType::INITIAL:      return "INITIAL";
+    case VertexAstType::INSTANCE:     return "INSTANCE";
+    case VertexAstType::SRC_REG:      return "REG";
+    case VertexAstType::DST_REG:      return "REG";
+    case VertexAstType::SEN_GATE:     return "SEN";
+    case VertexAstType::SEN_ITEM:     return "SEN";
+    case VertexAstType::VAR:          return "VAR";
+    case VertexAstType::WIRE:         return "WIRE";
+    case VertexAstType::PORT:         return "PORT";
+    case VertexAstType::C_FUNC:       return "C_FUNCTION";
+    case VertexAstType::INVALID:      return "INVALID";
+    default:                          return "UNKNOWN";
+  }
+}
+
 inline VertexDirection getVertexDirection(const std::string &direction) {
   static std::map<std::string, VertexDirection> mappings {
       { "input",  VertexDirection::INPUT },
@@ -346,8 +369,9 @@ public:
   }
   const std::string getName() const { return name; }
   const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
+  const std::string getSimpleAstTypeStr() const { return getSimpleVertexAstTypeStr(astType); }
   const std::string getDirStr() const { return getVertexDirectionStr(direction); }
-  const std::string getDTypeStr() const { return dtype != nullptr ? dtype->toString() : "none"; }
+  const std::string getDTypeStr() const { return dtype != nullptr ? dtype->toString() : "-"; }
   const std::string getLocationStr() const { return location.getLocationStr(); }
   bool isDeleted() const { return deleted; }
 };

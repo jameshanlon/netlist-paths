@@ -32,16 +32,19 @@ def dump_names(vertices, fd):
     Dump a table of names and their attributes matching regex to fd.
     """
     rows = []
-    HDR = ['Name', 'Type', 'DType', 'Direction', 'Location']
+    HDR = ['Name', 'Type', 'DType', 'Width', 'Direction', 'Location']
     rows.append(HDR)
     vertices = sorted(vertices, key=lambda x: (x.get_name(),
                                                x.get_ast_type_str(),
                                                x.get_dtype_str(),
-                                               x.get_direction_str()))
+                                               x.get_dtype_width(),
+                                               x.get_direction_str(),
+                                               x.get_location_str()))
     for vertex in vertices:
         rows.append((vertex.get_name(),
                      vertex.get_ast_type_str(),
                      vertex.get_dtype_str(),
+                     str(vertex.get_dtype_width()),
                      vertex.get_direction_str(),
                      vertex.get_location_str()))
     # Write the table out.
