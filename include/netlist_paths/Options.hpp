@@ -1,6 +1,11 @@
 #ifndef NETLIST_PATHS_OPTIONS_HPP
 #define NETLIST_PATHS_OPTIONS_HPP
 
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/utility/setup/console.hpp>
+
 namespace netlist_paths {
 
 constexpr const char *DEFAULT_OUTPUT_FILENAME = "netlist";
@@ -31,8 +36,12 @@ public:
   void setMatchExact() { matchType = MatchType::EXACT; }
   void setIgnoreHierarchyMarkers() { ignoreHierarchyMarkers = true; }
   void setRespectHierarchyMarkers() { ignoreHierarchyMarkers = false; }
-  void setVerbose() { verboseMode = true; }
-  void setDebug() { debugMode = true; }
+  void setVerbose() {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
+  }
+  void setDebug() {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
+  }
 
 public:
   // Singleton instance.
@@ -49,7 +58,10 @@ private:
       debugMode(false),
       verboseMode(false),
       matchType(MatchType::EXACT),
-      ignoreHierarchyMarkers(false) {}
+      ignoreHierarchyMarkers(false) {
+    // Setup logging.
+    boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
+  }
 
 public:
   // Prevent copies from being made (C++11).

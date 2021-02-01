@@ -6,7 +6,6 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
-#include "netlist_paths/Debug.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/Options.hpp"

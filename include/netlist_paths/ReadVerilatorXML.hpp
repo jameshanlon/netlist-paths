@@ -9,7 +9,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <rapidxml-1.13/rapidxml.hpp>
 
-#include "netlist_paths/Debug.hpp"
 #include "netlist_paths/Graph.hpp"
 
 namespace netlist_paths {

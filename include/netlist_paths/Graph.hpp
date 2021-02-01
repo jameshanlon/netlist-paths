@@ -46,8 +46,6 @@ private:
 
   VertexIDVec getTargetNodes(VertexID vertex) const;
 
-  void dumpPath(const VertexIDVec &path) const;
-
   VertexIDVec determinePath(ParentMap &parentMap,
                             VertexIDVec path,
                             VertexID startVertexId,

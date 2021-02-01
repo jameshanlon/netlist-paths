@@ -15,8 +15,8 @@
 #include <boost/graph/iteration_macros.hpp>
 #include <boost/graph/reverse_graph.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/tokenizer.hpp>
-#include "netlist_paths/Debug.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Graph.hpp"
 #include "netlist_paths/Options.hpp"
@@ -75,8 +75,8 @@ void Graph::propagateRegisters() {
           VertexIDVec assignAliasTargets = getTargetNodes(target);
           assert(assignAliasTargets.size() == 1);
           graph[assignAliasTargets.front()].setDstReg();
-          DEBUG(std::cout << boost::format("Moved REG from %s to %s\n")
-                                 % graph[v].getName() % graph[assignAliasTargets.front()].getName());
+          BOOST_LOG_TRIVIAL(debug) << boost::format("Moved REG from %s to %s")
+                                        % graph[v].getName() % graph[assignAliasTargets.front()].getName();
         }
       }
     }
@@ -113,19 +113,19 @@ void Graph::checkGraph() const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     // Check there are no Vlvbound nodes.
     if (graph[v].getName().find("__Vlvbound") != std::string::npos) {
-      std::cout << "Warning: " << graph[v].toString() << " vertex in netlist\n";
+      BOOST_LOG_TRIVIAL(warning) << boost::format("%s vertex in netlist") % graph[v].toString();
     }
     // Source registers don't have in edges.
     if (graph[v].isSrcReg()) {
-      if (boost::in_degree(v, graph) > 0)
-         std::cout << "Warning: source reg " << graph[v].toString()
-                   << " has in edges" << "\n";
+      if (boost::in_degree(v, graph) > 0) {
+        BOOST_LOG_TRIVIAL(warning) << boost::format("source reg %s has in edges") % graph[v].toString();
+      }
     }
     // Destination registers don't have out edges.
     if (graph[v].isDstReg()) {
-      if (boost::out_degree(v, graph) > 0)
-        std::cout << "Warning: destination reg " << graph[v].toString()
-                  << " has out edges"<<"\n";
+      if (boost::out_degree(v, graph) > 0) {
+        BOOST_LOG_TRIVIAL(warning) << boost::format("destination reg has out edges") % graph[v].toString();
+      }
     }
     // NOTE: vertices may be incorrectly marked as reg if a field of a
     // structure has a delayed assignment to a field of it.
@@ -154,7 +154,7 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   outputFile << "}\n";
   outputFile.close();
   // Print command line to generate graph file.
-  INFO(std::cout << "dot -Tpdf " << outputFilename << " -o graph.pdf\n");
+  BOOST_LOG_TRIVIAL(info) << boost::format("dot -Tpdf %s -o graph.pdf") % outputFilename;
 }
 
 /// Match a VertexGraphType against a vertex.
@@ -242,14 +242,6 @@ VertexIDVec Graph::getVertices(const std::string &name,
   return {};
 }
 
-void Graph::dumpPath(const VertexIDVec &path) const {
-  for (auto v : path) {
-    if (!graph[v].isLogic()) {
-      std::cout << "  " << graph[v].getName() << "\n";
-    }
-  }
-}
-
 /// Given the tree structure from a DFS, traverse the tree from leaf to root to
 /// return a path.
 VertexIDVec Graph::determinePath(ParentMap &parentMap,
@@ -281,19 +273,26 @@ void Graph::determineAllPaths(ParentMap &parentMap,
                               VertexID finishVertex) const {
   path.push_back(finishVertex);
   if (finishVertex == startVertex) {
-    INFO(std::cout << "FOUND PATH\n");
+    BOOST_LOG_TRIVIAL(debug) << "Found path";
     result.push_back(path);
     return;
   }
-  INFO(std::cout<<"length "<<path.size()
-                <<" vertex "<<graph[finishVertex].toString()<<"\n");
-  INFO(dumpPath(path));
-  INFO(std::cout<<(parentMap[finishVertex].empty()?"DEAD END\n":""));
+  BOOST_LOG_TRIVIAL(debug) << boost::format("length %d vertex %s")
+                                % path.size() % graph[finishVertex].toString();
+  // Dump path.
+  if (Options::getInstance().isDebugMode()) {
+    for (auto v : path) {
+      if (!graph[v].isLogic()) {
+        BOOST_LOG_TRIVIAL(debug) << " " << graph[v].getName();
+      }
+    }
+  }
+  BOOST_LOG_TRIVIAL(debug) << (parentMap[finishVertex].empty() ? "DEAD END" : "");
   for (auto vertex : parentMap[finishVertex]) {
     if (std::find(std::begin(path), std::end(path), vertex) == std::end(path)) {
       determineAllPaths(parentMap, result, path, startVertex, vertex);
     } else {
-      INFO(std::cout << "CYCLE DETECTED\n");
+      BOOST_LOG_TRIVIAL(debug) << "Cycle detected";
     }
   }
 }
@@ -301,8 +300,7 @@ void Graph::determineAllPaths(ParentMap &parentMap,
 /// Report all paths fanning out from a net/register/port.
 std::vector<VertexIDVec>
 Graph::getAllFanOut(VertexID startVertex) const {
-  INFO(std::cout << "Performing DFS from "
-                 << graph[startVertex].getName() << "\n");
+  BOOST_LOG_TRIVIAL(debug) << "Performing DFS from " << graph[startVertex].getName();
   ParentMap parentMap;
   boost::depth_first_search(graph,
       boost::visitor(DfsVisitor(parentMap, false))
@@ -328,8 +326,7 @@ Graph::getAllFanOut(VertexID startVertex) const {
 std::vector<VertexIDVec>
 Graph::getAllFanIn(VertexID finishVertex) const {
   auto reverseGraph = boost::make_reverse_graph(graph);
-  INFO(std::cout << "Performing DFS in reverse graph from "
-                 << graph[finishVertex].getName() << "\n");
+  BOOST_LOG_TRIVIAL(debug) << "Performing DFS in reverse graph from " << graph[finishVertex].getName();
   ParentMap parentMap;
   boost::depth_first_search(reverseGraph,
       boost::visitor(DfsVisitor(parentMap, false))
@@ -387,14 +384,12 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
   for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
     auto beginVertex = waypointIDs[i];
     auto endVertex = waypointIDs[i+1];
-    INFO(std::cout << "Performing DFS from "
-                   << graph[beginVertex].getName() << "\n");
+    BOOST_LOG_TRIVIAL(debug) << "Performing DFS from " << graph[beginVertex].getName();
     ParentMap parentMap;
     boost::depth_first_search(filteredGraph,
         boost::visitor(DfsVisitor(parentMap, true))
           .root_vertex(beginVertex));
-    INFO(std::cout << "Determining all paths to "
-                   << graph[endVertex].getName() << "\n");
+    BOOST_LOG_TRIVIAL(debug) << "Determining all paths to " << graph[endVertex].getName();
     std::vector<VertexIDVec> paths;
     determineAllPaths(parentMap,
                       paths,
@@ -425,14 +420,12 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
   for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
     auto startVertex = waypointIDs[i];
     auto finishVertex = waypointIDs[i+1];
-    INFO(std::cout << "Performing DFS from "
-                   << graph[startVertex].getName() << "\n");
+    BOOST_LOG_TRIVIAL(debug) << "Performing DFS from " << graph[startVertex].getName();
     ParentMap parentMap;
     boost::depth_first_search(filteredGraph,
         boost::visitor(DfsVisitor(parentMap, false))
           .root_vertex(startVertex));
-    INFO(std::cout << "Determining a path to "
-                   << graph[finishVertex].getName() << "\n");
+    BOOST_LOG_TRIVIAL(debug) << "Determining a path to " << graph[finishVertex].getName();
     auto subPath = determinePath(parentMap,
                                  VertexIDVec(),
                                  startVertex,

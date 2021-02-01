@@ -4,7 +4,6 @@
 #include <boost/format.hpp>
 
 #include "netlist_paths/DTypes.hpp"
-#include "netlist_paths/Debug.hpp"
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
@@ -118,7 +117,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::VAR_REF:         visitVarRef(node);                      break;
   case AstNode::VAR_SCOPE:       visitVarScope(node);                    break;
   default:
-    DEBUG(std::cout << "Unrecognised node: " << node->name() << "\n");
+    BOOST_LOG_TRIVIAL(debug) << "Unrecognised node: " << node->name();
     visitNode(node);
     break;
   }
@@ -141,7 +140,7 @@ void ReadVerilatorXML::iterateChildren(XMLNode *node) {
 }
 
 void ReadVerilatorXML::newScope(XMLNode *node) {
-  DEBUG(std::cout << "New scope\n");
+  BOOST_LOG_TRIVIAL(debug) << "New scope";
   scopeParents.push(std::move(currentScope));
   currentScope = std::make_unique<ScopeNode>(node);
   iterateChildren(node);
@@ -233,7 +232,7 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
         name.rfind("__V", 0) == std::string::npos) {
       if (topName.empty()) {
         topName = name.substr(0, pos);
-        DEBUG(std::cout << "Got top name " << topName << "\n");
+        BOOST_LOG_TRIVIAL(debug) << "Got top name " << topName;
       } else {
         assert(topName == name.substr(0, pos) && "all name prefixes should match the top name");
       }
@@ -247,9 +246,9 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
                                      isParam, paramValue, isPublic);
   if (vars.count(canonicalName) == 0) {
     vars[canonicalName] = vertex;
-    DEBUG(std::cout << boost::format("Add var %s (canonical %s) to scope\n") % name % canonicalName);
+    BOOST_LOG_TRIVIAL(debug) << boost::format("Add var %s (canonical %s) to scope") % name % canonicalName;
   } else {
-    DEBUG(std::cout << boost::format("Var %s (canonical %s) already exists\n") % name % canonicalName);
+    BOOST_LOG_TRIVIAL(debug) << boost::format("Var %s (canonical %s) already exists") % name % canonicalName;
   }
 
   // Add edges between public/top-level port variables and their internal
@@ -267,9 +266,9 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
       // The direction attribute is only on the top-level/public var, so copy it
       // onto the prefixed version so that they are both identified as ports.
       netlist.setVertexDirection(vertex, netlist.getVertex(publicVertex).getDirection());
-      DEBUG(std::cout << "Edge to/from original var "
-                      << netlist.getVertex(publicVertex).toString() << " to "
-                      << netlist.getVertex(vertex).toString() << "\n");
+      BOOST_LOG_TRIVIAL(debug) << "Edge to/from original var "
+                               << netlist.getVertex(publicVertex).toString() << " to "
+                               << netlist.getVertex(vertex).toString();
     }
   }
 }
@@ -285,7 +284,7 @@ void ReadVerilatorXML::newVarScope(XMLNode *node) {
 }
 
 void ReadVerilatorXML::newStatement(XMLNode *node, VertexAstType vertexType) {
-  DEBUG(std::cout << "New statement: " << getVertexAstTypeStr(vertexType) << "\n");
+  BOOST_LOG_TRIVIAL(debug) << "New statement: " << getVertexAstTypeStr(vertexType);
   // A statment must have a scope for variable references to occur in.
   if (currentScope) {
     logicParents.push(std::move(currentLogic));
@@ -297,8 +296,8 @@ void ReadVerilatorXML::newStatement(XMLNode *node, VertexAstType vertexType) {
     if (logicParents.top()) {
       auto vertexParent = logicParents.top()->getVertex();
       netlist.addEdge(vertexParent, vertex);
-      DEBUG(std::cout << "Edge from parent logic to "
-                      << getVertexAstTypeStr(vertexType) << "\n");
+      BOOST_LOG_TRIVIAL(debug) << "Edge from parent logic to "
+                               << getVertexAstTypeStr(vertexType);
     }
     if (vertexType == VertexAstType::ASSIGN ||
         vertexType == VertexAstType::ASSIGN_ALIAS ||
@@ -336,16 +335,16 @@ void ReadVerilatorXML::newVarRef(XMLNode *node) {
         // Var is reg l-value.
         netlist.addEdge(currentLogic->getVertex(), varVertex);
         netlist.setVertexDstReg(varVertex);
-        DEBUG(std::cout << "Edge from LOGIC to REG '" << varName << "'\n");
+        BOOST_LOG_TRIVIAL(debug) << "Edge from LOGIC to REG " << varName;
       } else {
         // Var is wire l-value.
         netlist.addEdge(currentLogic->getVertex(), varVertex);
-        DEBUG(std::cout << "Edge from LOGIC to VAR '" << varName << "'\n");
+        BOOST_LOG_TRIVIAL(debug) << "Edge from LOGIC to VAR " << varName;
       }
     } else {
       // Var is wire r-value.
       netlist.addEdge(varVertex, currentLogic->getVertex());
-      DEBUG(std::cout << "Edge from VAR '" << varName << "' to LOGIC\n");
+      BOOST_LOG_TRIVIAL(debug) << "Edge from VAR " << varName << " to LOGIC";
     }
     iterateChildren(node);
   }
@@ -586,7 +585,7 @@ void ReadVerilatorXML::visitInterfaceRefDType(XMLNode *node) {
 }
 
 void ReadVerilatorXML::readXML(const std::string &filename) {
-  INFO(std::cout << "Parsing input XML file\n");
+  BOOST_LOG_TRIVIAL(info) << "Parsing input XML file";
   std::fstream inputFile(filename);
   if (!inputFile.is_open()) {
     throw XMLException("could not open file");
@@ -620,14 +619,14 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
     if (std::string(moduleNode->name()) == "module") { moduleCount++; }
     if (std::string(moduleNode->name()) == "package") { packageCount++; }
   }
-  INFO(std::cout << moduleCount    << " modules in netlist\n");
-  INFO(std::cout << interfaceCount << " interfaces in netlist\n");
-  INFO(std::cout << packageCount   << " packages in netlist\n");
+  BOOST_LOG_TRIVIAL(info) << moduleCount    << " modules in netlist";
+  BOOST_LOG_TRIVIAL(info) << interfaceCount << " interfaces in netlist";
+  BOOST_LOG_TRIVIAL(info) << packageCount   << " packages in netlist";
   // Typetable (two passes to resolve forward dtype ID references).
   XMLNode *typeTableNode = netlistNode->first_node("typetable");
   visitTypeTable(typeTableNode);
   visitTypeTable(typeTableNode);
-  INFO(std::cout << "Type table contains " << dtypes.size() << " entries\n");
+  BOOST_LOG_TRIVIAL(info) << boost::format("%d entries in type table") % dtypes.size();
   // Module (single instance).
   if (moduleCount == 1 && interfaceCount == 0) {
     XMLNode *topModuleNode = netlistNode->first_node("module");
@@ -635,10 +634,10 @@ void ReadVerilatorXML::readXML(const std::string &filename) {
     if (std::string(topModuleNode->first_attribute("name")->value()) != "TOP") {
       throw XMLException("unexpected top module name");
     }
-    INFO(std::cout << "Netlist contains " << netlist.numVertices()
-                   << " vertices and " << netlist.numEdges() << " edges\n");
+    BOOST_LOG_TRIVIAL(info) << boost::format("Netlist contains %d vertices and %d edges")
+                                 % netlist.numVertices() % netlist.numEdges();
   } else {
-    INFO(std::cout << "Netlist is not flat, skipping modules\n");
+    BOOST_LOG_TRIVIAL(info) << "Netlist is not flat, skipping modules";
   }
 }
 

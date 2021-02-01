@@ -3,10 +3,11 @@
 #include <sstream>
 #include <vector>
 #include <boost/dll.hpp>
+#include <boost/format.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/process.hpp>
 #include "netlist_paths/RunVerilator.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/Debug.hpp"
 
 namespace bp = boost::process;
 
@@ -48,7 +49,7 @@ int RunVerilator::run(const std::vector<std::string> &includes,
   for (auto &arg : args) {
     ss << arg << " ";
   }
-  INFO(std::cout << "Running: " << verilatorExe << " " << ss.str() << "\n");
+  BOOST_LOG_TRIVIAL(info) << boost::format("Running %s %s") % verilatorExe % ss.str();
   return bp::system(verilatorExe, bp::args(args));
 }
 

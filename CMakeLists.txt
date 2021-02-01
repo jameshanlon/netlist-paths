@@ -20,7 +20,9 @@ find_package(Boost 1.68.0 REQUIRED COMPONENTS
              system
              filesystem
              python
-             unit_test_framework)
+             unit_test_framework
+             log
+             log_setup)
 
 message(STATUS "Python_LIBRARIES    = ${Python_LIBRARIES}")
 message(STATUS "Python_EXECUTABLE   = ${Python_EXECUTABLE}")
