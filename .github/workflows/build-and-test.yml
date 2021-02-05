@@ -1,4 +1,4 @@
-name: CMake
+name: Build
 
 on: [push]
 
@@ -15,7 +15,7 @@ jobs:
         submodules: 'recursive' 
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libfl-dev
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
