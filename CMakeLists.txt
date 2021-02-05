@@ -3,7 +3,6 @@ project(netlist-paths)
 include(ExternalProject)
 include(GNUInstallDirs)
 
-#set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
 # Use local find scripts
@@ -13,7 +12,7 @@ find_package(Python REQUIRED COMPONENTS
              Interpreter
              Development)
 
-find_package(Boost 1.68.0 REQUIRED COMPONENTS
+find_package(Boost 1.65.0 REQUIRED COMPONENTS
              graph
              regex
              program_options
@@ -35,6 +34,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -pedantic)
+add_definitions(-DBOOST_LOG_DYN_LINK) # Dynamic link option for boost::log
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   # Set default install prefix.
