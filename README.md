@@ -1,3 +1,5 @@
+![Build](https://github.com/jameshanlon/netlist-paths/workflows/CMake/badge.svg)
+
 # Netlist paths
 
 Netlist paths is a library and command-line tool for querying a Verilog
