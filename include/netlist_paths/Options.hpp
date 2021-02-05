@@ -42,6 +42,9 @@ public:
   void setDebug() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
   }
+  void setQuiet() {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::warning);
+  }
 
 public:
   // Singleton instance.
@@ -61,6 +64,7 @@ private:
       ignoreHierarchyMarkers(false) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
+    setQuiet();
   }
 
 public:

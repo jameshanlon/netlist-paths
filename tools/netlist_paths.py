@@ -180,6 +180,7 @@ def main():
     args = parser.parse_args()
 
     # Setup options
+    Options.get_instance() # Initialise options
     if args.wildcard:
         Options.get_instance().set_match_wildcard()
     if args.regex:
