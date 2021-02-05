@@ -14,6 +14,9 @@ jobs:
       with:
         submodules: 'recursive' 
 
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev flex bison autoconf
+
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
 
