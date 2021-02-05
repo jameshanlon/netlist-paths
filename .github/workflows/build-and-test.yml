@@ -15,7 +15,7 @@ jobs:
         submodules: 'recursive' 
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost1.68 libboost1.68-dev flex bison autoconf
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{github.workspace}}/build
