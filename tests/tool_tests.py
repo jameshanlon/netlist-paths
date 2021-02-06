@@ -12,7 +12,7 @@ class TestTool(unittest.TestCase):
 
     def run_np(self, args):
         command = [self.NETLIST_PATHS] + args
-        proc = subprocess.run(command, capture_output=True)
+        proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if proc.returncode != 0:
             print('Error executing {}'.format(' '.join(proc.args)))
             print('Stdout:\n{}\nStderr:\n{}'.format(proc.stdout.decode('utf-8'),
