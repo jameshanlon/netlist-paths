@@ -200,7 +200,7 @@ VertexIDVec Graph::getVerticesRegex(const std::string &name,
   std::regex nameRegex;
   try {
     nameRegex.assign(nameStr);
-  } catch(std::regex_error e) {
+  } catch(std::regex_error const &e) {
     throw Exception(std::string("malformed regular expression: ")+e.what());
   }
   // Search the vertices.
