@@ -135,6 +135,7 @@ class Netlist {
 public:
   Netlist() = delete;
   Netlist(const std::string &filename) {
+    Options::getInstance(); // Create singleton object.
     ReadVerilatorXML(netlist, files, dtypes, filename);
     netlist.propagateRegisters();
     netlist.splitRegVertices();
