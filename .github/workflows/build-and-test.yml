@@ -17,13 +17,16 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libfl-dev
 
-    - name: Create Build Environment
+    - name: Create build environment
       run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Create install environment
+      run: cmake -E make_directory ${{github.workspace}}/install
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
 
     - name: Build
       working-directory: ${{github.workspace}}/build
