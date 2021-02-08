@@ -14,12 +14,14 @@ namespace bp = boost::process;
 using namespace netlist_paths;
 
 RunVerilator::RunVerilator() {
+  Options::getInstance();
   // Locate the Verilator binary relative to this program.
   fs::path programLocation = boost::dll::program_location().parent_path();
   verilatorExe = programLocation / fs::path("np-verilator_bin");
 }
 
 RunVerilator::RunVerilator(const std::string &binLocation) {
+  Options::getInstance();
   // Use a specific location to find Verilator.
   verilatorExe = fs::path(binLocation) / fs::path("np-verilator_bin");
 }
