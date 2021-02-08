@@ -13,10 +13,10 @@ void translateException(const netlist_paths::Exception& e) {
 };
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
-                                       getVertexDTypeStr, 1, 2);
+                                       getVertexDTypeStr, 1, 2)
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_width_overloads,
-                                       getVertexDTypeWidth, 1, 2);
+                                       getVertexDTypeWidth, 1, 2)
 
 BOOST_PYTHON_MODULE(py_netlist_paths)
 {

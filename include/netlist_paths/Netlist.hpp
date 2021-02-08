@@ -293,6 +293,6 @@ public:
   bool isEmpty() const { return netlist.numVertices() == 0; }
 };
 
-}; // End namespace.
+} // End namespace.
 
 #endif // NETLIST_PATHS_NETLIST_HPP

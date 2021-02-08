@@ -80,6 +80,6 @@ public:
   bool anyFinish() const { return matchAnyFinishPoint; }
 };
 
-}; // End namespace.
+} // End namespace.
 
 #endif // NETLIST_PATHS_WAYPOINTS_HPP
