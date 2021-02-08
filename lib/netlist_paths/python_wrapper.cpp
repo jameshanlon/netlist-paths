@@ -10,7 +10,7 @@
 
 void translateException(const netlist_paths::Exception& e) {
   PyErr_SetString(PyExc_RuntimeError, e.what());
-};
+}
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
                                        getVertexDTypeStr, 1, 2)
