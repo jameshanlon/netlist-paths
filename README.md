@@ -1,4 +1,4 @@
-![Build](https://github.com/jameshanlon/netlist-paths/workflows/CMake/badge.svg)
+![Build](https://github.com/jameshanlon/netlist-paths/workflows/Build%20and%20test/badge.svg)
 
 # Netlist paths
 
