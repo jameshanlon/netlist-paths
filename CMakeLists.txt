@@ -3,7 +3,13 @@ project(netlist-paths)
 include(ExternalProject)
 include(GNUInstallDirs)
 
+option(NETLIST_PATHS_BUILD_DOCS "Create and install HTML documentation" OFF)
+option(NETLIST_PATHS_INCLUDE_TESTS "Include test targets in the build" ON)
+
 set(Boost_USE_MULTITHREADED ON)
+
+set(NETLIST_PATHS_VERSION_MAJOR 0)
+set(NETLIST_PATHS_VERSION_MINOR 1)
 
 # Use local find scripts
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -46,8 +52,6 @@ include_directories(${Boost_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/include)
 
-enable_testing()
-
 # Set the install RPATH
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
@@ -73,8 +77,12 @@ ExternalProject_Add_Step(Verilator add_executable_prefix
 
 add_subdirectory(lib)
 add_subdirectory(tools)
-add_subdirectory(tests)
-option(BUILD_DOCS "Create and install HTML documentation" OFF)
-if (BUILD_DOCS)
+
+if (NETLIST_PATHS_INCLUDE_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
+
+if (NETLIST_PATHS_BUILD_DOCS)
   add_subdirectory(docs)
 endif()
