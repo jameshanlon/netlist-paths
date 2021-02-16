@@ -8,10 +8,8 @@ def configure_doxyfile(input_dir, output_dir):
     print('Configuring Doxyfile in {}'.format(os.getcwd()))
     with open('Doxyfile.in', 'r') as fp:
         filedata = fp.read()
-
     filedata = filedata.replace('@DOXYGEN_INPUT_DIR@', input_dir)
     filedata = filedata.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
-
     with open('Doxyfile', 'w') as fp:
         fp.write(filedata)
 
@@ -20,8 +18,8 @@ breathe_projects = {}
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 if read_the_docs_build:
-    input_dir = '..'
-    output_dir = '_build'
+    input_dir = '../include/netlist_paths'
+    output_dir = 'doxygen'
     configure_doxyfile(input_dir, output_dir)
     print('Running doxygen in {}'.format(os.getcwd()))
     doxygen_output = subprocess.check_output(['doxygen', 'Doxyfile'], shell=True)
