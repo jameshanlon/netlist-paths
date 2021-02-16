@@ -5,6 +5,7 @@ import subprocess, os
 # See https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake
 
 def configure_doxyfile(input_dir, output_dir):
+    print('Configuring Doxyfile in {}'.format(os.getcwd()))
     with open('Doxyfile.in', 'r') as fp:
         filedata = fp.read()
 
@@ -19,11 +20,13 @@ breathe_projects = {}
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 if read_the_docs_build:
-    input_dir = '../'
+    input_dir = '..'
     output_dir = '_build'
     configure_doxyfile(input_dir, output_dir)
+    print('Running doxygen in {}'.format(os.getcwd()))
     subprocess.call('doxygen', shell=True)
-    breathe_projects['netlist-paths'] = os.path.join(output_dir, '/xml')
+    breathe_projects['netlist-paths'] = os.path.join(output_dir, 'xml')
+    print('Doxygen XML file location: {}'.format(breathe_projects['netlist-paths']))
 
 # Configuration file for the Sphinx documentation builder.
 #
