@@ -1,6 +1,8 @@
 import subprocess, os
 
 # If we're running on Read the Docs' servers, then run Doxygen.
+# See https://breathe.readthedocs.io/en/latest/readthedocs.html
+# See https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake
 
 def configure_doxyfile(input_dir, output_dir):
     with open('Doxyfile.in', 'r') as fp:
@@ -17,11 +19,11 @@ breathe_projects = {}
 read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 
 if read_the_docs_build:
-    input_dir = '../netlist-paths'
-    output_dir = 'build'
+    input_dir = '../'
+    output_dir = '_build'
     configure_doxyfile(input_dir, output_dir)
     subprocess.call('doxygen', shell=True)
-    breathe_projects['netlist-paths'] = output_dir + '/xml'
+    breathe_projects['netlist-paths'] = os.path.join(output_dir, '/xml')
 
 # Configuration file for the Sphinx documentation builder.
 #
