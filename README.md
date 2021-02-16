@@ -1,4 +1,5 @@
 ![Build](https://github.com/jameshanlon/netlist-paths/workflows/Build%20and%20test/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/netlist-paths/badge/?version=latest)](https://netlist-paths.readthedocs.io/en/latest/?badge=latest)
 
 # Netlist paths
 
