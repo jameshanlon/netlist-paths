@@ -24,7 +24,8 @@ if read_the_docs_build:
     output_dir = '_build'
     configure_doxyfile(input_dir, output_dir)
     print('Running doxygen in {}'.format(os.getcwd()))
-    subprocess.call('doxygen', shell=True)
+    doxygen_output = subprocess.check_output('doxygen', shell=True)
+    print(doxygen_output)
     breathe_projects['netlist-paths'] = os.path.join(output_dir, 'xml')
     print('Doxygen XML file location: {}'.format(breathe_projects['netlist-paths']))
 
