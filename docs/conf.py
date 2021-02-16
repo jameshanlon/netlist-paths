@@ -1,3 +1,28 @@
+import subprocess, os
+
+# If we're running on Read the Docs' servers, then run Doxygen.
+
+def configure_doxyfile(input_dir, output_dir):
+    with open('Doxyfile.in', 'r') as fp:
+        filedata = fp.read()
+
+    filedata = filedata.replace('@DOXYGEN_INPUT_DIR@', input_dir)
+    filedata = filedata.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
+
+    with open('Doxyfile', 'w') as fp:
+        fp.write(filedata)
+
+breathe_projects = {}
+
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+if read_the_docs_build:
+    input_dir = '../netlist-paths'
+    output_dir = 'build'
+    configure_doxyfile(input_dir, output_dir)
+    subprocess.call('doxygen', shell=True)
+    breathe_projects['netlist-paths'] = output_dir + '/xml'
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
