@@ -57,7 +57,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Verilator
 ExternalProject_Add(Verilator
-  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/verilator
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/verilator
   PREFIX verilator
   CONFIGURE_COMMAND autoconf && ./configure --prefix=<INSTALL_DIR>
   BUILD_COMMAND make
