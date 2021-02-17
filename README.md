@@ -9,7 +9,9 @@ Verilator, and provides facilities for inspecting types, variables and paths.
 The library is written in C++ and has a Python interface.
 
 
-## Dependencies
+## Build and installation
+
+The following dependencies must be installed:
 
 - C++ compiler supporing C++14
 - CMake (minimum 3.12.0)
@@ -20,31 +22,28 @@ The library is written in C++ and has a Python interface.
 - Flex
 - Bison
 
-Documentation:
+The following are additional dependencies are required to build the documentation:
 
 - Doxygen
 - Sphinx-doc
-- ``doc/requirements.txt``
+- Python packages listed in  ``doc/requirements.txt``
 
-
-## Build
-
-Run a debug build with Make, for example:
+To build and install netlist paths, configure the build system with CMake, then run Make:
 ```
 git submodule update --init --recursive
-mkdir Debug
-cd Debug
-cmake .. -DCMAKE_BUILD_TYPE=Debug
+mkdir Release
+cd Release
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j8 install
 ```
 
-Run the unit tests:
+Optionally, run the unit tests:
 ```
 ctest .
 ```
 
 
-## Example use
+## Example use of the command-line tool
 
 List all the named entities in a design:
 ```
@@ -111,38 +110,6 @@ fsm.next_state packed union ASSIGN    tests/verilog/fsm.sv:51
 fsm.state_q    packed union
 ```
 
-## Extended tests
+## License
 
-To run the extended test set, the
-[netlist-paths-tests](https://github.com/jameshanlon/netlist-paths-tests)
-repository contains tests based on external System Verilog designs.
-
-## Debugging
-
-Produce XML from a test case:
-```
-$ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
-info: Running "/Users/jamieh/netlist-paths/Debug/install/bin/np-verilator_bin" +1800-2012ext+.sv --bbox-sys --bbox-unsup --xml-only --flatten --error-limit 10000 --xml-output adder.xml tests/verilog/adder.sv
-info: Parsing input XML file
-info: 1 modules in netlist
-info: 0 interfaces in netlist
-info: 0 packages in netlist
-info: 4 entries in type table
-info: Netlist contains 15 vertices and 22 edges
-```
-Produce a visualisation of the netlist graph:
-```
-$ netlist-paths adder.xml --dump-dot -o adder.dot
-$ dot -Tpdf adder.dot -o adder.pdf
-```
-
-Run C++ unit tests directly, eg:
-```
-$ cd Debug
-$ ./tests/NameTests
-```
-Run Python unit tests directly (version of Python must match build):
-```
-$ cd Debug/tests
-$ python3 py_wrapper_tests.py
-```
+Netlist Paths is licensed under the Apache 2.0 license. See [LICENSE](LICENSE) for details.
