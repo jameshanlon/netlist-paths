@@ -46,6 +46,7 @@ enum class VertexGraphType {
   START_POINT,
   MID_POINT,
   END_POINT,
+  IS_NAMED,
   ANY
 };
 
@@ -265,6 +266,7 @@ public:
       case VertexGraphType::START_POINT: return isStartPoint();
       case VertexGraphType::END_POINT:   return isFinishPoint();
       case VertexGraphType::MID_POINT:   return isMidPoint();
+      case VertexGraphType::IS_NAMED:    return isNamed();
       default:                           return false;
     }
   }

@@ -267,23 +267,28 @@ public:
   // Netlist access.
   //===--------------------------------------------------------------------===//
 
+  /// Return a sorted list of unique named vertices in the netlist for searching.
   std::vector<std::reference_wrapper<const Vertex>>
-  getNamedVertices(const std::string &regex="") const;
+  getNamedVertices(const std::string &pattern="") const;
 
-  std::vector<Vertex*> getNamedVerticesPtr(const std::string &regex="") const {
-    return createVertexPtrVec(getNamedVertexIds(regex));
+  /// Return a vector of pointers to vertices that have names.
+  std::vector<Vertex*> getNamedVerticesPtr(const std::string pattern=std::string()) const {
+    return createVertexPtrVec(netlist.getVertices(pattern, VertexGraphType::IS_NAMED));
   }
 
-  std::vector<Vertex*> getNetVerticesPtr(const std::string &regex="") const {
-    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::NET));
+  /// Return a vector of pointers to net vertices.
+  std::vector<Vertex*> getNetVerticesPtr(const std::string pattern=std::string()) const {
+    return createVertexPtrVec(netlist.getVertices(pattern, VertexGraphType::NET));
   }
 
-  std::vector<Vertex*> getPortVerticesPtr(const std::string &regex="") const {
-    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::PORT));
+  /// Return a vector of pointers to port vertices.
+  std::vector<Vertex*> getPortVerticesPtr(const std::string pattern=std::string()) const {
+    return createVertexPtrVec(netlist.getVertices(pattern, VertexGraphType::PORT));
   }
 
-  std::vector<Vertex*> getRegVerticesPtr(const std::string &regex="") const {
-    return createVertexPtrVec(netlist.getVerticesRegex(regex, VertexGraphType::REG));
+  /// Return a vector of pointers to register vertices.
+  std::vector<Vertex*> getRegVerticesPtr(const std::string pattern=std::string()) const {
+    return createVertexPtrVec(netlist.getVertices(pattern, VertexGraphType::REG));
   }
 
   void dumpDotFile(const std::string &outputFilename) const {

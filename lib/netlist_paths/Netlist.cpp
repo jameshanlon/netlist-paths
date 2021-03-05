@@ -4,24 +4,11 @@
 
 using namespace netlist_paths;
 
-/// Return a list of IDs of named vertices, optionally filter by regex.
-std::vector<VertexID>
-Netlist::getNamedVertexIds(const std::string &regex) const {
-  std::vector<VertexID> vertices;
-  for (auto vertexId : netlist.getVerticesRegex(regex)) {
-    if (netlist.getVertex(vertexId).isNamed()) {
-      vertices.push_back(vertexId);
-    }
-  }
-  return vertices;
-}
-
-/// Return a sorted list of unique named entities in the netlist for searching.
 std::vector<std::reference_wrapper<const Vertex>>
-Netlist::getNamedVertices(const std::string &regex) const {
+Netlist::getNamedVertices(const std::string &pattern) const {
   // Collect vertices.
   std::vector<std::reference_wrapper<const Vertex>> vertices;
-  for (auto vertexId : getNamedVertexIds(regex)) {
+  for (auto vertexId : netlist.getVertices(pattern, VertexGraphType::IS_NAMED)) {
     vertices.push_back(std::ref(netlist.getVertex(vertexId)));
   }
   // Sort them.

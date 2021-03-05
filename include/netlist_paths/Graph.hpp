@@ -91,14 +91,26 @@ public:
   void splitRegVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
+
+  /// Return a list of vertices matching a VertexGraphType.
+  VertexIDVec getVerticesByType(VertexGraphType graphType) const;
+
+  /// Lookup a vertex by matching its name exactly.
   VertexID getVertexExact(const std::string &name,
                           VertexGraphType graphType=VertexGraphType::ANY) const;
-  VertexIDVec getVerticesRegex(const std::string &name,
+
+  /// Return a list of vertices matching a regex pattern.
+  VertexIDVec getVerticesRegex(const std::string &pattern,
                                VertexGraphType graphType=VertexGraphType::ANY) const;
-  VertexIDVec getVerticesWildcard(const std::string &name,
+
+  /// Return a list of vertices matching a wildcard pattern.
+  VertexIDVec getVerticesWildcard(const std::string &pattern,
                                   VertexGraphType graphType=VertexGraphType::ANY) const;
-  VertexIDVec getVertices(const std::string &name,
+
+  /// Return a list of vertices that match the pattern.
+  VertexIDVec getVertices(const std::string &pattern,
                           VertexGraphType graphType=VertexGraphType::ANY) const;
+
   VertexIDVec getStartVertices(const std::string &name) const {
     return getVertices(name, VertexGraphType::START_POINT);
   }

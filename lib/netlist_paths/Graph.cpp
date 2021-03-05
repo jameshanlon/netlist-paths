@@ -165,7 +165,16 @@ bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
                                              : graph[vertex].isGraphType(graphType);
 }
 
-/// Return a list of vertices matching a wildcard pattern.
+VertexIDVec Graph::getVerticesByType(VertexGraphType graphType) const {
+  VertexIDVec vertexIDs;
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (vertexTypeMatch(v, graphType)) {
+      vertexIDs.push_back(v);
+    }
+  }
+  return vertexIDs;
+}
+
 /// This implementation will allow the name to contain other regular expression
 /// syntax, and should be improved to match the wildcards directly.
 VertexIDVec Graph::getVerticesWildcard(const std::string &name,
@@ -187,7 +196,6 @@ VertexIDVec Graph::getVerticesWildcard(const std::string &name,
   return vertexIDs;
 }
 
-/// Return a list of vertices matching a regex pattern.
 VertexIDVec Graph::getVerticesRegex(const std::string &name,
                                     VertexGraphType graphType) const {
   auto nameStr(name);
@@ -214,7 +222,6 @@ VertexIDVec Graph::getVerticesRegex(const std::string &name,
   return vertexIDs;
 }
 
-/// Lookup a vertex by matching its name exactly.
 VertexID Graph::getVertexExact(const std::string &name,
                                VertexGraphType graphType) const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
@@ -226,18 +233,20 @@ VertexID Graph::getVertexExact(const std::string &name,
   return nullVertex();
 }
 
-/// Return a list of vertices that match the pattern.
-VertexIDVec Graph::getVertices(const std::string &name,
+VertexIDVec Graph::getVertices(const std::string &pattern,
                                VertexGraphType graphType) const {
+  if (pattern.empty()) {
+    return getVerticesByType(graphType);
+  }
   if (Options::getInstance().isMatchExact()) {
-    auto vertex = getVertexExact(name, graphType);
+    auto vertex = getVertexExact(pattern, graphType);
     return vertex != nullVertex() ? VertexIDVec{vertex} : VertexIDVec{};
   }
   if (Options::getInstance().isMatchRegex()) {
-    return getVerticesRegex(name, graphType);
+    return getVerticesRegex(pattern, graphType);
   }
   if (Options::getInstance().isMatchWildcard()) {
-    return getVerticesWildcard(name, graphType);
+    return getVerticesWildcard(pattern, graphType);
   }
   return {};
 }

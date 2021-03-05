@@ -47,8 +47,11 @@ def dump_names(vertices, fd):
                      str(vertex.get_dtype_width()),
                      vertex.get_direction_str(),
                      vertex.get_location_str()))
-    # Write the table out.
-    write_table(rows, fd)
+    if len(vertices) > 0:
+        # Write the table out.
+        write_table(rows, fd)
+    else:
+        print('No matching vertices.')
 
 def dump_path_report(netlist, path, fd):
     """
@@ -75,13 +78,18 @@ def dump_path_report(netlist, path, fd):
             row = ('', '', path[index].get_ast_type_str(), path[index].get_location_str())
             index += 1
         rows.append(row)
-    # Write the table out.
-    write_table(rows, fd)
+    if len(rows) > 0:
+        # Write the table out.
+        write_table(rows, fd)
+    else:
+        print('No matching paths.')
 
 def dump_path_list_report(netlist, paths, fd):
     """
     Report a list of paths.
     """
+    if len(paths):
+        print('No matching paths.')
     for i, path in enumerate(paths):
         fd.write('\nPath {}\n'.format(i))
         dump_path_report(netlist, path, fd)
@@ -108,33 +116,27 @@ def main():
     parser.add_argument('--dump-names',
                         nargs='?',
                         default=None,
-                        const='.*',
-                        metavar='regex',
+                        const='',
+                        metavar='pattern',
                         help='Dump all named entities, filter by regex')
     parser.add_argument('--dump-nets',
                         nargs='?',
                         default=None,
-                        const='.*',
-                        metavar='regex',
+                        const='',
+                        metavar='pattern',
                         help='Dump all nets, filter by regex')
     parser.add_argument('--dump-ports',
                         nargs='?',
                         default=None,
-                        const='.*',
-                        metavar='regex',
+                        const='',
+                        metavar='pattern',
                         help='Dump all ports, filter by regex')
     parser.add_argument('--dump-regs',
                         nargs='?',
                         default=None,
-                        const='.*',
-                        metavar='regex',
+                        const='',
+                        metavar='pattern',
                         help='Dump all registers, filter by regex')
-    parser.add_argument('--dump-types',
-                        nargs='?',
-                        default=None,
-                        const='.*',
-                        metavar='regex',
-                        help='Dump all types, filter by regex')
     parser.add_argument('--dump-dot',
                         action='store_true',
                         help='Dump a dotfile of the netlist\'s graph')
@@ -216,28 +218,24 @@ def main():
             os.remove(output_filename)
 
         # Dump all names
-        if args.dump_names:
+        if args.dump_names != None:
             dump_names(netlist.get_named_vertices(args.dump_names), sys.stdout)
             return 0
 
         # Dump nets
-        if args.dump_nets:
+        if args.dump_nets != None:
             dump_names(netlist.get_net_vertices(args.dump_nets), sys.stdout)
             return 0
 
         # Dump ports
-        if args.dump_ports:
+        if args.dump_ports != None:
             dump_names(netlist.get_port_vertices(args.dump_ports), sys.stdout)
             return 0
 
         # Dump regs
-        if args.dump_regs:
+        if args.dump_regs != None:
             dump_names(netlist.get_reg_vertices(args.dump_regs), sys.stdout)
             return 0
-
-        # Dump types
-        if args.dump_types:
-            raise RuntimeError('dumping types not implemented')
 
         # Dump graph dotfile
         if args.dump_dot:

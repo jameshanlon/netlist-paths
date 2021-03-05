@@ -12,6 +12,10 @@ void translateException(const netlist_paths::Exception& e) {
   PyErr_SetString(PyExc_RuntimeError, e.what());
 }
 
+void translateXMLException(const netlist_paths::XMLException& e) {
+  PyErr_SetString(PyExc_RuntimeError, e.what());
+}
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
                                        getVertexDTypeStr, 1, 2)
 
@@ -25,6 +29,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   // Setup exception translation.
   register_exception_translator<Exception>(&translateException);
+  register_exception_translator<XMLException>(&translateXMLException);
 
   class_<DType, DType*, boost::noncopyable>("DType")
      .def("get_name",   &DType::getName)
