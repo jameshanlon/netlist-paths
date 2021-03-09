@@ -15,7 +15,7 @@ jobs:
         submodules: 'recursive' 
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libfl-dev
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libfl-dev && python3 -m pip install -r docs/requirements.txt
 
     - name: Create build environment
       run: cmake -E make_directory ${{github.workspace}}/build
@@ -26,7 +26,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DNETLIST_PATHS_BUILD_DOCS=1 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
 
     - name: Build
       working-directory: ${{github.workspace}}/build
@@ -42,3 +42,9 @@ jobs:
       working-directory: ${{github.workspace}}/build
       shell: bash
       run: ctest -C $BUILD_TYPE --verbose
+
+    - name: Publish documentation
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        publish_dir: ./docs/sphinx
