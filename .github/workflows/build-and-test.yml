@@ -18,7 +18,9 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libfl-dev doxygen
       
     - name: Install Python packages
-      run: python3 -m pip install -r ./docs/requirements.txt
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install -r ./docs/requirements.txt
 
     - name: Create build environment
       run: cmake -E make_directory ${{github.workspace}}/build
