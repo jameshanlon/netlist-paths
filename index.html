@@ -1,0 +1,1057 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Netlist paths &mdash; Netlist paths  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home" alt="Documentation Home"> Netlist paths
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Netlist paths</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#python-api-reference">Python API reference</a><ul>
+<li><a class="reference internal" href="#dtype">DType</a></li>
+<li><a class="reference internal" href="#options">Options</a></li>
+<li><a class="reference internal" href="#netlist">Netlist</a></li>
+<li><a class="reference internal" href="#waypoints">Waypoints</a></li>
+<li><a class="reference internal" href="#runverilator">RunVerilator</a></li>
+<li><a class="reference internal" href="#vertex">Vertex</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#c-api-reference">C++ API reference</a><ul>
+<li><a class="reference internal" href="#graph">Graph</a></li>
+<li><a class="reference internal" href="#id1">Options</a></li>
+<li><a class="reference internal" href="#id2">Netlist</a></li>
+<li><a class="reference internal" href="#id3">RunVerilator</a></li>
+<li><a class="reference internal" href="#id4">Vertex</a></li>
+<li><a class="reference internal" href="#id5">Waypoints</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Netlist paths</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Netlist paths</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="netlist-paths">
+<h1>Netlist paths<a class="headerlink" href="#netlist-paths" title="Permalink to this headline">¶</a></h1>
+<p>Netlist paths is a library and command-line tool for querying a Verilog
+netlist. It reads an XML representation of a design’s netlist, produced by
+Verilator, and provides facilities for inspecting types, variables and paths.
+The library is written in C++ and has a Python interface.</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+<div class="section" id="python-api-reference">
+<h1>Python API reference<a class="headerlink" href="#python-api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="dtype">
+<h2>DType<a class="headerlink" href="#dtype" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.DType">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">DType</span></code><a class="headerlink" href="#py_netlist_paths.DType" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.DType.get_name">
+<code class="sig-name descname"><span class="pre">get_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_name(DType {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.DType.get_width">
+<code class="sig-name descname"><span class="pre">get_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.get_width" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>unsigned long get_width(DType {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.DType.to_str">
+<code class="sig-name descname"><span class="pre">to_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.to_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; to_str(DType {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.Options">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">Options</span></code><a class="headerlink" href="#py_netlist_paths.Options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.Options.get_instance">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_instance</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Options</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>netlist_paths::Options* get_instance()</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_debug">
+<code class="sig-name descname"><span class="pre">set_debug</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_debug" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_debug(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_ignore_hierarchy_markers">
+<code class="sig-name descname"><span class="pre">set_ignore_hierarchy_markers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_ignore_hierarchy_markers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_ignore_hierarchy_markers(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_match_exact">
+<code class="sig-name descname"><span class="pre">set_match_exact</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_match_exact" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_match_exact(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_match_regex">
+<code class="sig-name descname"><span class="pre">set_match_regex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_match_regex" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_match_regex(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_match_wildcard">
+<code class="sig-name descname"><span class="pre">set_match_wildcard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_match_wildcard" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_match_wildcard(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_respect_hierarchy_markers">
+<code class="sig-name descname"><span class="pre">set_respect_hierarchy_markers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_respect_hierarchy_markers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_respect_hierarchy_markers(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_verbose">
+<code class="sig-name descname"><span class="pre">set_verbose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_verbose" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_verbose(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="netlist">
+<h2>Netlist<a class="headerlink" href="#netlist" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.Netlist">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">Netlist</span></code><a class="headerlink" href="#py_netlist_paths.Netlist" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.Netlist.any_endpoint_exists">
+<code class="sig-name descname"><span class="pre">any_endpoint_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.any_endpoint_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool any_endpoint_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.any_reg_exists">
+<code class="sig-name descname"><span class="pre">any_reg_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.any_reg_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool any_reg_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.any_startpoint_exists">
+<code class="sig-name descname"><span class="pre">any_startpoint_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.any_startpoint_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool any_startpoint_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.dump_dot_file">
+<code class="sig-name descname"><span class="pre">dump_dot_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.dump_dot_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void dump_dot_file(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.endpoint_exists">
+<code class="sig-name descname"><span class="pre">endpoint_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.endpoint_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool endpoint_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_all_fanin_paths">
+<code class="sig-name descname"><span class="pre">get_all_fanin_paths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">PathList</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_all_fanin_paths" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt;, std::allocator&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; &gt; &gt; get_all_fanin_paths(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_all_fanout_paths">
+<code class="sig-name descname"><span class="pre">get_all_fanout_paths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">PathList</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_all_fanout_paths" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt;, std::allocator&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; &gt; &gt; get_all_fanout_paths(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_all_paths">
+<code class="sig-name descname"><span class="pre">get_all_paths</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(Waypoints)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">PathList</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_all_paths" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt;, std::allocator&lt;std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; &gt; &gt; get_all_paths(netlist_paths::Netlist {lvalue},netlist_paths::Waypoints)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_any_path">
+<code class="sig-name descname"><span class="pre">get_any_path</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(Waypoints)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Path</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_any_path" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; get_any_path(netlist_paths::Netlist {lvalue},netlist_paths::Waypoints)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_dtype_width">
+<code class="sig-name descname"><span class="pre">get_dtype_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_dtype_width" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>unsigned long get_dtype_width(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_named_vertices">
+<code class="sig-name descname"><span class="pre">get_named_vertices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Path</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_named_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; get_named_vertices(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_net_vertices">
+<code class="sig-name descname"><span class="pre">get_net_vertices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Path</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_net_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; get_net_vertices(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_port_vertices">
+<code class="sig-name descname"><span class="pre">get_port_vertices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Path</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_port_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; get_port_vertices(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_reg_vertices">
+<code class="sig-name descname"><span class="pre">get_reg_vertices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Path</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_reg_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::Vertex*, std::allocator&lt;netlist_paths::Vertex*&gt; &gt; get_reg_vertices(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_vertex_dtype_str">
+<code class="sig-name descname"><span class="pre">get_vertex_dtype_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">(object)arg3</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_vertex_dtype_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_vertex_dtype_str(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; [,netlist_paths::VertexGraphType])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_vertex_dtype_width">
+<code class="sig-name descname"><span class="pre">get_vertex_dtype_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">(object)arg3</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_vertex_dtype_width" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>unsigned long get_vertex_dtype_width(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; [,netlist_paths::VertexGraphType])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.path_exists">
+<code class="sig-name descname"><span class="pre">path_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(Waypoints)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.path_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool path_exists(netlist_paths::Netlist {lvalue},netlist_paths::Waypoints)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.reg_exists">
+<code class="sig-name descname"><span class="pre">reg_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.reg_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool reg_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.startpoint_exists">
+<code class="sig-name descname"><span class="pre">startpoint_exists</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.startpoint_exists" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool startpoint_exists(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="waypoints">
+<h2>Waypoints<a class="headerlink" href="#waypoints" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.Waypoints">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">Waypoints</span></code><a class="headerlink" href="#py_netlist_paths.Waypoints" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_any_finish_point">
+<code class="sig-name descname"><span class="pre">add_any_finish_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_any_finish_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_any_finish_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_any_start_point">
+<code class="sig-name descname"><span class="pre">add_any_start_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_any_start_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_any_start_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_avoid_point">
+<code class="sig-name descname"><span class="pre">add_avoid_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_avoid_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_avoid_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_finish_point">
+<code class="sig-name descname"><span class="pre">add_finish_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_finish_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_finish_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_start_point">
+<code class="sig-name descname"><span class="pre">add_start_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_start_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_start_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Waypoints.add_through_point">
+<code class="sig-name descname"><span class="pre">add_through_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Waypoints)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Waypoints.add_through_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void add_through_point(netlist_paths::Waypoints {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="runverilator">
+<h2>RunVerilator<a class="headerlink" href="#runverilator" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.RunVerilator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">RunVerilator</span></code><a class="headerlink" href="#py_netlist_paths.RunVerilator" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.RunVerilator.run">
+<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(RunVerilator)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em>, <em class="sig-param"><span class="pre">(str)arg3</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.RunVerilator.run" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>int run(netlist_paths::RunVerilator {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;,std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="vertex">
+<h2>Vertex<a class="headerlink" href="#vertex" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="py_netlist_paths.Vertex">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">Vertex</span></code><a class="headerlink" href="#py_netlist_paths.Vertex" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="py_netlist_paths.Vertex.can_ignore">
+<code class="sig-name descname"><span class="pre">can_ignore</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.can_ignore" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool can_ignore(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_ast_type_str">
+<code class="sig-name descname"><span class="pre">get_ast_type_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_ast_type_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_ast_type_str(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_direction_str">
+<code class="sig-name descname"><span class="pre">get_direction_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_direction_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_direction_str(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_dtype">
+<code class="sig-name descname"><span class="pre">get_dtype</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">DType</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_dtype" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>DType* get_dtype(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_dtype_str">
+<code class="sig-name descname"><span class="pre">get_dtype_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_dtype_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_dtype_str(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_dtype_width">
+<code class="sig-name descname"><span class="pre">get_dtype_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_dtype_width" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>unsigned long get_dtype_width(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_location_str">
+<code class="sig-name descname"><span class="pre">get_location_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_location_str" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_location_str(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.get_name">
+<code class="sig-name descname"><span class="pre">get_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_name(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_finish_point">
+<code class="sig-name descname"><span class="pre">is_finish_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_finish_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_finish_point(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_logic">
+<code class="sig-name descname"><span class="pre">is_logic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_logic" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_logic(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_mid_point">
+<code class="sig-name descname"><span class="pre">is_mid_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_mid_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_mid_point(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_net">
+<code class="sig-name descname"><span class="pre">is_net</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_net" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_net(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_parameter">
+<code class="sig-name descname"><span class="pre">is_parameter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_parameter(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_port">
+<code class="sig-name descname"><span class="pre">is_port</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_port" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_port(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_public">
+<code class="sig-name descname"><span class="pre">is_public</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_public" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_public(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_reg">
+<code class="sig-name descname"><span class="pre">is_reg</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_reg" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_reg(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_start_point">
+<code class="sig-name descname"><span class="pre">is_start_point</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_start_point" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_start_point(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Vertex.is_top">
+<code class="sig-name descname"><span class="pre">is_top</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Vertex)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Vertex.is_top" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>bool is_top(netlist_paths::Vertex {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="c-api-reference">
+<h1>C++ API reference<a class="headerlink" href="#c-api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="graph">
+<h2>Graph<a class="headerlink" href="#graph" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths5GraphE">
+<span id="_CPPv3N13netlist_paths5GraphE"></span><span id="_CPPv2N13netlist_paths5GraphE"></span><span id="netlist_paths::Graph"></span><span class="target" id="classnetlist__paths_1_1_graph"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Graph</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths5GraphE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths5Graph17getVerticesByTypeE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths5Graph17getVerticesByTypeE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths5Graph17getVerticesByTypeE15VertexGraphType"></span><span id="netlist_paths::Graph::getVerticesByType__VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_graph_1abbb3fda175ab4dd89a80329fa8799f46"></span><span class="pre">VertexIDVec</span> <code class="sig-name descname"><span class="pre">getVerticesByType</span></code><span class="sig-paren">(</span><span class="pre">VertexGraphType</span> <em><span class="pre">graphType</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5Graph17getVerticesByTypeE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a list of vertices matching a VertexGraphType. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths5Graph14getVertexExactERKNSt6stringE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths5Graph14getVertexExactERKNSt6stringE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths5Graph14getVertexExactERKNSt6stringE15VertexGraphType"></span><span id="netlist_paths::Graph::getVertexExact__ssCR.VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_graph_1a6ae9e92e4991486e3d1923ed1d5de61c"></span><span class="pre">VertexID</span> <code class="sig-name descname"><span class="pre">getVertexExact</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em>, <span class="pre">VertexGraphType</span> <em><span class="pre">graphType</span></em> <span class="pre">=</span> <span class="pre">VertexGraphType</span><span class="pre">::</span><span class="pre">ANY</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5Graph14getVertexExactERKNSt6stringE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Lookup a vertex by matching its name exactly. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths5Graph16getVerticesRegexERKNSt6stringE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths5Graph16getVerticesRegexERKNSt6stringE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths5Graph16getVerticesRegexERKNSt6stringE15VertexGraphType"></span><span id="netlist_paths::Graph::getVerticesRegex__ssCR.VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_graph_1ae7eeb251e8022abfcfacd13f8dc08898"></span><span class="pre">VertexIDVec</span> <code class="sig-name descname"><span class="pre">getVerticesRegex</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">pattern</span></em>, <span class="pre">VertexGraphType</span> <em><span class="pre">graphType</span></em> <span class="pre">=</span> <span class="pre">VertexGraphType</span><span class="pre">::</span><span class="pre">ANY</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5Graph16getVerticesRegexERKNSt6stringE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a list of vertices matching a regex pattern. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths5Graph19getVerticesWildcardERKNSt6stringE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths5Graph19getVerticesWildcardERKNSt6stringE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths5Graph19getVerticesWildcardERKNSt6stringE15VertexGraphType"></span><span id="netlist_paths::Graph::getVerticesWildcard__ssCR.VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_graph_1aca35a0a754cab7fb713e276f06ad0bef"></span><span class="pre">VertexIDVec</span> <code class="sig-name descname"><span class="pre">getVerticesWildcard</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">pattern</span></em>, <span class="pre">VertexGraphType</span> <em><span class="pre">graphType</span></em> <span class="pre">=</span> <span class="pre">VertexGraphType</span><span class="pre">::</span><span class="pre">ANY</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5Graph19getVerticesWildcardERKNSt6stringE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a list of vertices matching a wildcard pattern. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths5Graph11getVerticesERKNSt6stringE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths5Graph11getVerticesERKNSt6stringE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths5Graph11getVerticesERKNSt6stringE15VertexGraphType"></span><span id="netlist_paths::Graph::getVertices__ssCR.VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_graph_1a90f9d078c9d9856262626036c144e3cc"></span><span class="pre">VertexIDVec</span> <code class="sig-name descname"><span class="pre">getVertices</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">pattern</span></em>, <span class="pre">VertexGraphType</span> <em><span class="pre">graphType</span></em> <span class="pre">=</span> <span class="pre">VertexGraphType</span><span class="pre">::</span><span class="pre">ANY</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5Graph11getVerticesERKNSt6stringE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a list of vertices that match the pattern. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>Options<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths7OptionsE">
+<span id="_CPPv3N13netlist_paths7OptionsE"></span><span id="_CPPv2N13netlist_paths7OptionsE"></span><span id="netlist_paths::Options"></span><span class="target" id="classnetlist__paths_1_1_options"></span><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Options</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths7OptionsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id2">
+<h2>Netlist<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths7NetlistE">
+<span id="_CPPv3N13netlist_paths7NetlistE"></span><span id="_CPPv2N13netlist_paths7NetlistE"></span><span id="netlist_paths::Netlist"></span><span class="target" id="classnetlist__paths_1_1_netlist"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Netlist</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths7NetlistE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Wrapper for Python to manage the netlist paths object. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist8getDTypeERKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist8getDTypeERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist8getDTypeERKNSt6stringE"></span><span id="netlist_paths::Netlist::getDType__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a76e49caddbf0dcde5e0f872a5caf43e2"></span><em class="property"><span class="pre">inline</span></em> <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">shared_ptr</span><span class="pre">&lt;</span><span class="pre">DType</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getDType</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist8getDTypeERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get a DType by name. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths7Netlist10pathExistsE9Waypoints">
+<span id="_CPPv3N13netlist_paths7Netlist10pathExistsE9Waypoints"></span><span id="_CPPv2N13netlist_paths7Netlist10pathExistsE9Waypoints"></span><span id="netlist_paths::Netlist::pathExists__Waypoints"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a5f80212d00d2e8275a7f98ea286bb023"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">pathExists</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Netlist10pathExistsE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a Boolean to indicate whether any path exists between two points. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist10getAnyPathE9Waypoints">
+<span id="_CPPv3NK13netlist_paths7Netlist10getAnyPathE9Waypoints"></span><span id="_CPPv2NK13netlist_paths7Netlist10getAnyPathE9Waypoints"></span><span id="netlist_paths::Netlist::getAnyPath__WaypointsC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1aededb4f872f978b864a2c88f4d7c9333"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAnyPath</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist10getAnyPathE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return any path between two points. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist11getAllPathsE9Waypoints">
+<span id="_CPPv3NK13netlist_paths7Netlist11getAllPathsE9Waypoints"></span><span id="_CPPv2NK13netlist_paths7Netlist11getAllPathsE9Waypoints"></span><span id="netlist_paths::Netlist::getAllPaths__WaypointsC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1ae321a2d59d98cebbaf4f22faf2c50393"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllPaths</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist11getAllPathsE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return all paths between two points, useful for testing. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE"></span><span id="netlist_paths::Netlist::getAllFanOut__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a51948becdd823ee813571f531a0402a9"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllFanOut</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">startName</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of paths fanning out from a particular start point. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE"></span><span id="netlist_paths::Netlist::getAllFanIn__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1af64df69c39e0950cfe9ea4ef47c02dd5"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllFanIn</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">endName</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of paths fanning out from a particular start point. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist16getNamedVerticesERKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist16getNamedVerticesERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist16getNamedVerticesERKNSt6stringE"></span><span id="netlist_paths::Netlist::getNamedVertices__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a5526f632cc3f4f61b804c0df4f71fa68"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">reference_wrapper</span><span class="pre">&lt;</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNamedVertices</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">&quot;&quot;</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist16getNamedVerticesERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a sorted list of unique named vertices in the netlist for searching. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNamedVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a771c3d067336c23a432a5f67e9e92fc1"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNamedVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of pointers to vertices that have names. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNetVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a51d2c85d66d31a39dfab02c0adac49f4"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNetVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of pointers to net vertices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getPortVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a5a38da9a400aefa5eebc5711c1b2bd88"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getPortVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of pointers to port vertices. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getRegVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a38497b2aa32348e047455ee8ea1478ea"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getRegVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of pointers to register vertices. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id3">
+<h2>RunVerilator<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths12RunVerilatorE">
+<span id="_CPPv3N13netlist_paths12RunVerilatorE"></span><span id="_CPPv2N13netlist_paths12RunVerilatorE"></span><span id="netlist_paths::RunVerilator"></span><span class="target" id="classnetlist__paths_1_1_run_verilator"></span><em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">RunVerilator</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths12RunVerilatorE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id4">
+<h2>Vertex<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths6VertexE">
+<span id="_CPPv3N13netlist_paths6VertexE"></span><span id="_CPPv2N13netlist_paths6VertexE"></span><span id="netlist_paths::Vertex"></span><span class="target" id="classnetlist__paths_1_1_vertex"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Vertex</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths6VertexE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType8Location">
+<span id="_CPPv3N13netlist_paths6Vertex6VertexE13VertexAstType8Location"></span><span id="_CPPv2N13netlist_paths6Vertex6VertexE13VertexAstType8Location"></span><span id="netlist_paths::Vertex::Vertex__VertexAstType.Location"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a9f7ad9f9f4c4bc17e28e742cdd8830a5"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Vertex</span></code><span class="sig-paren">(</span><span class="pre">VertexAstType</span> <em><span class="pre">type</span></em>, <span class="pre">Location</span> <em><span class="pre">location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType8Location" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Logic vertex. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb">
+<span id="_CPPv3N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb"></span><span id="_CPPv2N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb"></span><span id="netlist_paths::Vertex::Vertex__VertexAstType.VertexDirection.Location.std::shared_ptr:DType:.ssCR.b.ssCR.b"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a81adfa4909c4571263a54fd1a74028ba"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Vertex</span></code><span class="sig-paren">(</span><span class="pre">VertexAstType</span> <em><span class="pre">type</span></em>, <span class="pre">VertexDirection</span> <em><span class="pre">direction</span></em>, <span class="pre">Location</span> <em><span class="pre">location</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">shared_ptr</span><span class="pre">&lt;</span><span class="pre">DType</span><span class="pre">&gt;</span> <em><span class="pre">dtype</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em>, <span class="pre">bool</span> <em><span class="pre">isParam</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">paramValue</span></em>, <span class="pre">bool</span> <em><span class="pre">publicVisibility</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Var vertex. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths6Vertex6VertexERK6Vertex">
+<span id="_CPPv3N13netlist_paths6Vertex6VertexERK6Vertex"></span><span id="_CPPv2N13netlist_paths6Vertex6VertexERK6Vertex"></span><span id="netlist_paths::Vertex::Vertex__VertexCR"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a487a7027a8e90ed00b8c7bd39e54f852"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Vertex</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths6Vertex6VertexERK6Vertex" title="netlist_paths::Vertex::Vertex"><span class="pre">Vertex</span></a> <span class="pre">&amp;</span><em><span class="pre">v</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex6VertexERK6Vertex" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Copy constructor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex11getBasenameEv">
+<span id="_CPPv3NK13netlist_paths6Vertex11getBasenameEv"></span><span id="_CPPv2NK13netlist_paths6Vertex11getBasenameEv"></span><span id="netlist_paths::Vertex::getBasenameC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a732bdb3420d3275168c1b75151e23a7c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <code class="sig-name descname"><span class="pre">getBasename</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex11getBasenameEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Given a hierarchical name a.b.c, return the last component c. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex15compareLessThanERK6Vertex">
+<span id="_CPPv3NK13netlist_paths6Vertex15compareLessThanERK6Vertex"></span><span id="_CPPv2NK13netlist_paths6Vertex15compareLessThanERK6Vertex"></span><span id="netlist_paths::Vertex::compareLessThan__VertexCRC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1af456ae122cbc27a75d078f9029abd96f"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">compareLessThan</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a> <span class="pre">&amp;</span><em><span class="pre">b</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex15compareLessThanERK6Vertex" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Less than comparison. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex12compareEqualERK6Vertex">
+<span id="_CPPv3NK13netlist_paths6Vertex12compareEqualERK6Vertex"></span><span id="_CPPv2NK13netlist_paths6Vertex12compareEqualERK6Vertex"></span><span id="netlist_paths::Vertex::compareEqual__VertexCRC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a377e5707c84701c21899150d1028d8c4"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">compareEqual</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a> <span class="pre">&amp;</span><em><span class="pre">b</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex12compareEqualERK6Vertex" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Equality comparison. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex11isGraphTypeE15VertexGraphType">
+<span id="_CPPv3NK13netlist_paths6Vertex11isGraphTypeE15VertexGraphType"></span><span id="_CPPv2NK13netlist_paths6Vertex11isGraphTypeE15VertexGraphType"></span><span id="netlist_paths::Vertex::isGraphType__VertexGraphTypeC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a935bd1558434ca707b8c333f3c75edf9"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isGraphType</span></code><span class="sig-paren">(</span><span class="pre">VertexGraphType</span> <em><span class="pre">type</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex11isGraphTypeE15VertexGraphType" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Match this vertex against different graph types. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex7isNamedEv">
+<span id="_CPPv3NK13netlist_paths6Vertex7isNamedEv"></span><span id="_CPPv2NK13netlist_paths6Vertex7isNamedEv"></span><span id="netlist_paths::Vertex::isNamedC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1aae0b3a0f129b64a089421dc3ca560586"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isNamed</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex7isNamedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Named vertices are displayed in the name dump. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex8toStringEv">
+<span id="_CPPv3NK13netlist_paths6Vertex8toStringEv"></span><span id="_CPPv2NK13netlist_paths6Vertex8toStringEv"></span><span id="netlist_paths::Vertex::toStringC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a127b61a2eb5ed05ba62d40c48af7b9bb"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <code class="sig-name descname"><span class="pre">toString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex8toStringEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a description of this vertex. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths6Vertex10setDeletedEv">
+<span id="_CPPv3N13netlist_paths6Vertex10setDeletedEv"></span><span id="_CPPv2N13netlist_paths6Vertex10setDeletedEv"></span><span id="netlist_paths::Vertex::setDeleted"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ae0e25e60c8c9e1820e09e2afba38190d"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setDeleted</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex10setDeletedEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Various getters and setters. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE">
+<span id="_CPPv3N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="_CPPv2N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="netlist_paths::Vertex::determineIsTop__ssCR"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a1c779faab8ef50d102a8b63491ea0ebd"></span><em class="property"><span class="pre">static</span></em> <em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">determineIsTop</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> is in the ‘top’ scope when has one or two hierarchical components. module.name or name is top level, but module.submodule.name is not. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id5">
+<h2>Waypoints<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<dl class="cpp class">
+<dt id="_CPPv4N13netlist_paths9WaypointsE">
+<span id="_CPPv3N13netlist_paths9WaypointsE"></span><span id="_CPPv2N13netlist_paths9WaypointsE"></span><span id="netlist_paths::Waypoints"></span><span class="target" id="classnetlist__paths_1_1_waypoints"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Waypoints</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths9WaypointsE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A class representing a set of waypoints to constrain a search for a path. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints9WaypointsEv">
+<span id="_CPPv3N13netlist_paths9Waypoints9WaypointsEv"></span><span id="_CPPv2N13netlist_paths9Waypoints9WaypointsEv"></span><span id="netlist_paths::Waypoints::Waypoints"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1ad3b631d0f358423b75b37da42de364d7"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Waypoints</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints9WaypointsEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct an empty <a class="reference internal" href="#classnetlist__paths_1_1_waypoints"><span class="std std-ref">Waypoints</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringEb">
+<span id="_CPPv3N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringEb"></span><span id="_CPPv2N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringEb"></span><span id="netlist_paths::Waypoints::Waypoints__ssC.ssC.b"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1ae2bf6df812b3b75cc5400f051e898a42"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Waypoints</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">start</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">finish</span></em>, <span class="pre">bool</span> <em><span class="pre">matchAny</span></em> <span class="pre">=</span> <span class="pre">false</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Construct <a class="reference internal" href="#classnetlist__paths_1_1_waypoints"><span class="std std-ref">Waypoints</span></a> with patterns matching any start and finish points. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints13addStartPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints13addStartPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints13addStartPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addStartPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1acce03b81701500c182ded9bd04df4c08"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addStartPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints13addStartPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a named start point. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints14addFinishPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints14addFinishPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints14addFinishPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addFinishPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1ab0ab1a423ee33ea294e9769d7f1d4798"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addFinishPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints14addFinishPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set a named finish point. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints16addAnyStartPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints16addAnyStartPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints16addAnyStartPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addAnyStartPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a7e8b4613beaf4086f9bdbcc3233d7603"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addAnyStartPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints16addAnyStartPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set any start point matching. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints17addAnyFinishPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints17addAnyFinishPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints17addAnyFinishPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addAnyFinishPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a1d3856c9cd5660f32588c78a642d086e"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addAnyFinishPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints17addAnyFinishPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set any finish point matching. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addThroughPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a7e5378c2f5efb8f296afde54c2d19fd4"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addThroughPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a through point. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE">
+<span id="_CPPv3N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addAvoidPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a2d23bdc0a60b02ec48e6c7e1ec85b394"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addAvoidPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Add a point to avoid. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, James Hanlon
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
