@@ -6,6 +6,7 @@
 
 namespace netlist_paths {
 
+/// A class representing a set of waypoints to constrain a search for a path.
 class Waypoints {
   std::vector<std::string> waypoints;
   std::vector<std::string> avoidPoints;
@@ -15,10 +16,13 @@ class Waypoints {
   bool matchAnyFinishPoint;
 
 public:
+
+  /// Construct an empty Waypoints.
   Waypoints() :
       gotStartPoint(false), gotFinishPoint(false),
       matchAnyStartPoint(false), matchAnyFinishPoint(false) {}
 
+  /// Construct Waypoints with patterns matching any start and finish points.
   Waypoints(const std::string start,
             const std::string finish,
             bool matchAny=false) :
@@ -28,6 +32,7 @@ public:
     addFinishPoint(finish);
   }
 
+  /// Set a named start point.
   void addStartPoint(const std::string name) {
     if (gotStartPoint) {
       throw Exception("start point already defined");
@@ -40,6 +45,7 @@ public:
     }
   }
 
+  /// Set a named finish point.
   void addFinishPoint(const std::string name) {
     if (gotFinishPoint) {
       throw Exception("finish point already defined");
@@ -52,16 +58,19 @@ public:
     }
   }
 
+  /// Set any start point matching.
   void addAnyStartPoint(const std::string name) {
     addStartPoint(name);
     matchAnyStartPoint = true;
   }
 
+  /// Set any finish point matching.
   void addAnyFinishPoint(const std::string name) {
     addFinishPoint(name);
     matchAnyFinishPoint = true;
   }
 
+  /// Add a through point.
   void addThroughPoint(const std::string name) {
     if (waypoints.size() > 0) {
       waypoints.insert(waypoints.end()-(gotFinishPoint?1:0), name);
@@ -70,6 +79,7 @@ public:
     }
   }
 
+  /// Add a point to avoid.
   void addAvoidPoint(const std::string name) {
     avoidPoints.push_back(name);
   }

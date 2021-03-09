@@ -18,23 +18,87 @@ Indices and tables
 * :ref:`search`
 
 
-API reference
-=============
+Python API reference
+====================
 
-.. doxygenclass:: netlist_paths::Netlist
+DType
+-----
+
+.. autoclass:: py_netlist_paths.DType
    :members:
+   :undoc-members:
+
+Options
+-------
+
+.. autoclass:: py_netlist_paths.Options
+   :members:
+   :undoc-members:
+
+Netlist
+-------
+
+.. autoclass:: py_netlist_paths.Netlist
+   :members:
+   :undoc-members:
+
+Waypoints
+---------
+
+.. autoclass:: py_netlist_paths.Waypoints
+   :members:
+   :undoc-members:
+
+RunVerilator
+------------
+
+.. autoclass:: py_netlist_paths.RunVerilator
+   :members:
+   :undoc-members:
+
+Vertex
+------
+
+.. autoclass:: py_netlist_paths.Vertex
+   :members:
+   :undoc-members:
+
+
+C++ API reference
+=================
+
+Graph
+-----
 
 .. doxygenclass:: netlist_paths::Graph
    :members:
 
+Options
+-------
+
 .. doxygenclass:: netlist_paths::Options
    :members:
+
+Netlist
+-------
+
+.. doxygenclass:: netlist_paths::Netlist
+   :members:
+
+RunVerilator
+------------
 
 .. doxygenclass:: netlist_paths::RunVerilator
    :members:
 
+Vertex
+------
+
 .. doxygenclass:: netlist_paths::Vertex
    :members:
+
+Waypoints
+---------
 
 .. doxygenclass:: netlist_paths::Waypoints
    :members:
