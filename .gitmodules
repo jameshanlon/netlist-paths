@@ -1,4 +1,0 @@
-[submodule "verilator"]
-	path = thirdparty/verilator
-	url = https://github.com/verilator/verilator.git
-	branch = master
