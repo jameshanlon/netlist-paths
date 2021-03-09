@@ -21,7 +21,7 @@ jobs:
       run:  |
         cd /
         python3 -m pip install --upgrade pip
-        python3 -m pip install -r ./docs/requirements.txt
+        python3 -m pip install -r ./netlist-paths/docs/requirements.txt
 
     - name: Create build environment
       run: cmake -E make_directory ${{github.workspace}}/build
