@@ -21,7 +21,7 @@ jobs:
       run:  |
         cd /
         sudo python3 -m pip install --upgrade pip
-        sudo python3 -m pip install -r ./netlist-paths/docs/requirements.txt
+        sudo python3 -m pip install -r /home/runner/work/netlist-paths/netlist-paths/docs/requirements.txt
 
     - name: Create build environment
       run: cmake -E make_directory ${{github.workspace}}/build
