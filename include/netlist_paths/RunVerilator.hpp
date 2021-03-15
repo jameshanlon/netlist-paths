@@ -9,6 +9,7 @@ namespace fs = boost::filesystem;
 
 namespace netlist_paths {
 
+/// A class that provides facilities to run Verilator and produce XML netlists.
 class RunVerilator {
 private:
   fs::path verilatorExe;

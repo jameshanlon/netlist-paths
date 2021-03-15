@@ -22,6 +22,7 @@ using EdgeID = boost::graph_traits<InternalGraph>::edge_descriptor;
 using ParentMap = std::map<VertexID, std::vector<VertexID>>;
 using VertexIDVec = std::vector<VertexID>;
 
+/// A vertex predicate for the filtered graph.
 struct VertexPredicate {
   const VertexIDVec *avoidPointIDs;
   VertexPredicate() {}
@@ -38,6 +39,7 @@ using FilteredInternalGraph = boost::filtered_graph<InternalGraph,
                                                     boost::keep_all,
                                                     VertexPredicate>;
 
+/// A class representing a netlist graph.
 class Graph {
 private:
   InternalGraph graph;

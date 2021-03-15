@@ -9,7 +9,6 @@
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Graph.hpp"
 #include "netlist_paths/Options.hpp"
-#include "netlist_paths/ReadVerilatorXML.hpp"
 #include "netlist_paths/Waypoints.hpp"
 
 namespace netlist_paths {
@@ -27,22 +26,10 @@ class Netlist {
 
   std::vector<VertexID> getNamedVertexIds(const std::string &regex="") const;
 
-  std::vector<Vertex*> createVertexPtrVec(VertexIDVec vertices) const {
-    auto result = std::vector<Vertex*>();
-    for (auto vertexId : vertices) {
-      result.push_back(netlist.getVertexPtr(vertexId));
-    }
-    return result;
-  }
+  std::vector<Vertex*> createVertexPtrVec(VertexIDVec vertices) const;
 
   std::vector<std::vector<Vertex*> >
-  createVertexPtrVecVec(std::vector<VertexIDVec> paths) const {
-    auto result = std::vector<std::vector<Vertex*> >();
-    for (auto vertexIdVec : paths) {
-      result.push_back(createVertexPtrVec(vertexIdVec));
-    }
-    return result;
-  }
+  createVertexPtrVecVec(std::vector<VertexIDVec> paths) const;
 
   //===--------------------------------------------------------------------===//
   // Vertex lookup, with error reporting.
@@ -50,139 +37,51 @@ class Netlist {
 
   const std::string reportMultipleMatches(VertexIDVec vertices,
                                           const std::string name,
-                                          const std::string patternType="") const {
-    std::stringstream msg;
-    msg << "multiple vertices matching " << patternType << " pattern: " << name << "\n";
-    for (auto vertexID : vertices) {
-      auto vertex = netlist.getVertex(vertexID);
-      msg << boost::format("%s %s\n") % vertex.getName() % vertex.getAstTypeStr();
-    }
-    return msg.str();
-  }
+                                          const std::string patternType="") const;
 
-  VertexID getVertexRegex(const std::string &name,
-                          VertexGraphType vertexType=VertexGraphType::ANY) const {
-    auto vertices = netlist.getVertices(name, vertexType);
-    if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name));
-    }
-    if (vertices.size() == 1) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup a single vertex and report an error if there are multiple matches.
+  VertexID getVertex(const std::string &name,
+                     VertexGraphType vertexType=VertexGraphType::ANY) const;
 
-  VertexID getRegVertex(const std::string &name) const {
-    auto vertices = netlist.getRegVertices(name);
-    if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name, "register"));
-    }
-    if (vertices.size() == 1) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup a single vertex of type register.
+  VertexID getRegVertex(const std::string &name) const;
 
-  VertexID getBeginVertex(const std::string &name) const {
-    auto vertices = netlist.getStartVertices(name);
-    if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name, "begin point"));
-    }
-    if (vertices.size() == 1) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup a single vertex that is a startpoint.
+  VertexID getStartVertex(const std::string &name) const;
 
-  VertexID getAnyBeginVertex(const std::string &name) const {
-    auto vertices = netlist.getStartVertices(name);
-    if (vertices.size()) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup a single vertex that is an end point.
+  VertexID getEndVertex(const std::string &name) const;
 
-  VertexID getEndVertex(const std::string &name) const {
-    auto vertices = netlist.getEndVertices(name);
-    if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name, "end point"));
-    }
-    if (vertices.size() == 1) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup a single vertex that is a mid point.
+  VertexID getMidVertex(const std::string &name) const;
 
-  VertexID getAnyEndVertex(const std::string &name) const {
-    auto vertices = netlist.getEndVertices(name);
-    if (vertices.size()) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup start vertices and choose one that matches.
+  VertexID getAnyStartVertex(const std::string &name) const;
 
-  VertexID getMidVertex(const std::string &name) const {
-    auto vertices = netlist.getMidVertices(name);
-    if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name, "mid point"));
-    }
-    if (vertices.size() == 1) {
-      return vertices.front();
-    }
-    return netlist.nullVertex();
-  }
+  /// Lookup end vertices and choose one that matches.
+  VertexID getAnyEndVertex(const std::string &name) const;
+
+  /// Lookup a DType by name.
+  const std::shared_ptr<DType> getDType(const std::string &name) const;
 
 public:
   Netlist() = delete;
-  Netlist(const std::string &filename) {
-    Options::getInstance(); // Create singleton object.
-    ReadVerilatorXML(netlist, files, dtypes, filename);
-    netlist.propagateRegisters();
-    netlist.splitRegVertices();
-    netlist.checkGraph();
-  }
+  Netlist(const std::string &filename);
 
   //===--------------------------------------------------------------------===//
   // Reporting of names and types.
   //===--------------------------------------------------------------------===//
 
+  /// Lookup the data type string of a single vertex.
   const std::string getVertexDTypeStr(const std::string &name,
-                                      VertexGraphType vertexType=VertexGraphType::ANY) const {
-    auto vertex = getVertexRegex(name, vertexType);
-    if (vertex == netlist.nullVertex()) {
-      throw Exception(std::string("could not find vertex "+name));
-    }
-    return netlist.getVertex(vertex).getDTypeStr();
-  }
+                                      VertexGraphType vertexType=VertexGraphType::ANY) const;
 
+  /// Lookup the data type width of a single vertex.
   size_t getVertexDTypeWidth(const std::string &name,
-                             VertexGraphType vertexType=VertexGraphType::ANY) const {
-    auto vertex = getVertexRegex(name, vertexType);
-    if (vertex == netlist.nullVertex()) {
-      throw Exception(std::string("could not find vertex "+name));
-    }
-    return netlist.getVertex(vertex).getDTypeWidth();
-  }
+                             VertexGraphType vertexType=VertexGraphType::ANY) const;
 
-  /// Get a DType by name.
-  const std::shared_ptr<DType> getDType(const std::string &name) const {
-    auto dtype = std::find_if(std::begin(dtypes), std::end(dtypes),
-                              [&name](const std::shared_ptr<DType> &dt) {
-                                return dt->getName() == name; });
-    if (dtype != std::end(dtypes)) {
-      return *dtype;
-    } else {
-      return std::shared_ptr<DType>();
-    }
-  }
-
-  size_t getDTypeWidth(const std::string &name) const {
-    if (auto dtype = getDType(name)) {
-      return dtype->getWidth();
-    } else {
-      throw Exception(std::string("could not find dtype "+name));
-    }
-  }
+  /// Lookup a DType's width by name.
+  size_t getDTypeWidth(const std::string &name) const;
 
   //===--------------------------------------------------------------------===//
   // Waypoints.
@@ -195,73 +94,32 @@ public:
   // Basic path querying.
   //===--------------------------------------------------------------------===//
 
-  bool startpointExists(const std::string &name) const {
-    return getBeginVertex(name) != netlist.nullVertex();
-  }
+  bool startpointExists(const std::string &name) const;
 
-  bool endpointExists(const std::string &name) const {
-    return getEndVertex(name) != netlist.nullVertex();
-  }
+  bool endpointExists(const std::string &name) const;
 
-  bool anyStartpointExists(const std::string &name) const {
-    auto vertices = netlist.getStartVertices(name);
-    return vertices.size() != 0;
-  }
+  bool anyStartpointExists(const std::string &name) const;
 
-  bool anyEndpointExists(const std::string &name) const {
-    auto vertices = netlist.getEndVertices(name);
-    return vertices.size() != 0;
-  }
+  bool anyEndpointExists(const std::string &name) const;
 
-  bool anyRegExists(const std::string &name) const {
-    auto vertices = netlist.getRegVertices(name);
-    return vertices.size() != 0;
-  }
+  bool anyRegExists(const std::string &name) const;
 
-  bool regExists(const std::string &name) const {
-    return getRegVertex(name) != netlist.nullVertex();
-  }
+  bool regExists(const std::string &name) const;
 
   /// Return a Boolean to indicate whether any path exists between two points.
-  bool pathExists(Waypoints waypoints) {
-    auto waypointIDs = readWaypoints(waypoints);
-    auto avoidPointIDs = readAvoidPoints(waypoints);
-    return !netlist.getAnyPointToPoint(waypointIDs, avoidPointIDs).empty();
-  }
+  bool pathExists(Waypoints waypoints) const;
 
   /// Return any path between two points.
-  std::vector<Vertex*> getAnyPath(Waypoints waypoints) const {
-    auto waypointIDs = readWaypoints(waypoints);
-    auto avoidPointIDs = readAvoidPoints(waypoints);
-    return createVertexPtrVec(netlist.getAnyPointToPoint(waypointIDs,
-                                                         avoidPointIDs));
-  }
+  std::vector<Vertex*> getAnyPath(Waypoints waypoints) const;
 
   /// Return all paths between two points, useful for testing.
-  std::vector<std::vector<Vertex*> > getAllPaths(Waypoints waypoints) const {
-    auto waypointIDs = readWaypoints(waypoints);
-    auto avoidPointIDs = readAvoidPoints(waypoints);
-    return createVertexPtrVecVec(netlist.getAllPointToPoint(waypointIDs,
-                                                            avoidPointIDs));
-  }
+  std::vector<std::vector<Vertex*> > getAllPaths(Waypoints waypoints) const;
 
   /// Return a vector of paths fanning out from a particular start point.
-  std::vector<std::vector<Vertex*> > getAllFanOut(const std::string startName) const {
-    auto vertex = getBeginVertex(startName);
-    if (vertex == netlist.nullVertex()) {
-      throw Exception(std::string("could not find begin vertex "+startName));
-    }
-    return createVertexPtrVecVec(netlist.getAllFanOut(vertex));
-  }
+  std::vector<std::vector<Vertex*> > getAllFanOut(const std::string startName) const;
 
   /// Return a vector of paths fanning out from a particular start point.
-  std::vector<std::vector<Vertex*> > getAllFanIn(const std::string endName) const {
-    auto vertex = getEndVertex(endName);
-    if (vertex == netlist.nullVertex()) {
-      throw Exception(std::string("could not find end vertex "+endName));
-    }
-    return createVertexPtrVecVec(netlist.getAllFanIn(vertex));
-  }
+  std::vector<std::vector<Vertex*> > getAllFanIn(const std::string endName) const;
 
   //===--------------------------------------------------------------------===//
   // Netlist access.

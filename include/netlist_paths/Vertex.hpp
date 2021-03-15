@@ -154,8 +154,8 @@ inline const char *getVertexDirectionStr(VertexDirection direction) {
 // Vertex
 //===----------------------------------------------------------------------===//
 
+/// A class representing a vertex in the netlist graph.
 class Vertex {
-  //unsigned long long id;
   VertexAstType astType;
   VertexDirection direction;
   Location location;

@@ -5,6 +5,7 @@
 #include <memory>
 #include <boost/format.hpp>
 
+/// A class representing a file.
 class File {
   std::string filename;
   std::string language;
@@ -15,6 +16,7 @@ public:
   const std::string &getFilename() const { return filename; }
 };
 
+/// A class representing a file location.
 class Location {
   std::shared_ptr<File> file;
   unsigned startLine;

@@ -9,6 +9,7 @@ set(SOURCES
 add_library(netlist_paths SHARED
   ${SOURCES})
 target_include_directories(netlist_paths PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(netlist_paths

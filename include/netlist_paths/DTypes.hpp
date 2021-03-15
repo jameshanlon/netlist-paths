@@ -7,6 +7,7 @@
 #include <vector>
 #include "netlist_paths/Location.hpp"
 
+/// Base class for data types.
 class DType {
 public:
   DType() {}
@@ -28,6 +29,7 @@ protected:
       name(name), location(location) {}
 };
 
+/// Basic data type with an optional range specified by left and right values.
 class BasicDType : public DType {
   unsigned left;
   unsigned right;
@@ -50,6 +52,7 @@ public:
   }
 };
 
+/// Reference data type, wrapping a sub data type.
 class RefDType : public DType {
   std::shared_ptr<DType> subDType;
 public:
@@ -64,6 +67,7 @@ public:
   }
 };
 
+/// Array data type, with a range, packed flag and sub data type.
 class ArrayDType : public DType {
   std::shared_ptr<DType> subDType;
   size_t start;
@@ -93,6 +97,7 @@ public:
   }
 };
 
+/// Structure or union member data type, wrapping a sub data type.
 class MemberDType : public DType {
   std::shared_ptr<DType> subDType;
 public:
@@ -103,6 +108,7 @@ public:
   }
 };
 
+/// Structure data type with a set of members.
 class StructDType : public DType {
   std::vector<MemberDType> members;
 public:
@@ -122,6 +128,7 @@ public:
   }
 };
 
+/// Union data type with a set of members.
 class UnionDType : public DType {
   std::vector<MemberDType> members;
 public:
@@ -140,6 +147,7 @@ public:
   }
 };
 
+/// Enumeration item data type, with a name and value.
 class EnumItem {
   std::string name;
   size_t value;
@@ -150,6 +158,7 @@ public:
   size_t getValue() const { return value; }
 };
 
+/// Enumeration data type with a set of items and sub data type.
 class EnumDType : public DType {
   std::vector<EnumItem> items;
   std::shared_ptr<DType> subDType;

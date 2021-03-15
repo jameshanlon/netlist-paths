@@ -16,6 +16,7 @@ enum class MatchType {
   WILDCARD
 };
 
+/// A class encapsulating options.
 class Options {
 
   bool debugMode;
