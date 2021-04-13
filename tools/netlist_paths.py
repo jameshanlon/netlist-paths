@@ -59,23 +59,23 @@ def dump_path_report(netlist, path, fd):
     and statement, starting and ending with a variable.
     """
     rows = []
-    rows.append(('Name', 'Type', 'Statement', 'Location'))
+    rows.append(('Name', 'Type', 'DType', 'Statement', 'Location'))
     index = 0;
     while index < len(path):
         # Var reference and logic statement.
         if index+1 < len(path) and \
             not path[index].is_logic() and \
             path[index+1].is_logic():
-            row = (path[index].get_name(), path[index].get_dtype_str(),
+            row = (path[index].get_name(), path[index].get_ast_type_str(), path[index].get_dtype_str(),
                    path[index+1].get_ast_type_str(), path[index+1].get_location_str())
             index += 2
         # Var reference only.
         elif not path[index].is_logic():
-            row = (path[index].get_name(), path[index].get_dtype_str(), '', '')
+            row = (path[index].get_name(), path[index].get_ast_type_str(), path[index].get_dtype_str(), '', '')
             index += 1
         # Statement only.
         else:
-            row = ('', '', path[index].get_ast_type_str(), path[index].get_location_str())
+            row = ('', '', path[index].get_ast_type_str(), '', path[index].get_location_str())
             index += 1
         rows.append(row)
     if len(rows) > 0:
@@ -88,8 +88,9 @@ def dump_path_list_report(netlist, paths, fd):
     """
     Report a list of paths.
     """
-    if len(paths):
+    if len(paths) == 0:
         print('No matching paths.')
+        return
     for i, path in enumerate(paths):
         fd.write('\nPath {}\n'.format(i))
         dump_path_report(netlist, path, fd)
