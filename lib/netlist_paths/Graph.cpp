@@ -317,7 +317,7 @@ Graph::getAllFanOut(VertexID startVertex) const {
   // Check for a path between startPoint and each register.
   std::vector<VertexIDVec> paths;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    if (graph[v].isFinishPoint()) {
+    if (graph[v].isEndPoint()) {
       auto path = determinePath(parentMap,
                                 VertexIDVec(),
                                 startVertex,

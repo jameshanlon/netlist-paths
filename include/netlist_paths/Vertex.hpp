@@ -170,7 +170,10 @@ class Vertex {
 public:
   Vertex() {}
 
-  /// Logic vertex.
+  /// Construct a logic vertex.
+  ///
+  /// \param type     The AST type of the logic statement.
+  /// \param location The source location of the logic statement.
   Vertex(VertexAstType type,
          Location location) :
       astType(type),
@@ -181,7 +184,16 @@ public:
       top(false),
       deleted(false) {}
 
-  /// Var vertex.
+  /// Construct a variable vertex.
+  ///
+  /// \param type             The AST type of the variable.
+  /// \param direction        The direction of the variable type.
+  /// \param location         The source location of the variable declaration.
+  /// \param dtype            The data type of the variable.
+  /// \param name             The name of the variable.
+  /// \param isParam          A flag indicating the variable is a parameter.
+  /// \param paramValue       The value of the parameter variable.
+  /// \param publicVisibility A flag indicating the variable has public visibility.
   Vertex(VertexAstType type,
          VertexDirection direction,
          Location location,
@@ -212,22 +224,52 @@ public:
       top(v.top),
       deleted(v.deleted) {}
 
-  /// A Vertex is in the 'top' scope when has one or two hierarchical components.
-  /// module.name or name is top level, but module.submodule.name is not.
+  /// Return whether a variable name is in the top scope.
+  ///
+  /// A variable is in the 'top' scope when has one or two hierarchical
+  /// components. For example, module.name or name is top level, but
+  /// module.submodule.name is not.
+  ///
+  /// \param name The name of a variable.
+  ///
+  /// \returns Whether the variable is in the top scope.
   static bool determineIsTop(const std::string &name) {
     std::vector<std::string> tokens;
     boost::split(tokens, name, boost::is_any_of("."));
     return tokens.size() < 3;
   }
 
-  /// Given a hierarchical name a.b.c, return the last component c.
+  /// Given a hierarchical variable name, eg a.b.c, return the last component c.
+  ///
+  /// \returns The last heirarchical component of a variable name.
   std::string getBasename() const {
     std::vector<std::string> tokens;
     boost::split(tokens, name, boost::is_any_of("."));
     return tokens.back();
   }
 
-  /// Less than comparison
+  /// Match this vertex against different graph types.
+  ///
+  /// \param type A categorisation of a vertex.
+  ///
+  /// \returns Whether the vertex matches the specified type.
+  bool isGraphType(VertexGraphType type) const {
+    switch (type) {
+      case VertexGraphType::REG:         return isReg();
+      case VertexGraphType::SRC_REG:     return isDstReg();
+      case VertexGraphType::DST_REG:     return isSrcReg();
+      case VertexGraphType::LOGIC:       return isLogic();
+      case VertexGraphType::NET:         return isNet();
+      case VertexGraphType::PORT:        return isPort();
+      case VertexGraphType::START_POINT: return isStartPoint();
+      case VertexGraphType::END_POINT:   return isEndPoint();
+      case VertexGraphType::MID_POINT:   return isMidPoint();
+      case VertexGraphType::IS_NAMED:    return isNamed();
+      default:                           return false;
+    }
+  }
+
+  /// Less than comparison between two Vertex objects.
   bool compareLessThan(const Vertex &b) const {
     if (name        < b.name)      return true;
     if (b.name      < name)        return false;
@@ -240,7 +282,7 @@ public:
     return false;
   }
 
-  /// Equality comparison
+  /// Equality comparison between two vertex objects.
   bool compareEqual(const Vertex &b) const {
     return astType          == b.astType &&
            direction        == b.direction &&
@@ -254,34 +296,23 @@ public:
            deleted          == b.deleted;
   }
 
-  /// Match this vertex against different graph types.
-  bool isGraphType(VertexGraphType type) const {
-    switch (type) {
-      case VertexGraphType::REG:         return isReg();
-      case VertexGraphType::SRC_REG:     return isDstReg();
-      case VertexGraphType::DST_REG:     return isSrcReg();
-      case VertexGraphType::LOGIC:       return isLogic();
-      case VertexGraphType::NET:         return isNet();
-      case VertexGraphType::PORT:        return isPort();
-      case VertexGraphType::START_POINT: return isStartPoint();
-      case VertexGraphType::END_POINT:   return isFinishPoint();
-      case VertexGraphType::MID_POINT:   return isMidPoint();
-      case VertexGraphType::IS_NAMED:    return isNamed();
-      default:                           return false;
-    }
-  }
-
+  /// Return true if the vertex is in the top scope.
   inline bool isTop() const { return top; }
+
+  /// Return true if the vertex has public visibility.
   inline bool isPublic() const { return publicVisibility; }
 
+  /// Return true if the vertex is a source register.
   inline bool isSrcReg() const {
     return !deleted && astType == VertexAstType::SRC_REG;
   }
 
+  /// Return true if the vertex is a destination register.
   inline bool isDstReg() const {
     return !deleted && astType == VertexAstType::DST_REG;
   }
 
+  /// Return true if the vertex is a logic statement.
   inline bool isLogic() const {
     return astType == VertexAstType::LOGIC ||
            astType == VertexAstType::ASSIGN ||
@@ -294,20 +325,24 @@ public:
            astType == VertexAstType::SEN_ITEM;
   }
 
+  /// Return true if the vertex is a parameter variable.
   inline bool isParameter() const {
     return isParam;
   }
 
+  /// Return true if the vertex is a net variable.
   inline bool isNet() const {
     return !deleted && !isPort() && !isReg() && !isLogic() && !isParameter();
   }
 
+  /// Return true if the vertex is a register variable.
   inline bool isReg() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
             astType == VertexAstType::DST_REG);
   }
 
+  /// Return true if the vertex is a port variable.
   inline bool isPort() const {
     return !deleted &&
            top &&
@@ -316,6 +351,7 @@ public:
             direction == VertexDirection::INOUT);
   }
 
+  /// Return true if the vertex is a valid start point for a path.
   inline bool isStartPoint() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
@@ -323,26 +359,32 @@ public:
             (direction == VertexDirection::INOUT && top));
   }
 
-  inline bool isFinishPoint() const {
+  /// Return true if the vertex is a valid end point for a path.
+  inline bool isEndPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
             (direction == VertexDirection::OUTPUT && top) ||
             (direction == VertexDirection::INOUT && top));
   }
 
+  /// Return true if the vertex is a valid mid point for a path.
   inline bool isMidPoint() const {
-    return !isStartPoint() && !isFinishPoint();
+    return !isStartPoint() && !isEndPoint();
   }
 
+  /// Return true if the vertex has been introduced by Verilator.
   inline bool canIgnore() const {
-    // Ignore variables Verilator has introduced.
-    return name.find("__Vdly") != std::string::npos ||
-           name.find("__Vcell") != std::string::npos ||
-           name.find("__Vconc") != std::string::npos ||
-           name.find("__Vfunc") != std::string::npos;
+    if (!name.empty()) {
+      return name.find("__Vdly") != std::string::npos ||
+             name.find("__Vcell") != std::string::npos ||
+             name.find("__Vconc") != std::string::npos ||
+             name.find("__Vfunc") != std::string::npos;
+    } else {
+      return false;
+    }
   }
 
-  /// Named vertices are displayed in the name dump.
+  /// Return true if the vertex has a name that should be included in reports.
   inline bool isNamed() const {
     return !isLogic() &&
            !isSrcReg() &&
@@ -350,7 +392,7 @@ public:
            !isDeleted();
   }
 
-  /// Return a description of this vertex.
+  /// Return a string description of this vertex.
   std::string toString() const {
     // TODO: expand on this for different vertex types.
     return std::string(getVertexAstTypeStr(astType));

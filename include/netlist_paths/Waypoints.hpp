@@ -32,6 +32,8 @@ public:
   }
 
   /// Set a named start point.
+  ///
+  /// \param name A pattern specifying a start point.
   void addStartPoint(const std::string name) {
     if (gotStartPoint) {
       throw Exception("start point already defined");
@@ -44,7 +46,9 @@ public:
     }
   }
 
-  /// Set a named finish point.
+  /// Set a named end point.
+  ///
+  /// \param name A pattern specifying an end point.
   void addEndPoint(const std::string name) {
     if (gotFinishPoint) {
       throw Exception("end point already defined");
@@ -58,6 +62,8 @@ public:
   }
 
   /// Add a through point.
+  ///
+  /// \param name A pattern specifying a mid point.
   void addThroughPoint(const std::string name) {
     if (waypoints.size() > 0) {
       waypoints.insert(waypoints.end()-(gotFinishPoint?1:0), name);
@@ -67,11 +73,20 @@ public:
   }
 
   /// Add a point to avoid.
+  ///
+  /// \param name A pattern specifying a mid point to avoid.
   void addAvoidPoint(const std::string name) {
     avoidPoints.push_back(name);
   }
 
+  /// Access the waypoints.
+  ///
+  /// \returns An ordered vector of patterns for each waypoint.
   const std::vector<std::string> &getWaypoints() const { return waypoints; }
+
+  /// Access the avoid points.
+  ///
+  /// \returns An ordered vector of patterns for each avoid point.
   const std::vector<std::string> &getAvoidPoints() const { return avoidPoints; }
 };
 

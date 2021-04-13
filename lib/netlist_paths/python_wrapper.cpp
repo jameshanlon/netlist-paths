@@ -52,7 +52,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
      .def("is_reg",            &Vertex::isReg)
      .def("is_port",           &Vertex::isPort)
      .def("is_start_point",    &Vertex::isStartPoint)
-     .def("is_finish_point",   &Vertex::isFinishPoint)
+     .def("is_end_point",      &Vertex::isEndPoint)
      .def("is_mid_point",      &Vertex::isMidPoint)
      .def("is_public",         &Vertex::isPublic)
      .def("can_ignore",        &Vertex::canIgnore);
