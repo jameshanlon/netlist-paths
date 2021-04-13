@@ -23,11 +23,14 @@ class Options {
   bool verboseMode;
   MatchType matchType;
   bool ignoreHierarchyMarkers;
+  bool matchOneVertex;
 
 public:
   bool isMatchExact() const { return matchType == MatchType::EXACT; }
   bool isMatchRegex() const { return matchType == MatchType::REGEX; }
   bool isMatchWildcard() const { return matchType == MatchType::WILDCARD; }
+  bool isMatchOneVertex() const { return matchOneVertex; }
+  bool isMatchAnyVertex() const { return !matchOneVertex; }
   bool shouldIgnoreHierarchyMarkers() const { return ignoreHierarchyMarkers; }
   bool isVerboseMode() const { return verboseMode; }
   bool isDebugMode() const { return debugMode; }
@@ -37,6 +40,8 @@ public:
   void setMatchExact() { matchType = MatchType::EXACT; }
   void setIgnoreHierarchyMarkers() { ignoreHierarchyMarkers = true; }
   void setRespectHierarchyMarkers() { ignoreHierarchyMarkers = false; }
+  void setMatchOneVertex() { matchOneVertex = true; }
+  void setMatchAnyVertex() { matchOneVertex = false; }
   void setVerbose() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
   }
@@ -62,7 +67,8 @@ private:
       debugMode(false),
       verboseMode(false),
       matchType(MatchType::EXACT),
-      ignoreHierarchyMarkers(false) {
+      ignoreHierarchyMarkers(false),
+      matchOneVertex(true) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
     setQuiet();

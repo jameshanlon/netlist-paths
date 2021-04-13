@@ -118,11 +118,13 @@ class TestPyWrapper(unittest.TestCase):
     def test_any_start_finish_points(self):
         np = self.compile_test('multiple_separate_paths.sv')
         Options.get_instance().set_match_wildcard()
-        path = np.get_any_path(Waypoints('i_*', 'o_*', True))
+        Options.get_instance().set_match_any_vertex()
+        path = np.get_any_path(Waypoints('i_*', 'o_*'))
         self.assertTrue(len(path))
-        path = np.get_any_path(Waypoints('i_b', 'o_b', True))
+        path = np.get_any_path(Waypoints('i_b', 'o_b'))
         self.assertTrue(len(path))
-        path = np.get_any_path(Waypoints('i_c', 'o_c', False))
+        Options.get_instance().set_match_one_vertex()
+        path = np.get_any_path(Waypoints('i_c', 'o_c'))
         self.assertTrue(len(path))
 
 

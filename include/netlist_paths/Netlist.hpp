@@ -55,12 +55,6 @@ class Netlist {
   /// Lookup a single vertex that is a mid point.
   VertexID getMidVertex(const std::string &name) const;
 
-  /// Lookup start vertices and choose one that matches.
-  VertexID getAnyStartVertex(const std::string &name) const;
-
-  /// Lookup end vertices and choose one that matches.
-  VertexID getAnyEndVertex(const std::string &name) const;
-
   /// Lookup a DType by name.
   const std::shared_ptr<DType> getDType(const std::string &name) const;
 

@@ -508,20 +508,21 @@ BOOST_FIXTURE_TEST_CASE(avoid_point_exception, TestContext) {
 BOOST_FIXTURE_TEST_CASE(multiple_separate_paths, TestContext) {
   BOOST_CHECK_NO_THROW(compile("multiple_separate_paths.sv"));
   netlist_paths::Options::getInstance().setMatchWildcard();
+  netlist_paths::Options::getInstance().setMatchAnyVertex();
   {
-    auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_*", true));
+    auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_*"));
     BOOST_TEST(path.size());
   }
   {
-    auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_a", true));
+    auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_a"));
     BOOST_TEST(path.size());
   }
   {
-    auto path = np->getAnyPath(netlist_paths::Waypoints("i_a", "o_*", true));
+    auto path = np->getAnyPath(netlist_paths::Waypoints("i_a", "o_*"));
     BOOST_TEST(path.size());
   }
   {
-    auto path = np->getAnyPath(netlist_paths::Waypoints("i_b", "o_b", true));
+    auto path = np->getAnyPath(netlist_paths::Waypoints("i_b", "o_b"));
     BOOST_TEST(path.size());
   }
 }

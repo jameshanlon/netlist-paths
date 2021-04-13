@@ -12,24 +12,23 @@ class Waypoints {
   std::vector<std::string> avoidPoints;
   bool gotStartPoint;
   bool gotFinishPoint;
-  bool matchAnyStartPoint;
-  bool matchAnyFinishPoint;
 
 public:
 
-  /// Construct an empty Waypoints.
+  /// Construct an empty Waypoints object.
   Waypoints() :
-      gotStartPoint(false), gotFinishPoint(false),
-      matchAnyStartPoint(false), matchAnyFinishPoint(false) {}
+      gotStartPoint(false), gotFinishPoint(false) {}
 
-  /// Construct Waypoints with patterns matching any start and finish points.
+  /// Construct a Waypoints object with patterns matching start and finish
+  /// points.
+  ///
+  /// \param start    A pattern specifying a start point.
+  /// \param finish   A pattern specifying an end point.
   Waypoints(const std::string start,
-            const std::string finish,
-            bool matchAny=false) :
-      gotStartPoint(false), gotFinishPoint(false),
-      matchAnyStartPoint(matchAny), matchAnyFinishPoint(matchAny) {
+            const std::string end) :
+      gotStartPoint(false), gotFinishPoint(false) {
     addStartPoint(start);
-    addFinishPoint(finish);
+    addEndPoint(end);
   }
 
   /// Set a named start point.
@@ -46,9 +45,9 @@ public:
   }
 
   /// Set a named finish point.
-  void addFinishPoint(const std::string name) {
+  void addEndPoint(const std::string name) {
     if (gotFinishPoint) {
-      throw Exception("finish point already defined");
+      throw Exception("end point already defined");
     }
     gotFinishPoint = true;
     if (waypoints.size() > 0) {
@@ -56,18 +55,6 @@ public:
     } else {
       waypoints.push_back(name);
     }
-  }
-
-  /// Set any start point matching.
-  void addAnyStartPoint(const std::string name) {
-    addStartPoint(name);
-    matchAnyStartPoint = true;
-  }
-
-  /// Set any finish point matching.
-  void addAnyFinishPoint(const std::string name) {
-    addFinishPoint(name);
-    matchAnyFinishPoint = true;
   }
 
   /// Add a through point.
@@ -86,8 +73,6 @@ public:
 
   const std::vector<std::string> &getWaypoints() const { return waypoints; }
   const std::vector<std::string> &getAvoidPoints() const { return avoidPoints; }
-  bool anyStart() const { return matchAnyStartPoint; }
-  bool anyFinish() const { return matchAnyFinishPoint; }
 };
 
 } // End namespace.

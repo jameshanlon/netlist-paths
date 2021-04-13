@@ -72,6 +72,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("set_match_exact",               &Options::setMatchExact)
     .def("set_match_wildcard",            &Options::setMatchWildcard)
     .def("set_match_regex",               &Options::setMatchRegex)
+    .def("set_match_any_vertex",          &Options::setMatchAnyVertex)
+    .def("set_match_one_vertex",          &Options::setMatchOneVertex)
     .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers)
     .def("set_respect_hierarchy_markers", &Options::setRespectHierarchyMarkers);
 
@@ -83,11 +85,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Waypoints>("Waypoints")
     .def(init<const std::string, const std::string>())
-    .def(init<const std::string, const std::string, bool>())
     .def("add_start_point",      &Waypoints::addStartPoint)
-    .def("add_finish_point",     &Waypoints::addFinishPoint)
-    .def("add_any_start_point",  &Waypoints::addAnyStartPoint)
-    .def("add_any_finish_point", &Waypoints::addAnyFinishPoint)
+    .def("add_finish_point",     &Waypoints::addEndPoint)
     .def("add_through_point",    &Waypoints::addThroughPoint)
     .def("add_avoid_point",      &Waypoints::addAvoidPoint);
 

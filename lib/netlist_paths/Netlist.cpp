@@ -69,49 +69,51 @@ VertexID Netlist::getRegVertex(const std::string &name) const {
 
 VertexID Netlist::getStartVertex(const std::string &name) const {
   auto vertices = netlist.getStartVertices(name);
-  if (vertices.size() > 1) {
-    throw Exception(reportMultipleMatches(vertices, name, "begin point"));
-  }
-  if (vertices.size() == 1) {
-    return vertices.front();
-  }
-  return netlist.nullVertex();
-}
-
-VertexID Netlist::getAnyStartVertex(const std::string &name) const {
-  auto vertices = netlist.getStartVertices(name);
-  if (vertices.size()) {
-    return vertices.front();
+  if (Options::getInstance().isMatchOneVertex()) {
+    if (vertices.size() > 1) {
+      throw Exception(reportMultipleMatches(vertices, name, "begin point"));
+    }
+    if (vertices.size() == 1) {
+      return vertices.front();
+    }
+  } else {
+    if (vertices.size()) {
+      return vertices.front();
+    }
   }
   return netlist.nullVertex();
 }
 
 VertexID Netlist::getEndVertex(const std::string &name) const {
   auto vertices = netlist.getEndVertices(name);
-  if (vertices.size() > 1) {
-    throw Exception(reportMultipleMatches(vertices, name, "end point"));
-  }
-  if (vertices.size() == 1) {
-    return vertices.front();
-  }
-  return netlist.nullVertex();
-}
-
-VertexID Netlist::getAnyEndVertex(const std::string &name) const {
-  auto vertices = netlist.getEndVertices(name);
-  if (vertices.size()) {
-    return vertices.front();
+  if (Options::getInstance().isMatchOneVertex()) {
+    if (vertices.size() > 1) {
+      throw Exception(reportMultipleMatches(vertices, name, "end point"));
+    }
+    if (vertices.size() == 1) {
+      return vertices.front();
+    }
+  } else {
+    if (vertices.size()) {
+      return vertices.front();
+    }
   }
   return netlist.nullVertex();
 }
 
 VertexID Netlist::getMidVertex(const std::string &name) const {
   auto vertices = netlist.getMidVertices(name);
-  if (vertices.size() > 1) {
-    throw Exception(reportMultipleMatches(vertices, name, "mid point"));
-  }
-  if (vertices.size() == 1) {
-    return vertices.front();
+  if (Options::getInstance().isMatchOneVertex()) {
+    if (vertices.size() > 1) {
+      throw Exception(reportMultipleMatches(vertices, name, "mid point"));
+    }
+    if (vertices.size() == 1) {
+      return vertices.front();
+    }
+  } else {
+    if (vertices.size()) {
+      return vertices.front();
+    }
   }
   return netlist.nullVertex();
 }
@@ -162,13 +164,13 @@ VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
     VertexID vertex;
     // Start
     if (it == waypoints.getWaypoints().begin()) {
-      vertex = waypoints.anyStart() ? getAnyStartVertex(*it) : getStartVertex(*it);
+      vertex = getStartVertex(*it);
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find start vertex matching ")+*it);
       }
     // Finish
     } else if (it+1 == waypoints.getWaypoints().end()) {
-      vertex = waypoints.anyFinish() ? getAnyEndVertex(*it) : getEndVertex(*it);
+      vertex = getEndVertex(*it);
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find end vertex matching ")+*it);
       }
