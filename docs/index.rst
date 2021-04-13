@@ -18,6 +18,12 @@ Indices and tables
 * :ref:`search`
 
 
+Contributing
+============
+
+Please follow the `LLVM coding standards <https://llvm.org/docs/CodingStandards.html>`_.
+
+
 Python API reference
 ====================
 
