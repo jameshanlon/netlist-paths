@@ -56,31 +56,43 @@ VertexID Netlist::getVertex(const std::string &name,
   return netlist.nullVertex();
 }
 
-VertexID Netlist::getRegVertex(const std::string &name) const {
+VertexID Netlist::getRegVertex(const std::string &name, bool matchAny) const {
   auto vertices = netlist.getRegVertices(name);
-  if (vertices.size() > 1) {
-    throw Exception(reportMultipleMatches(vertices, name, "register"));
-  }
-  if (vertices.size() == 1) {
-    return vertices.front();
+  if (!matchAny) {
+    if (vertices.size() > 1) {
+      throw Exception(reportMultipleMatches(vertices, name, "register"));
+    }
+    if (vertices.size() == 1) {
+      return vertices.front();
+    }
+  } else {
+    if (vertices.size()) {
+      return vertices.front();
+    }
   }
   return netlist.nullVertex();
 }
 
-VertexID Netlist::getRegAliasVertex(const std::string &name) const {
+VertexID Netlist::getRegAliasVertex(const std::string &name, bool matchAny) const {
   auto vertices = netlist.getRegAliasVertices(name);
-  if (vertices.size() > 1) {
-    throw Exception(reportMultipleMatches(vertices, name, "register"));
-  }
-  if (vertices.size() == 1) {
-    return vertices.front();
+  if (!matchAny) {
+    if (vertices.size() > 1) {
+      throw Exception(reportMultipleMatches(vertices, name, "register alias"));
+    }
+    if (vertices.size() == 1) {
+      return vertices.front();
+    }
+  } else {
+    if (vertices.size()) {
+      return vertices.front();
+    }
   }
   return netlist.nullVertex();
 }
 
-VertexID Netlist::getStartVertex(const std::string &name) const {
+VertexID Netlist::getStartVertex(const std::string &name, bool matchAny) const {
   auto vertices = netlist.getStartVertices(name);
-  if (Options::getInstance().isMatchOneVertex()) {
+  if (!matchAny) {
     if (vertices.size() > 1) {
       throw Exception(reportMultipleMatches(vertices, name, "begin point"));
     }
@@ -95,9 +107,9 @@ VertexID Netlist::getStartVertex(const std::string &name) const {
   return netlist.nullVertex();
 }
 
-VertexID Netlist::getEndVertex(const std::string &name) const {
+VertexID Netlist::getEndVertex(const std::string &name, bool matchAny) const {
   auto vertices = netlist.getEndVertices(name);
-  if (Options::getInstance().isMatchOneVertex()) {
+  if (!matchAny) {
     if (vertices.size() > 1) {
       throw Exception(reportMultipleMatches(vertices, name, "end point"));
     }
@@ -112,9 +124,9 @@ VertexID Netlist::getEndVertex(const std::string &name) const {
   return netlist.nullVertex();
 }
 
-VertexID Netlist::getMidVertex(const std::string &name) const {
+VertexID Netlist::getMidVertex(const std::string &name, bool matchAny) const {
   auto vertices = netlist.getMidVertices(name);
-  if (Options::getInstance().isMatchOneVertex()) {
+  if (!matchAny) {
     if (vertices.size() > 1) {
       throw Exception(reportMultipleMatches(vertices, name, "mid point"));
     }
@@ -175,19 +187,19 @@ VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
     VertexID vertex;
     // Start
     if (it == waypoints.getWaypoints().begin()) {
-      vertex = getStartVertex(*it);
+      vertex = getStartVertex(*it, Options::getInstance().isMatchAnyVertex());
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find start vertex matching ")+*it);
       }
     // Finish
     } else if (it+1 == waypoints.getWaypoints().end()) {
-      vertex = getEndVertex(*it);
+      vertex = getEndVertex(*it, Options::getInstance().isMatchAnyVertex());
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find end vertex matching ")+*it);
       }
     // Mid
     } else {
-      vertex = getMidVertex(*it);
+      vertex = getMidVertex(*it, Options::getInstance().isMatchAnyVertex());
       if (vertex == netlist.nullVertex()) {
         throw Exception(std::string("could not find through vertex ")+*it);
       }
@@ -200,7 +212,7 @@ VertexIDVec Netlist::readWaypoints(Waypoints waypoints) const {
 VertexIDVec Netlist::readAvoidPoints(Waypoints waypoints) const {
   VertexIDVec avoidPointIDs;
   for (auto name : waypoints.getAvoidPoints()) {
-    auto vertex = getMidVertex(name);
+    auto vertex = getMidVertex(name, Options::getInstance().isMatchAnyVertex());
     if (vertex == netlist.nullVertex()) {
       throw Exception(std::string("could not find vertex to avoid ")+name);
     }
@@ -212,11 +224,11 @@ VertexIDVec Netlist::readAvoidPoints(Waypoints waypoints) const {
 }
 
 bool Netlist::startpointExists(const std::string &name) const {
-  return getStartVertex(name) != netlist.nullVertex();
+  return getStartVertex(name, Options::getInstance().isMatchAnyVertex()) != netlist.nullVertex();
 }
 
 bool Netlist::endpointExists(const std::string &name) const {
-  return getEndVertex(name) != netlist.nullVertex();
+  return getEndVertex(name, Options::getInstance().isMatchAnyVertex()) != netlist.nullVertex();
 }
 
 bool Netlist::anyStartpointExists(const std::string &name) const {
@@ -238,8 +250,8 @@ bool Netlist::anyRegExists(const std::string &name) const {
 
 bool Netlist::regExists(const std::string &name) const {
   // Allow matching with register or register alias variables.
-  return (getRegVertex(name) != netlist.nullVertex()) ||
-         (getRegAliasVertex(name) != netlist.nullVertex());
+  return (getRegVertex(name, false) != netlist.nullVertex()) ||
+         (getRegAliasVertex(name, false) != netlist.nullVertex());
 }
 
 bool Netlist::pathExists(Waypoints waypoints) const {
@@ -263,7 +275,7 @@ std::vector<std::vector<Vertex*> > Netlist::getAllPaths(Waypoints waypoints) con
 }
 
 std::vector<std::vector<Vertex*> > Netlist::getAllFanOut(const std::string startName) const {
-  auto vertex = getStartVertex(startName);
+  auto vertex = getStartVertex(startName, Options::getInstance().isMatchAnyVertex());
   if (vertex == netlist.nullVertex()) {
     throw Exception(std::string("could not find begin vertex "+startName));
   }
@@ -271,7 +283,7 @@ std::vector<std::vector<Vertex*> > Netlist::getAllFanOut(const std::string start
 }
 
 std::vector<std::vector<Vertex*> > Netlist::getAllFanIn(const std::string endName) const {
-  auto vertex = getEndVertex(endName);
+  auto vertex = getEndVertex(endName, Options::getInstance().isMatchAnyVertex());
   if (vertex == netlist.nullVertex()) {
     throw Exception(std::string("could not find end vertex "+endName));
   }

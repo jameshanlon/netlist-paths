@@ -354,8 +354,7 @@ public:
 
   /// Return true if the vertex is an alias of a register variable.
   inline bool isRegAlias() const {
-    return !deleted &&
-           astType == VertexAstType::REG_ALIAS;
+    return !deleted && astType == VertexAstType::REG_ALIAS;
   }
 
   /// Return true if the vertex is a port variable.

@@ -44,19 +44,19 @@ class Netlist {
                      VertexGraphType vertexType=VertexGraphType::ANY) const;
 
   /// Lookup a single vertex of type register.
-  VertexID getRegVertex(const std::string &name) const;
+  VertexID getRegVertex(const std::string &name, bool matchAny) const;
 
   /// Lookup a single vertex of type register alias.
-  VertexID getRegAliasVertex(const std::string &name) const;
+  VertexID getRegAliasVertex(const std::string &name, bool matchAny) const;
 
   /// Lookup a single vertex that is a startpoint.
-  VertexID getStartVertex(const std::string &name) const;
+  VertexID getStartVertex(const std::string &name, bool matchAny) const;
 
   /// Lookup a single vertex that is an end point.
-  VertexID getEndVertex(const std::string &name) const;
+  VertexID getEndVertex(const std::string &name, bool matchAny) const;
 
   /// Lookup a single vertex that is a mid point.
-  VertexID getMidVertex(const std::string &name) const;
+  VertexID getMidVertex(const std::string &name, bool matchAny) const;
 
   /// Lookup a DType by name.
   const std::shared_ptr<DType> getDType(const std::string &name) const;

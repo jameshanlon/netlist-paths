@@ -76,6 +76,7 @@ BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
 
   // Check multiple matching start/end points raise exception.
   netlist_paths::Options::getInstance().setMatchWildcard();
+  netlist_paths::Options::getInstance().setMatchOneVertex();
   BOOST_CHECK_THROW(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[?].u_pipestage.data_q",
                                                             "pipeline_module.g_pipestage[1].u_pipestage.data_q")),
                     netlist_paths::Exception);
