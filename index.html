@@ -1021,9 +1021,15 @@ The library is written in C++ and has a Python interface.</p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK13netlist_paths6Vertex10isRegAliasEv">
-<span id="_CPPv3NK13netlist_paths6Vertex10isRegAliasEv"></span><span id="_CPPv2NK13netlist_paths6Vertex10isRegAliasEv"></span><span id="netlist_paths::Vertex::isRegAliasC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a994a24f76f98fc5fb99e8315eea276f3"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isRegAlias</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex10isRegAliasEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is an alias of a register variable. </p>
+<dt id="_CPPv4NK13netlist_paths6Vertex13isSrcRegAliasEv">
+<span id="_CPPv3NK13netlist_paths6Vertex13isSrcRegAliasEv"></span><span id="_CPPv2NK13netlist_paths6Vertex13isSrcRegAliasEv"></span><span id="netlist_paths::Vertex::isSrcRegAliasC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a4671b57051ffef550576677245583fe0"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isSrcRegAlias</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex13isSrcRegAliasEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return true if the vertex is an alias of a source register variable. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths6Vertex13isDstRegAliasEv">
+<span id="_CPPv3NK13netlist_paths6Vertex13isDstRegAliasEv"></span><span id="_CPPv2NK13netlist_paths6Vertex13isDstRegAliasEv"></span><span id="netlist_paths::Vertex::isDstRegAliasC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1aa487255961b280db8a5c2c19d423784f"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isDstRegAlias</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex13isDstRegAliasEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return true if the vertex is an alias of a destination register variable. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1035,13 +1041,23 @@ The library is written in C++ and has a Python interface.</p>
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths6Vertex12isStartPointEv">
 <span id="_CPPv3NK13netlist_paths6Vertex12isStartPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex12isStartPointEv"></span><span id="netlist_paths::Vertex::isStartPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a531153842875898430a17d778d57fe41"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isStartPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex12isStartPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid start point for a path. </p>
+<dd><p>Return true if the vertex is a valid start point for a path.<ul class="simple">
+<li><p>Source register</p></li>
+<li><p>Alias of a source register</p></li>
+<li><p>A top input or inout port </p></li>
+</ul>
+</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths6Vertex10isEndPointEv">
 <span id="_CPPv3NK13netlist_paths6Vertex10isEndPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex10isEndPointEv"></span><span id="netlist_paths::Vertex::isEndPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ae4555860c4c888aed40231e4be051ae6"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isEndPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex10isEndPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid end point for a path. </p>
+<dd><p>Return true if the vertex is a valid end point for a path.<ul class="simple">
+<li><p>Destination register</p></li>
+<li><p>Alias of a destination register</p></li>
+<li><p>A top output or inout port </p></li>
+</ul>
+</p>
 </dd></dl>
 
 <dl class="cpp function">
