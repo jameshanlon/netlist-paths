@@ -89,7 +89,7 @@ public:
   VertexID nullVertex() const { return boost::graph_traits<InternalGraph>::null_vertex(); }
   std::size_t numVertices() const { return boost::num_vertices(graph); }
   std::size_t numEdges() const { return boost::num_edges(graph); }
-  void propagateRegisters();
+  void markAliasRegisters();
   void splitRegVertices();
   void checkGraph() const;
   void dumpDotFile(const std::string &outputFilename) const;
@@ -124,6 +124,9 @@ public:
   }
   VertexIDVec getRegVertices(const std::string &name) const {
     return getVertices(name, VertexGraphType::REG);
+  }
+  VertexIDVec getRegAliasVertices(const std::string &name) const {
+    return getVertices(name, VertexGraphType::REG_ALIAS);
   }
   std::vector<VertexIDVec> getAllFanOut(VertexID startVertex) const;
   std::vector<VertexIDVec> getAllFanIn(VertexID endVertex) const;

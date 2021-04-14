@@ -63,20 +63,22 @@ VertexIDVec Graph::getTargetNodes(VertexID vertex) const {
   return targets;
 }
 
-/// For any register vertex that is alias assigned to another variable,
-/// propagate the register status to that variable. This fixes issues with the
+/// For any register vertex that is alias assigned to another variable, mark
+/// that variable as being an alias of the register. This fixes issues with the
 /// way that Verilator inlines modules, ensuring that the target variable of a
 /// delayed assignment is always correctly marked as a register.
-void Graph::propagateRegisters() {
+void Graph::markAliasRegisters() {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
       for (auto target : getTargetNodes(v)) {
         if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
           VertexIDVec assignAliasTargets = getTargetNodes(target);
           assert(assignAliasTargets.size() == 1);
-          graph[assignAliasTargets.front()].setDstReg();
-          BOOST_LOG_TRIVIAL(debug) << boost::format("Moved REG from %s to %s")
-                                        % graph[v].getName() % graph[assignAliasTargets.front()].getName();
+          if (assignAliasTargets.front() != v) {
+            graph[assignAliasTargets.front()].setRegAlias();
+            BOOST_LOG_TRIVIAL(debug) << boost::format("Marked %s as REG alias of %s")
+                % graph[assignAliasTargets.front()].getName() % graph[v].getName();
+          }
         }
       }
     }
@@ -158,11 +160,17 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
 }
 
 /// Match a VertexGraphType against a vertex.
-/// Special case for registers since they can be duplicate for SRC and DST.
 bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
-  return (graphType == VertexGraphType::ANY) ? true :
-         (graphType == VertexGraphType::REG) ? graph[vertex].isDstReg()
-                                             : graph[vertex].isGraphType(graphType);
+  if (graphType == VertexGraphType::ANY) {
+    return true;
+  }
+  if (graphType == VertexGraphType::REG && graph[vertex].isSrcReg()) {
+    // Source registers are duplicates of destination registers, so exclude them
+    // from REG queries.
+    return false;
+  }
+  // Anything else is handled by isGraphType().
+  return graph[vertex].isGraphType(graphType);
 }
 
 VertexIDVec Graph::getVerticesByType(VertexGraphType graphType) const {

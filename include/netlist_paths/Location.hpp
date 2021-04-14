@@ -9,10 +9,13 @@
 class File {
   std::string filename;
   std::string language;
+
 public:
+
   File(const std::string &filename,
        const std::string &language) :
       filename(filename), language(language) {}
+
   const std::string &getFilename() const { return filename; }
 };
 
@@ -23,8 +26,11 @@ class Location {
   unsigned startCol;
   unsigned endLine;
   unsigned endCol;
+
 public:
+
   Location() : file(nullptr) {}
+
   Location(std::shared_ptr<File> file,
            unsigned startLine,
            unsigned startCol,
@@ -35,7 +41,15 @@ public:
       startCol(startCol),
       endLine(endLine),
       endCol(endCol) {}
-  const std::string getFilename() const { return file->getFilename(); }
+
+  const std::string getFilename() const {
+    if (file) {
+      return file->getFilename();
+    } else {
+      return "unknown";
+    }
+  }
+
   /// Equality comparison
   friend bool operator== (const Location &a, const Location &b) {
     return a.file == b.file &&
@@ -44,11 +58,13 @@ public:
            a.endLine == b.endLine &&
            a.endCol == b.endCol;
   }
+
   std::string getLocationStrExact() const {
     auto s = boost::format("%s %d:%d,%d:%d")
                % getFilename() % startLine % startCol % endLine % endCol;
     return s.str();
   }
+
   std::string getLocationStr() const {
     auto s = boost::format("%s:%d") % getFilename() % startLine;
     return s.str();

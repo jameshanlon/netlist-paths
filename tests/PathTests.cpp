@@ -528,6 +528,23 @@ BOOST_FIXTURE_TEST_CASE(multiple_separate_paths, TestContext) {
 }
 
 //===----------------------------------------------------------------------===//
+// Test matching of paths through modules with registered outputs. Because of
+// the way that Verilator inlines the modules, the source names of the resisters
+// are not preserved. However, there should be the correct number of registers
+// and paths.
+//===----------------------------------------------------------------------===//
+
+BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
+
+  // A registered output is a port and register.
+  BOOST_CHECK_NO_THROW(compile("registered_output_path.sv"));
+  BOOST_TEST(np->getRegVerticesPtr().size() == 3);
+  BOOST_TEST(np->getAllFanOut("in").size() == 1);
+  BOOST_TEST(np->getAllFanOut("registered_output_path.data1").size() == 1);
+  BOOST_TEST(np->getAllFanOut("registered_output_path.data2").size() == 1);
+}
+
+//===----------------------------------------------------------------------===//
 // Vlvbound bug
 //===----------------------------------------------------------------------===//
 

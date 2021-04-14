@@ -8,7 +8,7 @@ using namespace netlist_paths;
 Netlist::Netlist(const std::string &filename) {
   Options::getInstance(); // Create singleton object.
   ReadVerilatorXML(netlist, files, dtypes, filename);
-  netlist.propagateRegisters();
+  netlist.markAliasRegisters();
   netlist.splitRegVertices();
 
 }
@@ -58,6 +58,17 @@ VertexID Netlist::getVertex(const std::string &name,
 
 VertexID Netlist::getRegVertex(const std::string &name) const {
   auto vertices = netlist.getRegVertices(name);
+  if (vertices.size() > 1) {
+    throw Exception(reportMultipleMatches(vertices, name, "register"));
+  }
+  if (vertices.size() == 1) {
+    return vertices.front();
+  }
+  return netlist.nullVertex();
+}
+
+VertexID Netlist::getRegAliasVertex(const std::string &name) const {
+  auto vertices = netlist.getRegAliasVertices(name);
   if (vertices.size() > 1) {
     throw Exception(reportMultipleMatches(vertices, name, "register"));
   }
@@ -224,7 +235,9 @@ bool Netlist::anyRegExists(const std::string &name) const {
 }
 
 bool Netlist::regExists(const std::string &name) const {
-  return getRegVertex(name) != netlist.nullVertex();
+  // Allow matching with register or register alias variables.
+  return (getRegVertex(name) != netlist.nullVertex()) ||
+         (getRegAliasVertex(name) != netlist.nullVertex());
 }
 
 bool Netlist::pathExists(Waypoints waypoints) const {

@@ -46,6 +46,9 @@ class Netlist {
   /// Lookup a single vertex of type register.
   VertexID getRegVertex(const std::string &name) const;
 
+  /// Lookup a single vertex of type register alias.
+  VertexID getRegAliasVertex(const std::string &name) const;
+
   /// Lookup a single vertex that is a startpoint.
   VertexID getStartVertex(const std::string &name) const;
 

@@ -14,7 +14,7 @@ namespace netlist_paths {
 // Vertex type enums.
 //===----------------------------------------------------------------------===//
 
-// Corresponding type of vertex in the Verilator AST.
+/// Vertex types corresponding to the Verilator XML AST format.
 enum class VertexAstType {
   LOGIC,
   ASSIGN,
@@ -31,15 +31,18 @@ enum class VertexAstType {
   VAR,
   WIRE,
   PORT,
+  REG_ALIAS,
   C_FUNC,
   INVALID
 };
 
-// Vertex categorisation within the netlist graph.
+/// Vertex categorisation within the netlist graph, used for selecting
+/// collections of vertices with particular properties.
 enum class VertexGraphType {
   REG,
   DST_REG,
   SRC_REG,
+  REG_ALIAS,
   NET,
   LOGIC,
   PORT,
@@ -50,6 +53,7 @@ enum class VertexGraphType {
   ANY
 };
 
+/// The direction of a variable, applying only to ports.
 enum class VertexDirection {
   NONE,
   INPUT,
@@ -78,6 +82,7 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "VAR",          VertexAstType::VAR },
       { "WIRE",         VertexAstType::WIRE },
       { "PORT",         VertexAstType::PORT },
+      { "REG_ALIAS",    VertexAstType::REG_ALIAS },
       { "C_FUNC",       VertexAstType::C_FUNC },
   };
   auto it = mappings.find(name);
@@ -101,6 +106,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::VAR:          return "VAR";
     case VertexAstType::WIRE:         return "WIRE";
     case VertexAstType::PORT:         return "PORT";
+    case VertexAstType::REG_ALIAS:    return "REG_ALIAS";
     case VertexAstType::C_FUNC:       return "C_FUNC";
     case VertexAstType::INVALID:      return "INVALID";
     default:                          return "UNKNOWN";
@@ -124,6 +130,7 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::VAR:          return "VAR";
     case VertexAstType::WIRE:         return "WIRE";
     case VertexAstType::PORT:         return "PORT";
+    case VertexAstType::REG_ALIAS:    return "VAR";
     case VertexAstType::C_FUNC:       return "C_FUNCTION";
     case VertexAstType::INVALID:      return "INVALID";
     default:                          return "UNKNOWN";
@@ -256,8 +263,9 @@ public:
   bool isGraphType(VertexGraphType type) const {
     switch (type) {
       case VertexGraphType::REG:         return isReg();
-      case VertexGraphType::SRC_REG:     return isDstReg();
-      case VertexGraphType::DST_REG:     return isSrcReg();
+      case VertexGraphType::REG_ALIAS:   return isRegAlias();
+      case VertexGraphType::SRC_REG:     return isSrcReg();
+      case VertexGraphType::DST_REG:     return isDstReg();
       case VertexGraphType::LOGIC:       return isLogic();
       case VertexGraphType::NET:         return isNet();
       case VertexGraphType::PORT:        return isPort();
@@ -342,6 +350,12 @@ public:
             astType == VertexAstType::DST_REG);
   }
 
+  /// Return true if the vertex is an alias of a register variable.
+  inline bool isRegAlias() const {
+    return !deleted &&
+           astType == VertexAstType::REG_ALIAS;
+  }
+
   /// Return true if the vertex is a port variable.
   inline bool isPort() const {
     return !deleted &&
@@ -403,6 +417,7 @@ public:
   void setVar() { astType = VertexAstType::VAR; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
   void setDstReg() { astType = VertexAstType::DST_REG; }
+  void setRegAlias() { astType = VertexAstType::REG_ALIAS; }
   void setDirection(VertexDirection dir) { direction = dir; }
   VertexAstType getAstType() const { return astType; }
   VertexDirection getDirection() const { return direction; }
