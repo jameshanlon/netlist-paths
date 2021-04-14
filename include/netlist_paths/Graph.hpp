@@ -46,7 +46,7 @@ private:
 
   bool vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const;
 
-  VertexIDVec getTargetNodes(VertexID vertex) const;
+  VertexIDVec getAdjacentVertices(VertexID vertex) const;
 
   VertexIDVec determinePath(ParentMap &parentMap,
                             VertexIDVec path,
@@ -126,7 +126,7 @@ public:
     return getVertices(name, VertexGraphType::REG);
   }
   VertexIDVec getRegAliasVertices(const std::string &name) const {
-    return getVertices(name, VertexGraphType::REG_ALIAS);
+    return getVertices(name, VertexGraphType::DST_REG_ALIAS);
   }
   std::vector<VertexIDVec> getAllFanOut(VertexID startVertex) const;
   std::vector<VertexIDVec> getAllFanIn(VertexID endVertex) const;

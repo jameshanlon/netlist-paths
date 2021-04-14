@@ -23,6 +23,7 @@ struct TestContext {
     std::vector<std::string> names;
     for (auto v : vertices) {
       auto name = std::remove_reference<const netlist_paths::Vertex>::type(v).getName();
+      name += std::remove_reference<const netlist_paths::Vertex>::type(v).getAstTypeStr();
       names.push_back(name);
     }
     auto last = std::unique(std::begin(names), std::end(names));

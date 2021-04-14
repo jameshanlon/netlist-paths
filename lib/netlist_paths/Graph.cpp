@@ -55,7 +55,8 @@ public:
   }
 };
 
-VertexIDVec Graph::getTargetNodes(VertexID vertex) const {
+/// Get all vertices connected by out edges from vertex.
+VertexIDVec Graph::getAdjacentVertices(VertexID vertex) const {
   std::vector<VertexID> targets;
   BGL_FORALL_OUTEDGES(vertex, outEdge, graph, InternalGraph) {
     targets.push_back(boost::target(outEdge, graph));
@@ -70,12 +71,12 @@ VertexIDVec Graph::getTargetNodes(VertexID vertex) const {
 void Graph::markAliasRegisters() {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
-      for (auto target : getTargetNodes(v)) {
+      for (auto target : getAdjacentVertices(v)) {
         if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
-          VertexIDVec assignAliasTargets = getTargetNodes(target);
+          VertexIDVec assignAliasTargets = getAdjacentVertices(target);
           assert(assignAliasTargets.size() == 1);
           if (assignAliasTargets.front() != v) {
-            graph[assignAliasTargets.front()].setRegAlias();
+            graph[assignAliasTargets.front()].setDstRegAlias();
             BOOST_LOG_TRIVIAL(debug) << boost::format("Marked %s as REG alias of %s")
                 % graph[assignAliasTargets.front()].getName() % graph[v].getName();
           }
@@ -90,22 +91,42 @@ void Graph::markAliasRegisters() {
 /// follows combinatorial paths in the netlist and allows traversals of the
 /// graph to trace combinatorial timing paths.
 void Graph::splitRegVertices() {
+  VertexIDVec regVertices;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
-      // Collect all adjacent vertices (to which there are out edges).
-      std::vector<VertexID> adjacentVertices;
-      BGL_FORALL_ADJ(v, adjVertex, graph, InternalGraph) {
-        adjacentVertices.push_back(adjVertex);
+      regVertices.push_back(v);
+    }
+  }
+  for (auto v : regVertices) {
+    // Create a new 'source' reg vertex.
+    Vertex srcReg(graph[v]);
+    srcReg.setSrcReg();
+    auto srcRegVertex = boost::add_vertex(srcReg, graph);
+    // Collect all adjacent vertices (to which there are out edges).
+    std::vector<VertexID> adjacentVertices = getAdjacentVertices(v);
+    // Create or move edges to src register vertex.
+    for (auto target : adjacentVertices) {
+      if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
+        VertexIDVec assignAliasTargets = getAdjacentVertices(target);
+        assert(assignAliasTargets.size() == 1);
+        if (assignAliasTargets.front() != v) {
+          // If we have REG -> ASSIGN_ALIAS -> VAR, then duplicate
+          // ASSIGN_ALIAS and VAR, so there are:
+          //   SRC_REG <- ASSIGN_ALIAS <- VAR
+          //   DST_REG -> ASSIGN_ALIAS -> VAR
+          Vertex assignAlias(graph[target]);
+          Vertex aliasVar(graph[assignAliasTargets.front()]);
+          aliasVar.setSrcRegAlias();
+          auto assignAliasVertex = boost::add_vertex(assignAlias, graph);
+          auto aliasVarVertex = boost::add_vertex(aliasVar, graph);
+          boost::add_edge(aliasVarVertex, assignAliasVertex, graph);
+          boost::add_edge(assignAliasVertex, srcRegVertex, graph);
+          continue;
+        }
       }
-      // Create a new 'source' reg vertex.
-      Vertex srcReg(graph[v]);
-      srcReg.setSrcReg();
-      auto srcRegVertex = boost::add_vertex(srcReg, graph);
-      // Move the out edges to the src reg (while not iterating).
-      for (auto adjVertex : adjacentVertices) {
-        boost::remove_edge(v, adjVertex, graph);
-        boost::add_edge(srcRegVertex, adjVertex, graph);
-      }
+      // Otherwise, just move the out edge to the new srcReg.
+      boost::remove_edge(v, target, graph);
+      boost::add_edge(srcRegVertex, target, graph);
     }
   }
 }
@@ -143,10 +164,7 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   // Loop over all vertices and print properties.
   outputFile << "digraph netlist {\n";
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    outputFile << v << " ["
-       << "label=\"" << graph[v].getName() << "\", "
-       << "type=\"" << graph[v].getAstTypeStr() << "\""
-       << "]\n";
+    outputFile << v << boost::format(" [label=\"%s %s\"]\n") % graph[v].getName() %graph[v].getAstTypeStr();
   }
   // Loop over all edges.
   BGL_FORALL_EDGES(e, graph, InternalGraph) {

@@ -31,7 +31,8 @@ enum class VertexAstType {
   VAR,
   WIRE,
   PORT,
-  REG_ALIAS,
+  SRC_REG_ALIAS,
+  DST_REG_ALIAS,
   C_FUNC,
   INVALID
 };
@@ -42,7 +43,8 @@ enum class VertexGraphType {
   REG,
   DST_REG,
   SRC_REG,
-  REG_ALIAS,
+  SRC_REG_ALIAS,
+  DST_REG_ALIAS,
   NET,
   LOGIC,
   PORT,
@@ -67,23 +69,24 @@ enum class VertexDirection {
 
 inline VertexAstType getVertexAstType(const std::string &name) {
   static std::map<std::string, VertexAstType> mappings {
-      { "LOGIC",        VertexAstType::LOGIC },
-      { "ASSIGN",       VertexAstType::ASSIGN },
-      { "ASSIGN_ALIAS", VertexAstType::ASSIGN_ALIAS },
-      { "ASSIGN_DLY",   VertexAstType::ASSIGN_DLY },
-      { "ASSIGN_W",     VertexAstType::ASSIGN_W },
-      { "ALWAYS",       VertexAstType::ALWAYS },
-      { "INITIAL",      VertexAstType::INITIAL },
-      { "INSTANCE",     VertexAstType::INSTANCE },
-      { "SRC_REG",      VertexAstType::SRC_REG },
-      { "DST_REG",      VertexAstType::DST_REG },
-      { "SEN_GATE",     VertexAstType::SEN_GATE },
-      { "SEN_ITEM",     VertexAstType::SEN_ITEM },
-      { "VAR",          VertexAstType::VAR },
-      { "WIRE",         VertexAstType::WIRE },
-      { "PORT",         VertexAstType::PORT },
-      { "REG_ALIAS",    VertexAstType::REG_ALIAS },
-      { "C_FUNC",       VertexAstType::C_FUNC },
+      { "LOGIC",         VertexAstType::LOGIC },
+      { "ASSIGN",        VertexAstType::ASSIGN },
+      { "ASSIGN_ALIAS",  VertexAstType::ASSIGN_ALIAS },
+      { "ASSIGN_DLY",    VertexAstType::ASSIGN_DLY },
+      { "ASSIGN_W",      VertexAstType::ASSIGN_W },
+      { "ALWAYS",        VertexAstType::ALWAYS },
+      { "INITIAL",       VertexAstType::INITIAL },
+      { "INSTANCE",      VertexAstType::INSTANCE },
+      { "SRC_REG",       VertexAstType::SRC_REG },
+      { "DST_REG",       VertexAstType::DST_REG },
+      { "SEN_GATE",      VertexAstType::SEN_GATE },
+      { "SEN_ITEM",      VertexAstType::SEN_ITEM },
+      { "VAR",           VertexAstType::VAR },
+      { "WIRE",          VertexAstType::WIRE },
+      { "PORT",          VertexAstType::PORT },
+      { "SRC_REG_ALIAS", VertexAstType::SRC_REG_ALIAS },
+      { "DST_REG_ALIAS", VertexAstType::DST_REG_ALIAS },
+      { "C_FUNC",        VertexAstType::C_FUNC },
   };
   auto it = mappings.find(name);
   return (it != mappings.end()) ? it->second : VertexAstType::INVALID;
@@ -92,50 +95,52 @@ inline VertexAstType getVertexAstType(const std::string &name) {
 /// Return string representations of the VertexAstType enum.
 inline const char *getVertexAstTypeStr(VertexAstType type) {
   switch (type) {
-    case VertexAstType::LOGIC:        return "LOGIC";
-    case VertexAstType::ASSIGN:       return "ASSIGN";
-    case VertexAstType::ASSIGN_ALIAS: return "ASSIGN_ALIAS";
-    case VertexAstType::ASSIGN_DLY:   return "ASSIGN_DLY";
-    case VertexAstType::ASSIGN_W:     return "ASSIGN_W";
-    case VertexAstType::ALWAYS:       return "ALWAYS";
-    case VertexAstType::INITIAL:      return "INITIAL";
-    case VertexAstType::INSTANCE:     return "INSTANCE";
-    case VertexAstType::SRC_REG:      return "SRC_REG";
-    case VertexAstType::DST_REG:      return "DST_REG";
-    case VertexAstType::SEN_GATE:     return "SEN_GATE";
-    case VertexAstType::SEN_ITEM:     return "SEN_ITEM";
-    case VertexAstType::VAR:          return "VAR";
-    case VertexAstType::WIRE:         return "WIRE";
-    case VertexAstType::PORT:         return "PORT";
-    case VertexAstType::REG_ALIAS:    return "REG_ALIAS";
-    case VertexAstType::C_FUNC:       return "C_FUNC";
-    case VertexAstType::INVALID:      return "INVALID";
-    default:                          return "UNKNOWN";
+    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::ASSIGN:        return "ASSIGN";
+    case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN_ALIAS";
+    case VertexAstType::ASSIGN_DLY:    return "ASSIGN_DLY";
+    case VertexAstType::ASSIGN_W:      return "ASSIGN_W";
+    case VertexAstType::ALWAYS:        return "ALWAYS";
+    case VertexAstType::INITIAL:       return "INITIAL";
+    case VertexAstType::INSTANCE:      return "INSTANCE";
+    case VertexAstType::SRC_REG:       return "SRC_REG";
+    case VertexAstType::DST_REG:       return "DST_REG";
+    case VertexAstType::SEN_GATE:      return "SEN_GATE";
+    case VertexAstType::SEN_ITEM:      return "SEN_ITEM";
+    case VertexAstType::VAR:           return "VAR";
+    case VertexAstType::WIRE:          return "WIRE";
+    case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::SRC_REG_ALIAS: return "SRC_REG_ALIAS";
+    case VertexAstType::DST_REG_ALIAS: return "DST_REG_ALIAS";
+    case VertexAstType::C_FUNC:        return "C_FUNC";
+    case VertexAstType::INVALID:       return "INVALID";
+    default:                           return "UNKNOWN";
   }
 }
 
 /// Map Vertex AST types to useful names that can be included in reports.
 inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
   switch (type) {
-    case VertexAstType::LOGIC:        return "LOGIC";
-    case VertexAstType::ASSIGN:       return "ASSIGN";
-    case VertexAstType::ASSIGN_ALIAS: return "ASSIGN";
-    case VertexAstType::ASSIGN_DLY:   return "ASSIGN";
-    case VertexAstType::ASSIGN_W:     return "ASSIGN";
-    case VertexAstType::ALWAYS:       return "ALWAYS";
-    case VertexAstType::INITIAL:      return "INITIAL";
-    case VertexAstType::INSTANCE:     return "INSTANCE";
-    case VertexAstType::SRC_REG:      return "REG";
-    case VertexAstType::DST_REG:      return "REG";
-    case VertexAstType::SEN_GATE:     return "SEN";
-    case VertexAstType::SEN_ITEM:     return "SEN";
-    case VertexAstType::VAR:          return "VAR";
-    case VertexAstType::WIRE:         return "WIRE";
-    case VertexAstType::PORT:         return "PORT";
-    case VertexAstType::REG_ALIAS:    return "REG_ALIAS";
-    case VertexAstType::C_FUNC:       return "C_FUNCTION";
-    case VertexAstType::INVALID:      return "INVALID";
-    default:                          return "UNKNOWN";
+    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::ASSIGN:        return "ASSIGN";
+    case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN";
+    case VertexAstType::ASSIGN_DLY:    return "ASSIGN";
+    case VertexAstType::ASSIGN_W:      return "ASSIGN";
+    case VertexAstType::ALWAYS:        return "ALWAYS";
+    case VertexAstType::INITIAL:       return "INITIAL";
+    case VertexAstType::INSTANCE:      return "INSTANCE";
+    case VertexAstType::SRC_REG:       return "REG";
+    case VertexAstType::DST_REG:       return "REG";
+    case VertexAstType::SEN_GATE:      return "SEN";
+    case VertexAstType::SEN_ITEM:      return "SEN";
+    case VertexAstType::VAR:           return "VAR";
+    case VertexAstType::WIRE:          return "WIRE";
+    case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
+    case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
+    case VertexAstType::C_FUNC:        return "C_FUNCTION";
+    case VertexAstType::INVALID:       return "INVALID";
+    default:                           return "UNKNOWN";
   }
 }
 
@@ -264,18 +269,19 @@ public:
   /// \returns Whether the vertex matches the specified type.
   bool isGraphType(VertexGraphType type) const {
     switch (type) {
-      case VertexGraphType::REG:         return isReg();
-      case VertexGraphType::REG_ALIAS:   return isRegAlias();
-      case VertexGraphType::SRC_REG:     return isSrcReg();
-      case VertexGraphType::DST_REG:     return isDstReg();
-      case VertexGraphType::LOGIC:       return isLogic();
-      case VertexGraphType::NET:         return isNet();
-      case VertexGraphType::PORT:        return isPort();
-      case VertexGraphType::START_POINT: return isStartPoint();
-      case VertexGraphType::END_POINT:   return isEndPoint();
-      case VertexGraphType::MID_POINT:   return isMidPoint();
-      case VertexGraphType::IS_NAMED:    return isNamed();
-      default:                           return false;
+      case VertexGraphType::REG:           return isReg();
+      case VertexGraphType::SRC_REG_ALIAS: return isSrcRegAlias();
+      case VertexGraphType::DST_REG_ALIAS: return isDstRegAlias();
+      case VertexGraphType::SRC_REG:       return isSrcReg();
+      case VertexGraphType::DST_REG:       return isDstReg();
+      case VertexGraphType::LOGIC:         return isLogic();
+      case VertexGraphType::NET:           return isNet();
+      case VertexGraphType::PORT:          return isPort();
+      case VertexGraphType::START_POINT:   return isStartPoint();
+      case VertexGraphType::END_POINT:     return isEndPoint();
+      case VertexGraphType::MID_POINT:     return isMidPoint();
+      case VertexGraphType::IS_NAMED:      return isNamed();
+      default:                             return false;
     }
   }
 
@@ -352,9 +358,14 @@ public:
             astType == VertexAstType::DST_REG);
   }
 
-  /// Return true if the vertex is an alias of a register variable.
-  inline bool isRegAlias() const {
-    return !deleted && astType == VertexAstType::REG_ALIAS;
+  /// Return true if the vertex is an alias of a source register variable.
+  inline bool isSrcRegAlias() const {
+    return !deleted && astType == VertexAstType::SRC_REG_ALIAS;
+  }
+
+  /// Return true if the vertex is an alias of a destination register variable.
+  inline bool isDstRegAlias() const {
+    return !deleted && astType == VertexAstType::DST_REG_ALIAS;
   }
 
   /// Return true if the vertex is a port variable.
@@ -367,17 +378,25 @@ public:
   }
 
   /// Return true if the vertex is a valid start point for a path.
+  ///   - Source register
+  ///   - Alias of a source register
+  ///   - A top input or inout port
   inline bool isStartPoint() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
+            astType == VertexAstType::SRC_REG_ALIAS ||
             (direction == VertexDirection::INPUT && top) ||
             (direction == VertexDirection::INOUT && top));
   }
 
   /// Return true if the vertex is a valid end point for a path.
+  ///   - Destination register
+  ///   - Alias of a destination register
+  ///   - A top output or inout port
   inline bool isEndPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
+            astType == VertexAstType::DST_REG_ALIAS ||
             (direction == VertexDirection::OUTPUT && top) ||
             (direction == VertexDirection::INOUT && top));
   }
@@ -403,6 +422,7 @@ public:
   inline bool isNamed() const {
     return !isLogic() &&
            !isSrcReg() &&
+           !isSrcRegAlias() &&
            !canIgnore() &&
            !isDeleted();
   }
@@ -418,7 +438,8 @@ public:
   void setVar() { astType = VertexAstType::VAR; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
   void setDstReg() { astType = VertexAstType::DST_REG; }
-  void setRegAlias() { astType = VertexAstType::REG_ALIAS; }
+  void setSrcRegAlias() { astType = VertexAstType::SRC_REG_ALIAS; }
+  void setDstRegAlias() { astType = VertexAstType::DST_REG_ALIAS; }
   void setDirection(VertexDirection dir) { direction = dir; }
   VertexAstType getAstType() const { return astType; }
   VertexDirection getDirection() const { return direction; }
