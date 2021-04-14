@@ -230,8 +230,10 @@ bool Netlist::anyEndpointExists(const std::string &name) const {
 }
 
 bool Netlist::anyRegExists(const std::string &name) const {
-  auto vertices = netlist.getRegVertices(name);
-  return vertices.size() != 0;
+  // Allow matching with register or register alias variables.
+  auto regVertices = netlist.getRegVertices(name);
+  auto regAliasVertices = netlist.getRegAliasVertices(name);
+  return (regVertices.size() != 0) || (regAliasVertices.size() != 0);
 }
 
 bool Netlist::regExists(const std::string &name) const {

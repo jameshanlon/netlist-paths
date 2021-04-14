@@ -40,6 +40,8 @@ BOOST_FIXTURE_TEST_CASE(port_register, TestContext) {
   BOOST_TEST(np->getNamedVerticesPtr().size() == 6);
   // Regs
   BOOST_TEST(np->getRegVerticesPtr().size() == 1);
+  BOOST_TEST(np->regExists("o_b"));
+  BOOST_TEST(np->anyRegExists("o_b"));
   // Ports
   BOOST_TEST(np->getPortVerticesPtr().size() == 7);
   BOOST_TEST(np->getPortVerticesPtr("i_").size() == 4);
@@ -54,6 +56,8 @@ BOOST_FIXTURE_TEST_CASE(port_register, TestContext) {
   BOOST_TEST(np->getNamedVerticesPtr().size() == 9);
   // Regs
   BOOST_TEST(np->getRegVerticesPtr().size() == 1);
+  BOOST_TEST(np->regExists("o_b")); // NOTE: inlining of foo causes foo.o_b to be merged into o_b.
+  BOOST_TEST(np->anyRegExists("o_b"));
   // Ports
   BOOST_TEST(np->getPortVerticesPtr().size() == 7);
   BOOST_TEST(np->getPortVerticesPtr("i_").size() == 4);

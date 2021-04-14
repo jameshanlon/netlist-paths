@@ -89,6 +89,7 @@ inline VertexAstType getVertexAstType(const std::string &name) {
   return (it != mappings.end()) ? it->second : VertexAstType::INVALID;
 }
 
+/// Return string representations of the VertexAstType enum.
 inline const char *getVertexAstTypeStr(VertexAstType type) {
   switch (type) {
     case VertexAstType::LOGIC:        return "LOGIC";
@@ -113,6 +114,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
   }
 }
 
+/// Map Vertex AST types to useful names that can be included in reports.
 inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
   switch (type) {
     case VertexAstType::LOGIC:        return "LOGIC";
@@ -130,7 +132,7 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::VAR:          return "VAR";
     case VertexAstType::WIRE:         return "WIRE";
     case VertexAstType::PORT:         return "PORT";
-    case VertexAstType::REG_ALIAS:    return "VAR";
+    case VertexAstType::REG_ALIAS:    return "REG_ALIAS";
     case VertexAstType::C_FUNC:       return "C_FUNCTION";
     case VertexAstType::INVALID:      return "INVALID";
     default:                          return "UNKNOWN";

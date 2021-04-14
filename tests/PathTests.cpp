@@ -538,7 +538,16 @@ BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
 
   // A registered output is a port and register.
   BOOST_CHECK_NO_THROW(compile("registered_output_path.sv"));
+  // There are three registers.
   BOOST_TEST(np->getRegVerticesPtr().size() == 3);
+  // Check that REG_ALIASES match against 'is register' queries.
+  BOOST_TEST(np->regExists("registered_output_path.u_foo1.o_b"));
+  BOOST_TEST(np->regExists("registered_output_path.u_foo2.o_b"));
+  //BOOST_TEST(np->regExists("registered_output_path.u_foo3.o_b")); // Should be a REG_ALIAS
+  BOOST_TEST(np->anyRegExists("registered_output_path.u_foo1.o_b"));
+  BOOST_TEST(np->anyRegExists("registered_output_path.u_foo2.o_b"));
+  //BOOST_TEST(np->anyRegExists("registered_output_path.u_foo3.o_b")); // Should be a REG_ALIAS
+  // There is a single path through the design.
   BOOST_TEST(np->getAllFanOut("in").size() == 1);
   BOOST_TEST(np->getAllFanOut("registered_output_path.data1").size() == 1);
   BOOST_TEST(np->getAllFanOut("registered_output_path.data2").size() == 1);
