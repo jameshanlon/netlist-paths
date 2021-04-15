@@ -34,6 +34,16 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DNETLIST_PATHS_BUILD_DOCS=1 -DCMAKE_INSTALL_PREFIX=$GITHUB_WORKSPACE/install
 
+    - name: Cache Verilator build
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-verilator-build
+      with:
+        path: ${{github.workspace}}/thirdparty/verilator
+        key: ${{runner.os}}-${{env.cache-name}}-${{hashFiles(${{github.workspace}}/.git/modules/verilator)}}
+        restore-keys: |
+          ${{runner.os}}-${{env.cache-name}}-
+
     - name: Build
       working-directory: ${{github.workspace}}/build
       shell: bash
