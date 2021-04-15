@@ -40,7 +40,7 @@ jobs:
         cache-name: cache-verilator-build
       with:
         path: ${{github.workspace}}/thirdparty/verilator
-        key: ${{runner.os}}-${{env.cache-name}}-${{hashFiles(.git/modules/verilator)}}
+        key: ${{runner.os}}-${{env.cache-name}}-${{hashFiles('.git/modules/verilator')}}
         restore-keys: |
           ${{runner.os}}-${{env.cache-name}}-
 
