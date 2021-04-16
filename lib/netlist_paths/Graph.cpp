@@ -182,9 +182,14 @@ bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
   if (graphType == VertexGraphType::ANY) {
     return true;
   }
-  if (graphType == VertexGraphType::REG && graph[vertex].isSrcReg()) {
-    // Source registers are duplicates of destination registers, so exclude them
-    // from REG queries.
+  if ((graphType == VertexGraphType::REG ||
+       graphType == VertexGraphType::PORT ||
+       graphType == VertexGraphType::IS_NAMED) &&
+      (graph[vertex].isSrcReg() ||
+       graph[vertex].isSrcRegAlias())) {
+    // Source registers and register aliases are duplicates of destination
+    // registers and their aliases, so exclude them from queries that can
+    // include registers.
     return false;
   }
   // Anything else is handled by isGraphType().
