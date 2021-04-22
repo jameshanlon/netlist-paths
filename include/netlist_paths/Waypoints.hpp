@@ -22,8 +22,8 @@ public:
   /// Construct a Waypoints object with patterns matching start and finish
   /// points.
   ///
-  /// \param start    A pattern specifying a start point.
-  /// \param finish   A pattern specifying an end point.
+  /// \param start A pattern specifying a start point.
+  /// \param end   A pattern specifying an end point.
   Waypoints(const std::string start,
             const std::string end) :
       gotStartPoint(false), gotFinishPoint(false) {

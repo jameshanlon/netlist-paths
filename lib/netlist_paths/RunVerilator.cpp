@@ -26,7 +26,6 @@ RunVerilator::RunVerilator(const std::string &binLocation) {
   verilatorExe = fs::path(binLocation) / fs::path("np-verilator_bin");
 }
 
-/// Use Verilator to compile a graph of the flattened Verilog netlist.
 int RunVerilator::run(const std::vector<std::string> &includes,
                       const std::vector<std::string> &defines,
                       const std::vector<std::string> &inputFiles,

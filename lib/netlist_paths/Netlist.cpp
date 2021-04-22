@@ -45,7 +45,7 @@ Netlist::reportMultipleMatches(VertexIDVec vertices,
 }
 
 VertexID Netlist::getVertex(const std::string &name,
-                                 VertexGraphType vertexType) const {
+                                 VertexNetlistType vertexType) const {
   auto vertices = netlist.getVertices(name, vertexType);
   if (vertices.size() > 1) {
     throw Exception(reportMultipleMatches(vertices, name));
@@ -143,7 +143,7 @@ VertexID Netlist::getMidVertex(const std::string &name, bool matchAny) const {
 
 const std::string
 Netlist::getVertexDTypeStr(const std::string &name,
-                           VertexGraphType vertexType) const {
+                           VertexNetlistType vertexType) const {
   auto vertex = getVertex(name, vertexType);
   if (vertex == netlist.nullVertex()) {
     throw Exception(std::string("could not find vertex "+name));
@@ -153,7 +153,7 @@ Netlist::getVertexDTypeStr(const std::string &name,
 
 size_t
 Netlist::getVertexDTypeWidth(const std::string &name,
-                             VertexGraphType vertexType) const {
+                             VertexNetlistType vertexType) const {
   auto vertex = getVertex(name, vertexType);
   if (vertex == netlist.nullVertex()) {
     throw Exception(std::string("could not find vertex "+name));
@@ -224,21 +224,19 @@ VertexIDVec Netlist::readAvoidPoints(Waypoints waypoints) const {
 }
 
 bool Netlist::startpointExists(const std::string &name) const {
-  return getStartVertex(name, Options::getInstance().isMatchAnyVertex()) != netlist.nullVertex();
+  return getStartVertex(name, false) != netlist.nullVertex();
 }
 
 bool Netlist::endpointExists(const std::string &name) const {
-  return getEndVertex(name, Options::getInstance().isMatchAnyVertex()) != netlist.nullVertex();
+  return getEndVertex(name, false) != netlist.nullVertex();
 }
 
 bool Netlist::anyStartpointExists(const std::string &name) const {
-  auto vertices = netlist.getStartVertices(name);
-  return vertices.size() != 0;
+  return getStartVertex(name, true) != netlist.nullVertex();
 }
 
 bool Netlist::anyEndpointExists(const std::string &name) const {
-  auto vertices = netlist.getEndVertices(name);
-  return vertices.size() != 0;
+  return getEndVertex(name, true) != netlist.nullVertex();
 }
 
 bool Netlist::anyRegExists(const std::string &name) const {
@@ -291,10 +289,10 @@ std::vector<std::vector<Vertex*> > Netlist::getAllFanIn(const std::string endNam
 }
 
 std::vector<std::reference_wrapper<const Vertex> >
-Netlist::getNamedVertices(const std::string &pattern) const {
+Netlist::getNamedVertices(const std::string pattern) const {
   // Collect vertices.
   std::vector<std::reference_wrapper<const Vertex>> vertices;
-  for (auto vertexId : netlist.getVertices(pattern, VertexGraphType::IS_NAMED)) {
+  for (auto vertexId : netlist.getVertices(pattern, VertexNetlistType::IS_NAMED)) {
     vertices.push_back(std::ref(netlist.getVertex(vertexId)));
   }
   // Sort them.

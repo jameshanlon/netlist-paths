@@ -14,6 +14,9 @@ class TestPyWrapper(unittest.TestCase):
         pass
 
     def compile_test(self, filename):
+        """
+        Compile a test and setup/reset options.
+        """
         comp = RunVerilator(defs.INSTALL_PREFIX)
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, filename), 'netlist.xml')
         Options.get_instance().set_respect_hierarchy_markers()
@@ -24,6 +27,9 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))
 
     def test_adder_path_points(self):
+        """
+        Test basic querying of path start and end points.
+        """
         np = self.compile_test('adder.sv')
         for prefix in ['', 'adder.']:
             # Start and finish points
@@ -46,7 +52,10 @@ class TestPyWrapper(unittest.TestCase):
             self.assertFalse(np.startpoint_exists(prefix+'o_sum'))
             self.assertFalse(np.startpoint_exists(prefix+'o_co'))
 
-    def test_adder_paths(self):
+    def test_adder_path_exists(self):
+        """
+        Test basic querying of path existence.
+        """
         np = self.compile_test('adder.sv')
         Options.get_instance().set_match_exact()
         for prefix in ['', 'adder.']:
@@ -61,8 +70,33 @@ class TestPyWrapper(unittest.TestCase):
             self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_sum', prefix+'i_b'))
             self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_co',  prefix+'i_b'))
 
+    def test_get_names(self):
+        """
+        Check get X vertices methods, with and without default arguments.
+        """
+        np = self.compile_test('counter.sv')
+        Options.get_instance().set_match_regex()
+        # Named vertices
+        self.assertTrue(len(np.get_named_vertices()) == 12)
+        self.assertTrue(len(np.get_named_vertices('counter_q')) == 1)
+        self.assertTrue(len(np.get_named_vertices('foo')) == 0)
+        # Register vertices
+        self.assertTrue(len(np.get_reg_vertices()) == 1)
+        self.assertTrue(len(np.get_reg_vertices('counter_q')) == 1)
+        self.assertTrue(len(np.get_reg_vertices('foo')) == 0)
+        # Net vertices
+        self.assertTrue(len(np.get_net_vertices()) == 2)
+        self.assertTrue(len(np.get_net_vertices('\.counter')) == 1)
+        self.assertTrue(len(np.get_net_vertices('foo')) == 0)
+        # Port vertices
+        self.assertTrue(len(np.get_port_vertices()) == 8)
+        self.assertTrue(len(np.get_port_vertices('clk')) == 2)
+        self.assertTrue(len(np.get_port_vertices('foo')) == 0)
+
     def test_dtypes(self):
-        # Check dtype queries (see C++ unit tests for complete set).
+        """
+        Check dtype queries (see C++ unit tests for complete set).
+        """
         np = self.compile_test('dtypes.sv')
         self.assertTrue(np.get_dtype_width('logic') == 1)
         self.assertTrue(np.get_vertex_dtype_width('dtypes.logic_bit') == 1)
@@ -76,21 +110,34 @@ class TestPyWrapper(unittest.TestCase):
         self.assertRaises(RuntimeError, np.get_vertex_dtype_width, 'foo')
 
     def test_counter_regs(self):
+        """
+        Test querying of register existence.
+        """
         np = self.compile_test('counter.sv')
+        # Valid
         self.assertTrue(np.reg_exists('counter.counter_q'))
         self.assertTrue(np.any_reg_exists('counter.counter_q'))
+        # Invalid
+        self.assertFalse(np.reg_exists('counter.foo'))
+        self.assertFalse(np.any_reg_exists('counter.foo'))
 
     def test_pipeline_module_regs(self):
+        """
+        Test querying of register existence.
+        """
         np = self.compile_test('pipeline_module.sv')
-        # Register exists
+        # Register exists for all pipeline stages.
         for i in list(range(8)):
             self.assertTrue(np.reg_exists('pipeline_module.g_pipestage['+str(i)+'].u_pipestage.data_q'))
-        # Any register exists
+        # Any register exists with regex pattern.
         Options.get_instance().set_match_regex()
         self.assertTrue(np.any_reg_exists('pipeline_module.g_pipestage\[.\].u_pipestage.data_q'))
         self.assertTrue(np.any_reg_exists('pipeline_module..*.u_pipestage.data_q'))
 
     def test_path_any_to_any(self):
+        """
+        Test querying of any paths.
+        """
         # Pipeline
         np = self.compile_test('pipeline_loops.sv')
         path = np.get_any_path(Waypoints('i_data', 'pipeline_loops.data_q'))
@@ -101,21 +148,33 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(len(path) == 7)
 
     def test_path_all_any_to_any(self):
+        """
+        Test querying of all paths.
+        """
         np = self.compile_test('multiple_paths.sv')
         paths = np.get_all_paths(Waypoints('in', 'out'))
         self.assertTrue(len(paths) == 3)
 
     def test_path_all_fanout(self):
+        """
+        Test querying of all fanout paths.
+        """
         np = self.compile_test('fan_out_in.sv')
         paths = np.get_all_fanout_paths('in')
         self.assertTrue(len(paths) == 3)
 
     def test_path_all_fanin(self):
+        """
+        Test querying of all fanin paths.
+        """
         np = self.compile_test('fan_out_in.sv')
         paths = np.get_all_fanin_paths('out')
         self.assertTrue(len(paths) == 3)
 
     def test_any_start_finish_points(self):
+        """
+        Test matching of distinct paths through common mid points.
+        """
         np = self.compile_test('multiple_separate_paths.sv')
         Options.get_instance().set_match_wildcard()
         Options.get_instance().set_match_any_vertex()

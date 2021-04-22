@@ -35,29 +35,55 @@ public:
   bool isVerboseMode() const { return verboseMode; }
   bool isDebugMode() const { return debugMode; }
 
+  /// Set matching to use wildcards.
   void setMatchWildcard() { matchType = MatchType::WILDCARD; }
+
+  /// Set matching to use regular expressions.
   void setMatchRegex() { matchType = MatchType::REGEX; }
+
+  /// Set matching to be exact.
   void setMatchExact() { matchType = MatchType::EXACT; }
+
+  /// Set matching to ignore hierarchy markers (only with wildcard or regular
+  /// expression matching modes). Hierarchy markers are '.', '/' and '_'.
   void setIgnoreHierarchyMarkers() { ignoreHierarchyMarkers = true; }
+
+  /// Set matching to respect hierarchy markers (ie not to ignore them, only
+  /// with wildcard or regular expression matching modes).
   void setRespectHierarchyMarkers() { ignoreHierarchyMarkers = false; }
+
+  /// Set matching to identify one vertex, and for it to be an error if more
+  /// than one vertex is matched.
   void setMatchOneVertex() { matchOneVertex = true; }
+
+  /// Set matching to identify multiple vertices, and for just one to be
+  /// chosen arbitrarily.
   void setMatchAnyVertex() { matchOneVertex = false; }
+
+  /// Enable verbose output.
   void setVerbose() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
   }
+
+  /// Enable debug output (including verbose messages).
   void setDebug() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
   }
+
+  /// Supress verbose and debug messages.
   void setQuiet() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::warning);
   }
 
 public:
-  // Singleton instance.
+
+  /// Return a reference to the Options object.
   static Options &getInstance() {
     static Options instance;
     return instance;
   }
+
+  /// Return a pointer to the Options object.
   static Options *getInstancePtr() {
     return &getInstance();
   }

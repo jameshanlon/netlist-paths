@@ -16,6 +16,18 @@ void translateXMLException(const netlist_paths::XMLException& e) {
   PyErr_SetString(PyExc_RuntimeError, e.what());
 }
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_named_vertices_overloads,
+                                       getNamedVerticesPtr, 0, 1)
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_reg_vertices_overloads,
+                                       getRegVerticesPtr, 0, 1)
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_net_vertices_overloads,
+                                       getNetVerticesPtr, 0, 1)
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_port_vertices_overloads,
+                                       getPortVerticesPtr, 0, 1)
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
                                        getVertexDTypeStr, 1, 2)
 
@@ -92,10 +104,14 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<Netlist, boost::noncopyable>("Netlist",
                                       init<const std::string&>())
-    .def("get_named_vertices",     &Netlist::getNamedVerticesPtr)
-    .def("get_reg_vertices",       &Netlist::getRegVerticesPtr)
-    .def("get_net_vertices",       &Netlist::getNetVerticesPtr)
-    .def("get_port_vertices",      &Netlist::getPortVerticesPtr)
+    .def("get_named_vertices",     &Netlist::getNamedVerticesPtr,
+                                   get_named_vertices_overloads())
+    .def("get_reg_vertices",       &Netlist::getRegVerticesPtr,
+                                   get_reg_vertices_overloads())
+    .def("get_net_vertices",       &Netlist::getNetVerticesPtr,
+                                   get_net_vertices_overloads())
+    .def("get_port_vertices",      &Netlist::getPortVerticesPtr,
+                                   get_port_vertices_overloads())
     .def("reg_exists",             &Netlist::regExists)
     .def("any_reg_exists",         &Netlist::anyRegExists)
     .def("startpoint_exists",      &Netlist::startpointExists)

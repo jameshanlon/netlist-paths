@@ -47,7 +47,7 @@ sys.path.insert(0, os.path.join('@CMAKE_BINARY_DIR@', 'lib', 'netlist_paths'))
 # -- Project information -----------------------------------------------------
 
 project = 'Netlist paths'
-copyright = '2020, James Hanlon'
+copyright = '2021, James Hanlon'
 author = 'James Hanlon'
 
 

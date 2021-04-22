@@ -7,15 +7,29 @@
 namespace netlist_paths {
 
 /// Base class for netlist_paths exceptions.
-struct Exception : public std::exception {
+class Exception : public std::exception {
    std::string msg;
-   Exception(std::string msg) : msg(msg) {}
-   ~Exception() throw () {}
-   const char* what() const throw() { return msg.c_str(); }
+
+public:
+  /// Construct a new exception.
+  ///
+  /// \param msg The exception message.
+  Exception(std::string msg) : msg(msg) {}
+
+  ~Exception() throw () {}
+
+  /// Return the exception message.
+  const char* what() const throw() { return msg.c_str(); }
 };
 
 /// An exception from XML elaboration.
-struct XMLException : public Exception {
+class XMLException : public Exception {
+
+public:
+
+  /// Construct a new XML exception.
+  ///
+  /// \param msg The exception message.
   XMLException(std::string msg) : Exception(msg) {}
 };
 

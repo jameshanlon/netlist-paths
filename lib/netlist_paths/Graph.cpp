@@ -178,13 +178,13 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
 }
 
 /// Match a VertexGraphType against a vertex.
-bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
-  if (graphType == VertexGraphType::ANY) {
+bool Graph::vertexTypeMatch(VertexID vertex, VertexNetlistType graphType) const {
+  if (graphType == VertexNetlistType::ANY) {
     return true;
   }
-  if ((graphType == VertexGraphType::REG ||
-       graphType == VertexGraphType::PORT ||
-       graphType == VertexGraphType::IS_NAMED) &&
+  if ((graphType == VertexNetlistType::REG ||
+       graphType == VertexNetlistType::PORT ||
+       graphType == VertexNetlistType::IS_NAMED) &&
       (graph[vertex].isSrcReg() ||
        graph[vertex].isSrcRegAlias())) {
     // Source registers and register aliases are duplicates of destination
@@ -196,7 +196,7 @@ bool Graph::vertexTypeMatch(VertexID vertex, VertexGraphType graphType) const {
   return graph[vertex].isGraphType(graphType);
 }
 
-VertexIDVec Graph::getVerticesByType(VertexGraphType graphType) const {
+VertexIDVec Graph::getVerticesByType(VertexNetlistType graphType) const {
   VertexIDVec vertexIDs;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (vertexTypeMatch(v, graphType)) {
@@ -209,7 +209,7 @@ VertexIDVec Graph::getVerticesByType(VertexGraphType graphType) const {
 /// This implementation will allow the name to contain other regular expression
 /// syntax, and should be improved to match the wildcards directly.
 VertexIDVec Graph::getVerticesWildcard(const std::string &name,
-                                       VertexGraphType graphType) const {
+                                       VertexNetlistType graphType) const {
   auto nameStr(name);
   if (Options::getInstance().shouldIgnoreHierarchyMarkers()) {
     // Ignore '/', '.' and '_' characters.
@@ -228,7 +228,7 @@ VertexIDVec Graph::getVerticesWildcard(const std::string &name,
 }
 
 VertexIDVec Graph::getVerticesRegex(const std::string &name,
-                                    VertexGraphType graphType) const {
+                                    VertexNetlistType graphType) const {
   auto nameStr(name);
   if (Options::getInstance().shouldIgnoreHierarchyMarkers()) {
     // Ignore '/' or '_' ('.' already matches any character).
@@ -254,7 +254,7 @@ VertexIDVec Graph::getVerticesRegex(const std::string &name,
 }
 
 VertexID Graph::getVertexExact(const std::string &name,
-                               VertexGraphType graphType) const {
+                               VertexNetlistType graphType) const {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (vertexTypeMatch(v, graphType) &&
         graph[v].getName() == name) {
@@ -265,7 +265,7 @@ VertexID Graph::getVertexExact(const std::string &name,
 }
 
 VertexIDVec Graph::getVertices(const std::string &pattern,
-                               VertexGraphType graphType) const {
+                               VertexNetlistType graphType) const {
   if (pattern.empty()) {
     return getVerticesByType(graphType);
   }

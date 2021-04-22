@@ -3,11 +3,16 @@
 
 namespace netlist_paths {
 
-/// Return true if pattern matches text.
+/// Wildcard pattern matching.
 ///  * matches zero or more characters.
 ///  ? matches one character.
 /// Algorithm from:
 ///   https://www.codeproject.com/Articles/188256/A-Simple-Wildcard-Matching-Function
+///
+/// \param text    The text to match.
+/// \param pattern The wildcard pattern to match.
+///
+/// \returns True if the wildcard pattern matches the text.
 bool wildcardMatch(const char *text, const char *pattern) {
   while (*pattern != '\0') {
     if (*pattern == '*') {
@@ -41,6 +46,12 @@ bool wildcardMatch(const char *text, const char *pattern) {
   return *text == '\0' && *pattern == '\0';
 }
 
+/// Wildcard pattern matching.
+///
+/// \param text    The text to match.
+/// \param pattern The wildcard pattern to match.
+///
+/// \returns True if the wildcard pattern matches the text.
 bool wildcardMatch(const std::string &text, const std::string &pattern) {
   return wildcardMatch(text.c_str(), pattern.c_str());
 }

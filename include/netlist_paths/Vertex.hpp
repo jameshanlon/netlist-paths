@@ -39,7 +39,7 @@ enum class VertexAstType {
 
 /// Vertex categorisation within the netlist graph, used for selecting
 /// collections of vertices with particular properties.
-enum class VertexGraphType {
+enum class VertexNetlistType {
   REG,
   DST_REG,
   SRC_REG,
@@ -267,21 +267,21 @@ public:
   /// \param type A categorisation of a vertex.
   ///
   /// \returns Whether the vertex matches the specified type.
-  bool isGraphType(VertexGraphType type) const {
+  bool isGraphType(VertexNetlistType type) const {
     switch (type) {
-      case VertexGraphType::REG:           return isReg();
-      case VertexGraphType::SRC_REG_ALIAS: return isSrcRegAlias();
-      case VertexGraphType::DST_REG_ALIAS: return isDstRegAlias();
-      case VertexGraphType::SRC_REG:       return isSrcReg();
-      case VertexGraphType::DST_REG:       return isDstReg();
-      case VertexGraphType::LOGIC:         return isLogic();
-      case VertexGraphType::NET:           return isNet();
-      case VertexGraphType::PORT:          return isPort();
-      case VertexGraphType::START_POINT:   return isStartPoint();
-      case VertexGraphType::END_POINT:     return isEndPoint();
-      case VertexGraphType::MID_POINT:     return isMidPoint();
-      case VertexGraphType::IS_NAMED:      return isNamed();
-      default:                             return false;
+      case VertexNetlistType::REG:           return isReg();
+      case VertexNetlistType::SRC_REG_ALIAS: return isSrcRegAlias();
+      case VertexNetlistType::DST_REG_ALIAS: return isDstRegAlias();
+      case VertexNetlistType::SRC_REG:       return isSrcReg();
+      case VertexNetlistType::DST_REG:       return isDstReg();
+      case VertexNetlistType::LOGIC:         return isLogic();
+      case VertexNetlistType::NET:           return isNet();
+      case VertexNetlistType::PORT:          return isPort();
+      case VertexNetlistType::START_POINT:   return isStartPoint();
+      case VertexNetlistType::END_POINT:     return isEndPoint();
+      case VertexNetlistType::MID_POINT:     return isMidPoint();
+      case VertexNetlistType::IS_NAMED:      return isNamed();
+      default:                               return false;
     }
   }
 
@@ -433,7 +433,10 @@ public:
     return std::string(getVertexAstTypeStr(astType));
   }
 
-  /// Various getters and setters.
+  //===--------------------------------------------------------------------===//
+  // Various getters and setters.
+  //===--------------------------------------------------------------------===//
+
   void setDeleted() { deleted = true; }
   void setVar() { astType = VertexAstType::VAR; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
@@ -441,6 +444,7 @@ public:
   void setSrcRegAlias() { astType = VertexAstType::SRC_REG_ALIAS; }
   void setDstRegAlias() { astType = VertexAstType::DST_REG_ALIAS; }
   void setDirection(VertexDirection dir) { direction = dir; }
+
   VertexAstType getAstType() const { return astType; }
   VertexDirection getDirection() const { return direction; }
   size_t getDTypeWidth() const { return dtype != nullptr ? dtype->getWidth() : 0; }

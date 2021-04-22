@@ -44,4 +44,5 @@ add_custom_target(Sphinx ALL
                     -Dbreathe_projects.netlist-paths=${DOXYGEN_OUTPUT_DIR}/xml
                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                  DEPENDS py_netlist_paths
                   COMMENT "Generating documentation with Sphinx")
