@@ -62,11 +62,19 @@ Optionally, run the unit tests:
   ...
 
 To build the documentation add ``-DNETLIST_PATHS_BUILD_DOCS=1`` to the ``cmake``
-command.
+command, and before running the ``cmake`` step, install the dependencies in a virtualenv:
 
-Set ``PATH`` and ``PYTHONPATH`` appropriately to the ``bin`` and ``lib``
-directories of the installation to make the command-line tools and Python
-modules accessible.
+.. code-block:: bash
+
+  ➜ cd Release
+  ➜ virtualenv -p python3 env
+  ...
+  ➜ source env/bin/activate
+  ➜ pip install -r ../docs/requirements.txt
+
+Once the build and install steps have completed, set ``PATH`` and
+``PYTHONPATH`` appropriately to the ``bin`` and ``lib`` directories of the
+installation to make the command-line tools and Python modules accessible.
 
 
 Getting started

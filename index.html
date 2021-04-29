@@ -3,12 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
   
-  <title>Netlist Paths &mdash; Netlist paths  documentation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Netlist Paths &mdash; Netlist Paths  documentation</title>
   
 
   
@@ -17,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -49,7 +51,7 @@
           
 
           
-            <a href="#" class="icon icon-home" alt="Documentation Home"> Netlist paths
+            <a href="#" class="icon icon-home"> Netlist Paths
           
 
           
@@ -57,6 +59,10 @@
 
           
             
+            
+              <div class="version">
+                0.2
+              </div>
             
           
 
@@ -125,7 +131,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Netlist paths</a>
+          <a href="#">Netlist Paths</a>
         
       </nav>
 
@@ -135,6 +141,8 @@
         <div class="rst-content">
         
           
+
+
 
 
 
@@ -161,7 +169,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -175,7 +183,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="netlist-paths">
+  <div class="section" id="netlist-paths">
 <h1>Netlist Paths<a class="headerlink" href="#netlist-paths" title="Permalink to this headline">¶</a></h1>
 <p>Netlist Paths is a library and command-line tool for querying a Verilog
 netlist. It reads an XML representation of a design’s netlist, produced by
@@ -189,15 +197,15 @@ Netlist Paths is oriented towards command-line use for exploration of a design
 (rather than TCL) to build tools for analysing or debugging a design.</p>
 <div class="toctree-wrapper compound">
 </div>
-</section>
-<section id="indices-and-tables">
+</div>
+<div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-</section>
-<section id="build-and-installation">
+</div>
+<div class="section" id="build-and-installation">
 <h1>Build and installation<a class="headerlink" href="#build-and-installation" title="Permalink to this headline">¶</a></h1>
 <p>The following dependencies must be installed:</p>
 <ul class="simple">
@@ -229,14 +237,21 @@ run Make:</p>
 </pre></div>
 </div>
 <p>To build the documentation add <code class="docutils literal notranslate"><span class="pre">-DNETLIST_PATHS_BUILD_DOCS=1</span></code> to the <code class="docutils literal notranslate"><span class="pre">cmake</span></code>
-command.</p>
-<p>Set <code class="docutils literal notranslate"><span class="pre">PATH</span></code> and <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> appropriately to the <code class="docutils literal notranslate"><span class="pre">bin</span></code> and <code class="docutils literal notranslate"><span class="pre">lib</span></code>
-directories of the installation to make the command-line tools and Python
-modules accessible.</p>
-</section>
-<section id="getting-started">
+command, and before running the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> step, install the dependencies in a virtualenv:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ <span class="nb">cd</span> Release
+➜ virtualenv -p python3 env
+...
+➜ <span class="nb">source</span> env/bin/activate
+➜ pip install -r ../docs/requirements.txt
+</pre></div>
+</div>
+<p>Once the build and install steps have completed, set <code class="docutils literal notranslate"><span class="pre">PATH</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> appropriately to the <code class="docutils literal notranslate"><span class="pre">bin</span></code> and <code class="docutils literal notranslate"><span class="pre">lib</span></code> directories of the
+installation to make the command-line tools and Python modules accessible.</p>
+</div>
+<div class="section" id="getting-started">
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<section id="command-line-tool">
+<div class="section" id="command-line-tool">
 <h2>Command-line tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline">¶</a></h2>
 <p>The easiest way to use Netlist Paths is with the <code class="docutils literal notranslate"><span class="pre">netlist-paths</span></code> command
 line tool, which provides ways to access the library’s functionalities. For
@@ -291,8 +306,8 @@ info: Running <span class="s2">&quot;.../bin/np-verilator_bin&quot;</span> +1800
 directories and macro definitions respectively for Verilator, but for more
 complex invocations, Verilator can just be run separately and the path to the
 XML output provided to <code class="docutils literal notranslate"><span class="pre">netlist-paths</span></code> as an argument.</p>
-</section>
-<section id="python-module">
+</div>
+<div class="section" id="python-module">
 <h2>Python module<a class="headerlink" href="#python-module" title="Permalink to this headline">¶</a></h2>
 <p>The functionality of Netlist Paths can be accessed in Python, using the
 <code class="docutils literal notranslate"><span class="pre">py_netlist_paths</span></code> module, which is is a wrapper around the C++ library. Full
@@ -348,15 +363,15 @@ optional arguments:
 fsm.state_q packed union
 </pre></div>
 </div>
-</section>
-</section>
-<section id="contributing">
+</div>
+</div>
+<div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <p>Contributions are welcome, please follow the <a class="reference external" href="https://llvm.org/docs/CodingStandards.html">LLVM coding standards</a>.</p>
-</section>
-<section id="c-api-reference">
+</div>
+<div class="section" id="c-api-reference">
 <span id="cpp-api"></span><h1>C++ API reference<a class="headerlink" href="#c-api-reference" title="Permalink to this headline">¶</a></h1>
-<section id="dtype">
+<div class="section" id="dtype">
 <h2>DType<a class="headerlink" href="#dtype" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths5DTypeE">
@@ -364,27 +379,26 @@ fsm.state_q packed union
 <dd><p>Base class for data types. </p>
 <p>Subclassed by netlist_paths::ArrayDType, netlist_paths::BasicDType, netlist_paths::EnumDType, netlist_paths::MemberDType, netlist_paths::RefDType, netlist_paths::StructDType, netlist_paths::UnionDType</p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths5DType8toStringEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths5DType8toStringEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths5DType8toStringEKNSt6stringE"></span><span id="netlist_paths::DType::toString__ssCC"></span><span class="target" id="classnetlist__paths_1_1_d_type_1a586c61f1cd7001ca6ef112b38bc7f56d"></span><em class="property"><span class="pre">inline</span></em> <em class="property"><span class="pre">virtual</span></em> <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <code class="sig-name descname"><span class="pre">toString</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">suffix</span></em> <span class="pre">=</span> <span class="pre">&quot;&quot;</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths5DType8toStringEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return the string representation of the data type.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A string representation of the data type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>suffix</strong> – A suffix to allow unpacked array range specifications to be appended with the inner-most dimension on the LHS and outermost on the RHS.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">suffix</span></code>: A suffix to allow unpacked array range specifications to be appended with the inner-most dimension on the LHS and outermost on the RHS.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string representation of the data type. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 </div>
 </dd></dl>
 
-</section>
-<section id="exception">
+</div>
+<div class="section" id="exception">
 <h2>Exception<a class="headerlink" href="#exception" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths9ExceptionE">
@@ -399,15 +413,15 @@ fsm.state_q packed union
 <dd><p>An exception from XML elaboration. </p>
 </dd></dl>
 
-</section>
-<section id="options">
+</div>
+<div class="section" id="options">
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths7OptionsE">
 <span id="_CPPv3N13netlist_paths7OptionsE"></span><span id="_CPPv2N13netlist_paths7OptionsE"></span><span id="netlist_paths::Options"></span><span class="target" id="classnetlist__paths_1_1_options"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Options</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths7OptionsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A class encapsulating options. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths7Options16setMatchWildcardEv">
 <span id="_CPPv3N13netlist_paths7Options16setMatchWildcardEv"></span><span id="_CPPv2N13netlist_paths7Options16setMatchWildcardEv"></span><span id="netlist_paths::Options::setMatchWildcard"></span><span class="target" id="classnetlist__paths_1_1_options_1ab00be91a4201e1c34b16bf1af4c1a9d7"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setMatchWildcard</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options16setMatchWildcardEv" title="Permalink to this definition">¶</a><br /></dt>
@@ -470,7 +484,7 @@ fsm.state_q packed union
 
 </div>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths7Options11getInstanceEv">
 <span id="_CPPv3N13netlist_paths7Options11getInstanceEv"></span><span id="_CPPv2N13netlist_paths7Options11getInstanceEv"></span><span id="netlist_paths::Options::getInstance"></span><span class="target" id="classnetlist__paths_1_1_options_1a0f03983bb28e6ecace7641c5f75c922e"></span><em class="property"><span class="pre">static</span></em> <em class="property"><span class="pre">inline</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths7OptionsE" title="netlist_paths::Options"><span class="pre">Options</span></a> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">getInstance</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options11getInstanceEv" title="Permalink to this definition">¶</a><br /></dt>
@@ -486,253 +500,240 @@ fsm.state_q packed union
 </div>
 </dd></dl>
 
-</section>
-<section id="netlist">
+</div>
+<div class="section" id="netlist">
 <h2>Netlist<a class="headerlink" href="#netlist" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths7NetlistE">
 <span id="_CPPv3N13netlist_paths7NetlistE"></span><span id="_CPPv2N13netlist_paths7NetlistE"></span><span id="netlist_paths::Netlist"></span><span class="target" id="classnetlist__paths_1_1_netlist"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Netlist</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths7NetlistE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Wrapper for Python to manage the netlist object. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths7Netlist7NetlistERKNSt6stringE">
 <span id="_CPPv3N13netlist_paths7Netlist7NetlistERKNSt6stringE"></span><span id="_CPPv2N13netlist_paths7Netlist7NetlistERKNSt6stringE"></span><span id="netlist_paths::Netlist::Netlist__ssCR"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a000f80f371061fe08c163d123f06cb18"></span><code class="sig-name descname"><span class="pre">Netlist</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Netlist7NetlistERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Construct a new netlist from an XML file.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">filename</span></code>: A path to the XML netlist file. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> – A path to the XML netlist file. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist17getVertexDTypeStrERKNSt6stringE17VertexNetlistType">
 <span id="_CPPv3NK13netlist_paths7Netlist17getVertexDTypeStrERKNSt6stringE17VertexNetlistType"></span><span id="_CPPv2NK13netlist_paths7Netlist17getVertexDTypeStrERKNSt6stringE17VertexNetlistType"></span><span id="netlist_paths::Netlist::getVertexDTypeStr__ssCR.VertexNetlistTypeC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a0a9631baef068cf188c42023328cd7b5"></span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <code class="sig-name descname"><span class="pre">getVertexDTypeStr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em>, <a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistTypeE" title="netlist_paths::VertexNetlistType"><span class="pre">VertexNetlistType</span></a> <em><span class="pre">vertexType</span></em> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistTypeE" title="netlist_paths::VertexNetlistType"><span class="pre">VertexNetlistType</span></a><span class="pre">::</span><a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistType3ANYE" title="netlist_paths::VertexNetlistType::ANY"><span class="pre">ANY</span></a><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17getVertexDTypeStrERKNSt6stringE17VertexNetlistType" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Lookup the data type string of a single vertex.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A string representing the data type. </p>
-</dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">vertexType</span></code>: The type of the vertex to lookup.</p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – A pattern specifying a name to match. </p></li>
+<li><p><strong>vertexType</strong> – The type of the vertex to lookup.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A string representing the data type. </p>
+</dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist19getVertexDTypeWidthERKNSt6stringE17VertexNetlistType">
 <span id="_CPPv3NK13netlist_paths7Netlist19getVertexDTypeWidthERKNSt6stringE17VertexNetlistType"></span><span id="_CPPv2NK13netlist_paths7Netlist19getVertexDTypeWidthERKNSt6stringE17VertexNetlistType"></span><span id="netlist_paths::Netlist::getVertexDTypeWidth__ssCR.VertexNetlistTypeC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a616d2f08825129c293eb196b94e681e9"></span><span class="pre">size_t</span> <code class="sig-name descname"><span class="pre">getVertexDTypeWidth</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em>, <a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistTypeE" title="netlist_paths::VertexNetlistType"><span class="pre">VertexNetlistType</span></a> <em><span class="pre">vertexType</span></em> <span class="pre">=</span> <a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistTypeE" title="netlist_paths::VertexNetlistType"><span class="pre">VertexNetlistType</span></a><span class="pre">::</span><a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistType3ANYE" title="netlist_paths::VertexNetlistType::ANY"><span class="pre">ANY</span></a><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist19getVertexDTypeWidthERKNSt6stringE17VertexNetlistType" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Lookup the data type width of a single vertex.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>The width of the data type. </p>
-</dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">vertexType</span></code>: The type of the vertex to lookup.</p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – A pattern specifying a name to match. </p></li>
+<li><p><strong>vertexType</strong> – The type of the vertex to lookup.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The width of the data type. </p>
+</dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist13getDTypeWidthERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist13getDTypeWidthERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist13getDTypeWidthERKNSt6stringE"></span><span id="netlist_paths::Netlist::getDTypeWidth__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a329062d9efe6bee139ad9befe9c75548"></span><span class="pre">size_t</span> <code class="sig-name descname"><span class="pre">getDTypeWidth</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist13getDTypeWidthERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Lookup the width of a data type by name.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>The width of the data type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The width of the data type. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::startpointExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1afeed28f2e7dc32ff6df330f8c3adefc1"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">startpointExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if a single startpoint matching a pattern exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if the startpoint exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the startpoint exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist14endpointExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist14endpointExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist14endpointExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::endpointExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a0617423f45b0e7d98d9700ea4081db37"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">endpointExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist14endpointExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if a single endpoint matching a pattern ‘name’ exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if the endpoint exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the endpoint exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist19anyStartpointExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist19anyStartpointExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist19anyStartpointExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::anyStartpointExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a87a697c423c1aad35bdadfce49d11f32"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">anyStartpointExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist19anyStartpointExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if any startpoint matching a pattern ‘name’ exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if any startpoint exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if any startpoint exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist17anyEndpointExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist17anyEndpointExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist17anyEndpointExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::anyEndpointExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1ac91c1c8dba38cf6781412b4990a44ebe"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">anyEndpointExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17anyEndpointExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if any endpoint matching a pattern ‘name’ exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if any endpoint exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if any endpoint exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist9regExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist9regExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist9regExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::regExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1adf09054472e7f4cb35d8aabbc402c756"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">regExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist9regExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if a single register matching a pattern ‘name’ exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if the register exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the register exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist12anyRegExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist12anyRegExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist12anyRegExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::anyRegExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a77db049d9809bb4e06b67a09b60a3b4a"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">anyRegExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist12anyRegExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if any register matching a pattern ‘name’ exists.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if any register exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a name to match.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a name to match.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if any register exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist10pathExistsE9Waypoints">
 <span id="_CPPv3NK13netlist_paths7Netlist10pathExistsE9Waypoints"></span><span id="_CPPv2NK13netlist_paths7Netlist10pathExistsE9Waypoints"></span><span id="netlist_paths::Netlist::pathExists__WaypointsC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a116fbf50551bbed6688a8b92953cea72"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">pathExists</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist10pathExistsE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a Boolean to indicate whether any path exists between two points.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>True if a path exists. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>waypoints</strong> – A waypoints object constraining the path.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">waypoints</span></code>: A waypoints object constraining the path.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a path exists. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist10getAnyPathE9Waypoints">
 <span id="_CPPv3NK13netlist_paths7Netlist10getAnyPathE9Waypoints"></span><span id="_CPPv2NK13netlist_paths7Netlist10getAnyPathE9Waypoints"></span><span id="netlist_paths::Netlist::getAnyPath__WaypointsC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1aededb4f872f978b864a2c88f4d7c9333"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAnyPath</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist10getAnyPathE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return any path between two points.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A path if one exists, otherwise an empty vector. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>waypoints</strong> – A waypoints object constraining the path.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">waypoints</span></code>: A waypoints object constraining the path.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A path if one exists, otherwise an empty vector. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist11getAllPathsE9Waypoints">
 <span id="_CPPv3NK13netlist_paths7Netlist11getAllPathsE9Waypoints"></span><span id="_CPPv2NK13netlist_paths7Netlist11getAllPathsE9Waypoints"></span><span id="netlist_paths::Netlist::getAllPaths__WaypointsC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1ae321a2d59d98cebbaf4f22faf2c50393"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllPaths</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths9WaypointsE" title="netlist_paths::Waypoints"><span class="pre">Waypoints</span></a> <em><span class="pre">waypoints</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist11getAllPathsE9Waypoints" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return all paths between two points, useful for testing.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>All paths matching the waypoints, otherwise an empty vector. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>waypoints</strong> – A waypoints object constraining the path.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">waypoints</span></code>: A waypoints object constraining the path.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>All paths matching the waypoints, otherwise an empty vector. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE"></span><span id="netlist_paths::Netlist::getAllFanOut__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a51948becdd823ee813571f531a0402a9"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllFanOut</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">startName</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist12getAllFanOutEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a vector of paths fanning out from a particular start point.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>All paths fanning out from the matching startpoint, otherwise an empty vector. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>startName</strong> – A pattern matching a start point.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">startName</span></code>: A pattern matching a start point.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>All paths fanning out from the matching startpoint, otherwise an empty vector. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE"></span><span id="netlist_paths::Netlist::getAllFanIn__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1af64df69c39e0950cfe9ea4ef47c02dd5"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getAllFanIn</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">endName</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist11getAllFanInEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a vector of paths fanning out from a particular start point.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>All paths fanning in to the matching endpoint, otherwise an empty vector. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>endName</strong> – A pattern matching an end point.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">endName</span></code>: A pattern matching an end point.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>All paths fanning in to the matching endpoint, otherwise an empty vector. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist16getNamedVerticesEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist16getNamedVerticesEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist16getNamedVerticesEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNamedVertices__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a9391b48f4c0fc9dd39cc3e6e3759c9fa"></span><span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">reference_wrapper</span><span class="pre">&lt;</span><em class="property"><span class="pre">const</span></em> <a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">&gt;</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNamedVertices</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist16getNamedVerticesEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a sorted list of unique named vertices in the netlist for searching.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A vector of <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> references. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A pattern to match vertices against.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code>: A pattern to match vertices against.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> references. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -745,58 +746,53 @@ fsm.state_q packed union
 <dt id="_CPPv4NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNetVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a51d2c85d66d31a39dfab02c0adac49f4"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNetVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17getNetVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a vector of pointers to net vertices.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A pattern to match vertices against.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code>: A pattern to match vertices against.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getPortVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a5a38da9a400aefa5eebc5711c1b2bd88"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getPortVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist18getPortVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a vector of pointers to port vertices.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A pattern to match vertices against.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code>: A pattern to match vertices against.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getRegVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a38497b2aa32348e047455ee8ea1478ea"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getRegVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist17getRegVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return a vector of pointers to register vertices.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A pattern to match vertices against.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pattern</span></code>: A pattern to match vertices against.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist11dumpDotFileERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist11dumpDotFileERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist11dumpDotFileERKNSt6stringE"></span><span id="netlist_paths::Netlist::dumpDotFile__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a725fc22bd1a896cc62e092b94b897a94"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">dumpDotFile</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">outputFilename</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist11dumpDotFileERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Write a dot-file represenation of the netlist graph to a file.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">outputFilename</span></code>: The file to write the dot output to. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>outputFilename</strong> – The file to write the dot output to. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -808,15 +804,15 @@ fsm.state_q packed union
 </div>
 </dd></dl>
 
-</section>
-<section id="runverilator">
+</div>
+<div class="section" id="runverilator">
 <h2>RunVerilator<a class="headerlink" href="#runverilator" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths12RunVerilatorE">
 <span id="_CPPv3N13netlist_paths12RunVerilatorE"></span><span id="_CPPv2N13netlist_paths12RunVerilatorE"></span><span id="netlist_paths::RunVerilator"></span><span class="target" id="classnetlist__paths_1_1_run_verilator"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">RunVerilator</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths12RunVerilatorE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A class that provides facilities to run Verilator and produce XML netlists. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths12RunVerilator12RunVerilatorEv">
 <span id="_CPPv3N13netlist_paths12RunVerilator12RunVerilatorEv"></span><span id="_CPPv2N13netlist_paths12RunVerilator12RunVerilatorEv"></span><span id="netlist_paths::RunVerilator::RunVerilator"></span><span class="target" id="classnetlist__paths_1_1_run_verilator_1aaa998e096806d6d080a5b078dce8f6c2"></span><code class="sig-name descname"><span class="pre">RunVerilator</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths12RunVerilator12RunVerilatorEv" title="Permalink to this definition">¶</a><br /></dt>
@@ -827,89 +823,87 @@ fsm.state_q packed union
 <dt id="_CPPv4N13netlist_paths12RunVerilator12RunVerilatorERKNSt6stringE">
 <span id="_CPPv3N13netlist_paths12RunVerilator12RunVerilatorERKNSt6stringE"></span><span id="_CPPv2N13netlist_paths12RunVerilator12RunVerilatorERKNSt6stringE"></span><span id="netlist_paths::RunVerilator::RunVerilator__ssCR"></span><span class="target" id="classnetlist__paths_1_1_run_verilator_1a4165a513f4aef0449223988cf69b88b5"></span><code class="sig-name descname"><span class="pre">RunVerilator</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">verilatorLocation</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths12RunVerilator12RunVerilatorERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Constructor, providing a path to a Verilator executable.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">verilatorLocation</span></code>: The location of the Netlists Paths Verilator executable (np-verilator_bin). </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>verilatorLocation</strong> – The location of the Netlists Paths Verilator executable (np-verilator_bin). </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths12RunVerilator3runERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths12RunVerilator3runERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths12RunVerilator3runERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6stringE"></span><span id="netlist_paths::RunVerilator::run__std::vector:ss:CR.std::vector:ss:CR.std::vector:ss:CR.ssCRC"></span><span class="target" id="classnetlist__paths_1_1_run_verilator_1ac7f6b36520f8eaf155c1be40b40c46ac"></span><span class="pre">int</span> <code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">includes</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">defines</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><em><span class="pre">inputFiles</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">outputFile</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths12RunVerilator3runERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6vectorINSt6stringEEERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Run Verilator.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">includes</span></code>: A vector of search paths for include files. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">defines</span></code>: A vector of macro definitions. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">inputFiles</span></code>: A vector of source file paths. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">outputFile</span></code>: A path specifying an output file. </p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>includes</strong> – A vector of search paths for include files. </p></li>
+<li><p><strong>defines</strong> – A vector of macro definitions. </p></li>
+<li><p><strong>inputFiles</strong> – A vector of source file paths. </p></li>
+<li><p><strong>outputFile</strong> – A path specifying an output file. </p></li>
 </ul>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths12RunVerilator3runERKNSt6stringERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths12RunVerilator3runERKNSt6stringERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths12RunVerilator3runERKNSt6stringERKNSt6stringE"></span><span id="netlist_paths::RunVerilator::run__ssCR.ssCRC"></span><span class="target" id="classnetlist__paths_1_1_run_verilator_1a96d24534768f9facf4994af4505d6d7b"></span><span class="pre">int</span> <code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">inputFile</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">outputFile</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths12RunVerilator3runERKNSt6stringERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Run Verilator with a single source file and no other options.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">inputFile</span></code>: A source file path. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">outputFile</span></code>: A path specifying an output file. </p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputFile</strong> – A source file path. </p></li>
+<li><p><strong>outputFile</strong> – A path specifying an output file. </p></li>
 </ul>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 </div>
 </dd></dl>
 
-</section>
-<section id="vertex">
+</div>
+<div class="section" id="vertex">
 <h2>Vertex<a class="headerlink" href="#vertex" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths6VertexE">
 <span id="_CPPv3N13netlist_paths6VertexE"></span><span id="_CPPv2N13netlist_paths6VertexE"></span><span id="netlist_paths::Vertex"></span><span class="target" id="classnetlist__paths_1_1_vertex"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Vertex</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths6VertexE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A class representing a vertex in the netlist graph. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType8Location">
 <span id="_CPPv3N13netlist_paths6Vertex6VertexE13VertexAstType8Location"></span><span id="_CPPv2N13netlist_paths6Vertex6VertexE13VertexAstType8Location"></span><span id="netlist_paths::Vertex::Vertex__VertexAstType.Location"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a9f7ad9f9f4c4bc17e28e742cdd8830a5"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Vertex</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths13VertexAstTypeE" title="netlist_paths::VertexAstType"><span class="pre">VertexAstType</span></a> <em><span class="pre">type</span></em>, <span class="pre">Location</span> <em><span class="pre">location</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType8Location" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Construct a logic vertex.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: The AST type of the logic statement. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">location</span></code>: The source location of the logic statement. </p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> – The AST type of the logic statement. </p></li>
+<li><p><strong>location</strong> – The source location of the logic statement. </p></li>
 </ul>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb">
 <span id="_CPPv3N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb"></span><span id="_CPPv2N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb"></span><span id="netlist_paths::Vertex::Vertex__VertexAstType.VertexDirection.Location.std::shared_ptr:DType:.ssCR.b.ssCR.b"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a81adfa4909c4571263a54fd1a74028ba"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Vertex</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths13VertexAstTypeE" title="netlist_paths::VertexAstType"><span class="pre">VertexAstType</span></a> <em><span class="pre">type</span></em>, <a class="reference internal" href="#_CPPv4N13netlist_paths15VertexDirectionE" title="netlist_paths::VertexDirection"><span class="pre">VertexDirection</span></a> <em><span class="pre">direction</span></em>, <span class="pre">Location</span> <em><span class="pre">location</span></em>, <span class="pre">std</span><span class="pre">::</span><span class="pre">shared_ptr</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths5DTypeE" title="netlist_paths::DType"><span class="pre">DType</span></a><span class="pre">&gt;</span> <em><span class="pre">dtype</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em>, <span class="pre">bool</span> <em><span class="pre">isParam</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">paramValue</span></em>, <span class="pre">bool</span> <em><span class="pre">publicVisibility</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex6VertexE13VertexAstType15VertexDirection8LocationNSt10shared_ptrI5DTypeEERKNSt6stringEbRKNSt6stringEb" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Construct a variable vertex.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: The AST type of the variable. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>: The direction of the variable type. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">location</span></code>: The source location of the variable declaration. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dtype</span></code>: The data type of the variable. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name of the variable. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">isParam</span></code>: A flag indicating the variable is a parameter. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">paramValue</span></code>: The value of the parameter variable. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">publicVisibility</span></code>: A flag indicating the variable has public visibility. </p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>type</strong> – The AST type of the variable. </p></li>
+<li><p><strong>direction</strong> – The direction of the variable type. </p></li>
+<li><p><strong>location</strong> – The source location of the variable declaration. </p></li>
+<li><p><strong>dtype</strong> – The data type of the variable. </p></li>
+<li><p><strong>name</strong> – The name of the variable. </p></li>
+<li><p><strong>isParam</strong> – A flag indicating the variable is a parameter. </p></li>
+<li><p><strong>paramValue</strong> – The value of the parameter variable. </p></li>
+<li><p><strong>publicVisibility</strong> – A flag indicating the variable has public visibility. </p></li>
 </ul>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -922,26 +916,25 @@ fsm.state_q packed union
 <dt id="_CPPv4NK13netlist_paths6Vertex11getBasenameEv">
 <span id="_CPPv3NK13netlist_paths6Vertex11getBasenameEv"></span><span id="_CPPv2NK13netlist_paths6Vertex11getBasenameEv"></span><span id="netlist_paths::Vertex::getBasenameC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a732bdb3420d3275168c1b75151e23a7c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <code class="sig-name descname"><span class="pre">getBasename</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex11getBasenameEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Given a hierarchical variable name, eg a.b.c, return the last component c.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>The last heirarchical component of a variable name. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The last heirarchical component of a variable name. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths6Vertex11isGraphTypeE17VertexNetlistType">
 <span id="_CPPv3NK13netlist_paths6Vertex11isGraphTypeE17VertexNetlistType"></span><span id="_CPPv2NK13netlist_paths6Vertex11isGraphTypeE17VertexNetlistType"></span><span id="netlist_paths::Vertex::isGraphType__VertexNetlistTypeC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ac724a8a84d54b70f5e25eafbfd59978f"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isGraphType</span></code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N13netlist_paths17VertexNetlistTypeE" title="netlist_paths::VertexNetlistType"><span class="pre">VertexNetlistType</span></a> <em><span class="pre">type</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex11isGraphTypeE17VertexNetlistType" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Match this vertex against different graph types.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>Whether the vertex matches the specified type. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>type</strong> – A categorisation of a vertex.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: A categorisation of a vertex.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the vertex matches the specified type. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1070,21 +1063,20 @@ fsm.state_q packed union
 
 </div>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Static Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-functions">Public Static Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE">
 <span id="_CPPv3N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="_CPPv2N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="netlist_paths::Vertex::determineIsTop__ssCR"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a1c779faab8ef50d102a8b63491ea0ebd"></span><em class="property"><span class="pre">static</span></em> <em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">determineIsTop</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return whether a variable name is in the top scope.</p>
 <p>A variable is in the ‘top’ scope when has one or two hierarchical components. For example, module.name or name is top level, but module.submodule.name is not.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>Whether the variable is in the top scope. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – The name of a variable.</p>
 </dd>
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: The name of a variable.</p></li>
-</ul>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the variable is in the top scope. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 </div>
@@ -1291,15 +1283,15 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="waypoints">
+</div>
+<div class="section" id="waypoints">
 <h2>Waypoints<a class="headerlink" href="#waypoints" title="Permalink to this headline">¶</a></h2>
 <dl class="cpp class">
 <dt id="_CPPv4N13netlist_paths9WaypointsE">
 <span id="_CPPv3N13netlist_paths9WaypointsE"></span><span id="_CPPv2N13netlist_paths9WaypointsE"></span><span id="netlist_paths::Waypoints"></span><span class="target" id="classnetlist__paths_1_1_waypoints"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">Waypoints</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths9WaypointsE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>A class representing a set of waypoints to constrain a search for a path. </p>
 <div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths9Waypoints9WaypointsEv">
 <span id="_CPPv3N13netlist_paths9Waypoints9WaypointsEv"></span><span id="_CPPv2N13netlist_paths9Waypoints9WaypointsEv"></span><span id="netlist_paths::Waypoints::Waypoints"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1ad3b631d0f358423b75b37da42de364d7"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Waypoints</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints9WaypointsEv" title="Permalink to this definition">¶</a><br /></dt>
@@ -1310,98 +1302,90 @@ fsm.state_q packed union
 <dt id="_CPPv4N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringE">
 <span id="_CPPv3N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringE"></span><span id="netlist_paths::Waypoints::Waypoints__ssC.ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a2b6ac90da5aec3bb9a417ce59eed951d"></span><em class="property"><span class="pre">inline</span></em> <code class="sig-name descname"><span class="pre">Waypoints</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">start</span></em>, <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">end</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints9WaypointsEKNSt6stringEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Construct a <a class="reference internal" href="#classnetlist__paths_1_1_waypoints"><span class="std std-ref">Waypoints</span></a> object with patterns matching start and finish points.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">start</span></code>: A pattern specifying a start point. </p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">end</span></code>: A pattern specifying an end point. </p></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> – A pattern specifying a start point. </p></li>
+<li><p><strong>end</strong> – A pattern specifying an end point. </p></li>
 </ul>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths9Waypoints13addStartPointEKNSt6stringE">
 <span id="_CPPv3N13netlist_paths9Waypoints13addStartPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints13addStartPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addStartPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1acce03b81701500c182ded9bd04df4c08"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addStartPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints13addStartPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Set a named start point.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a start point. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a start point. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths9Waypoints11addEndPointEKNSt6stringE">
 <span id="_CPPv3N13netlist_paths9Waypoints11addEndPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints11addEndPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addEndPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a1c37d22a110f490e10094dc767200521"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addEndPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints11addEndPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Set a named end point.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying an end point. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying an end point. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE">
 <span id="_CPPv3N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addThroughPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a7e5378c2f5efb8f296afde54c2d19fd4"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addThroughPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints15addThroughPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Add a through point.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a mid point. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a mid point. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE">
 <span id="_CPPv3N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE"></span><span id="_CPPv2N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE"></span><span id="netlist_paths::Waypoints::addAvoidPoint__ssC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a2d23bdc0a60b02ec48e6c7e1ec85b394"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">addAvoidPoint</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths9Waypoints13addAvoidPointEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Add a point to avoid.</p>
-<p><dl class="simple">
-<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A pattern specifying a mid point to avoid. </p></li>
-</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> – A pattern specifying a mid point to avoid. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths9Waypoints12getWaypointsEv">
 <span id="_CPPv3NK13netlist_paths9Waypoints12getWaypointsEv"></span><span id="_CPPv2NK13netlist_paths9Waypoints12getWaypointsEv"></span><span id="netlist_paths::Waypoints::getWaypointsC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a971172925705c2d6e9817e2a970f5f4e"></span><em class="property"><span class="pre">inline</span></em> <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">getWaypoints</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths9Waypoints12getWaypointsEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Access the waypoints.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>An ordered vector of patterns for each waypoint. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An ordered vector of patterns for each waypoint. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths9Waypoints14getAvoidPointsEv">
 <span id="_CPPv3NK13netlist_paths9Waypoints14getAvoidPointsEv"></span><span id="_CPPv2NK13netlist_paths9Waypoints14getAvoidPointsEv"></span><span id="netlist_paths::Waypoints::getAvoidPointsC"></span><span class="target" id="classnetlist__paths_1_1_waypoints_1a5aa09762ae9df4844c192b3b727b3d00"></span><em class="property"><span class="pre">inline</span></em> <em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">&gt;</span> <span class="pre">&amp;</span><code class="sig-name descname"><span class="pre">getAvoidPoints</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths9Waypoints14getAvoidPointsEv" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Access the avoid points.</p>
-<p><dl class="simple">
-<dt><strong>Return</strong></dt><dd><p>An ordered vector of patterns for each avoid point. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An ordered vector of patterns for each avoid point. </p>
 </dd>
 </dl>
-</p>
 </dd></dl>
 
 </div>
 </dd></dl>
 
-</section>
-</section>
-<section id="python-api-reference">
+</div>
+</div>
+<div class="section" id="python-api-reference">
 <span id="python-api"></span><h1>Python API reference<a class="headerlink" href="#python-api-reference" title="Permalink to this headline">¶</a></h1>
-<section id="id1">
+<div class="section" id="id1">
 <h2>DType<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.DType">
@@ -1435,8 +1419,8 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="id2">
+</div>
+<div class="section" id="id2">
 <h2>Options<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.Options">
@@ -1533,8 +1517,8 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="id3">
+</div>
+<div class="section" id="id3">
 <h2>Netlist<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.Netlist">
@@ -1712,8 +1696,8 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="id4">
+</div>
+<div class="section" id="id4">
 <h2>Waypoints<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.Waypoints">
@@ -1756,8 +1740,8 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="id5">
+</div>
+<div class="section" id="id5">
 <h2>RunVerilator<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.RunVerilator">
@@ -1773,8 +1757,8 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-<section id="id6">
+</div>
+<div class="section" id="id6">
 <h2>Vertex<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt id="py_netlist_paths.Vertex">
@@ -1943,36 +1927,33 @@ fsm.state_q packed union
 
 </dd></dl>
 
-</section>
-</section>
+</div>
+</div>
 
 
            </div>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2021, James Hanlon
+        &#169; Copyright 2021.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
