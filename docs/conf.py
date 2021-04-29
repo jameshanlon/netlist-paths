@@ -1,4 +1,7 @@
-import subprocess, os
+from datetime import datetime
+import os
+import sys
+import subprocess
 
 # If we're running on Read the Docs' servers, then run Doxygen.
 # See https://breathe.readthedocs.io/en/latest/readthedocs.html
@@ -39,16 +42,15 @@ if read_the_docs_build:
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
 sys.path.insert(0, os.path.join('@CMAKE_BINARY_DIR@', 'lib', 'netlist_paths'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Netlist paths'
-copyright = '2021, James Hanlon'
+project = 'Netlist Paths'
+copyright = str(datetime.now().year)
 author = 'James Hanlon'
+version = f'{@NETLIST_PATHS_VERSION_MAJOR@}.{@NETLIST_PATHS_VERSION_MINOR@}'
 
 
 # -- General configuration ---------------------------------------------------
