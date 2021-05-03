@@ -8,9 +8,6 @@ option(NETLIST_PATHS_INCLUDE_TESTS "Include test targets in the build" ON)
 
 set(Boost_USE_MULTITHREADED ON)
 
-set(NETLIST_PATHS_VERSION_MAJOR 0)
-set(NETLIST_PATHS_VERSION_MINOR 2)
-
 # Use local find scripts
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
@@ -54,6 +51,24 @@ include_directories(${Boost_INCLUDE_DIRS}
 
 # Set the install RPATH
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
+
+# Read the version number.
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" ver)
+
+string(REGEX MATCH "VERSION_MAJOR ([0-9]*)" _ ${ver})
+set(version_major ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_MINOR ([0-9]*)" _ ${ver})
+set(version_minor ${CMAKE_MATCH_1})
+
+string(REGEX MATCH "VERSION_PATCH ([0-9]*)" _ ${ver})
+set(version_patch ${CMAKE_MATCH_1})
+
+if ("${version_major}" STREQUAL "" OR "${version_minor}" STREQUAL "" OR "${version_patch}" STREQUAL "")
+  message(FATAL_ERROR, "could not read version number")
+endif()
+
+message("Version: ${version_major}.${version_minor}.${version_patch}")
 
 # Verilator
 ExternalProject_Add(Verilator

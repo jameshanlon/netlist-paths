@@ -1,11 +1,21 @@
 from datetime import datetime
 import os
+import re
 import sys
 import subprocess
 
 # If we're running on Read the Docs' servers, then run Doxygen.
 # See https://breathe.readthedocs.io/en/latest/readthedocs.html
 # See https://devblogs.microsoft.com/cppblog/clear-functional-c-documentation-with-sphinx-breathe-doxygen-cmake
+
+def get_verison_number(prefix):
+    print(os.getcwd())
+    with open(os.path.join(prefix, 'version.txt'), 'r') as fp:
+        filedata = fp.read()
+    version_major = re.search(r'VERSION_MAJOR (\d+)', filedata).group(1)
+    version_minor = re.search(r'VERSION_MINOR (\d+)', filedata).group(1)
+    version_point = re.search(r'VERSION_PATCH (\d+)', filedata).group(1)
+    return f'{version_major}.{version_minor}.{version_point}'
 
 def configure_doxyfile(input_dir, output_dir):
     print('Configuring Doxyfile in {}'.format(os.getcwd()))
@@ -29,6 +39,10 @@ if read_the_docs_build:
     print(doxygen_output.decode('utf-8'))
     breathe_projects['netlist-paths'] = os.path.join(output_dir, 'xml')
     print('Doxygen XML file location: {}'.format(breathe_projects['netlist-paths']))
+    version = get_verison_number('..')
+else:
+    version = get_verison_number('@CMAKE_SOURCE_DIR@')
+
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -50,8 +64,6 @@ sys.path.insert(0, os.path.join('@CMAKE_BINARY_DIR@', 'lib', 'netlist_paths'))
 project = 'Netlist Paths'
 copyright = str(datetime.now().year)
 author = 'James Hanlon'
-version = f'{@NETLIST_PATHS_VERSION_MAJOR@}.{@NETLIST_PATHS_VERSION_MINOR@}'
-
 
 # -- General configuration ---------------------------------------------------
 
