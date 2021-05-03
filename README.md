@@ -12,7 +12,7 @@ The library is written in C++ and has a Python interface.
 ## Installation and documenation
 
 For more information, please see the
-[documentation](jameshanlon.github.io/netlist-paths).
+[documentation](https://jameshanlon.github.io/netlist-paths).
 
 
 ## License
