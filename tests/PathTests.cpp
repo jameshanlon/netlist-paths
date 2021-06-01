@@ -600,7 +600,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   {
     // Fanout: in
     auto paths = np->getAllFanOut("in");
-    std::vector<const std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
+    std::vector<std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == endPoints.size());
     for (auto path : paths) {
       BOOST_TEST((std::find(endPoints.begin(), endPoints.end(), path.back()->getName()) != endPoints.end()));
@@ -609,7 +609,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   {
     // Fanout: out
     auto paths = np->getAllFanIn("out");
-    std::vector<const std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
+    std::vector<std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == startPoints.size());
     for (auto path : paths) {
       BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.front()->getName()) != startPoints.end()));
