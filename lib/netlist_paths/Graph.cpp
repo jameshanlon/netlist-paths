@@ -106,6 +106,8 @@ void Graph::splitRegVertices() {
     std::vector<VertexID> adjacentVertices = getAdjacentVertices(v);
     // Create or move edges to src register vertex.
     for (auto target : adjacentVertices) {
+
+      // Handle ASSIGN_ALIAS nodes.
       if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
         VertexIDVec assignAliasTargets = getAdjacentVertices(target);
         assert(assignAliasTargets.size() == 1);
@@ -124,8 +126,13 @@ void Graph::splitRegVertices() {
           continue;
         }
       }
-      // Otherwise, just move the out edge to the new srcReg.
-      boost::remove_edge(v, target, graph);
+
+      // Otherwise, mark edges from a DST_REG node to each node that is
+      // connected by an out edge, allowing paths through registered to be
+      // traversed.
+      graph[boost::edge(v, target, graph).first].setThroughRegister();
+
+      // And copy the same out edge to the new srcReg.
       boost::add_edge(srcRegVertex, target, graph);
     }
   }
@@ -340,9 +347,12 @@ void Graph::determineAllPaths(ParentMap &parentMap,
 /// Report all paths fanning out from a net/register/port.
 std::vector<VertexIDVec>
 Graph::getAllFanOut(VertexID startVertex) const {
+  FilteredInternalGraph filteredGraph(graph,
+                                      EdgePredicate(&graph),
+                                      VertexPredicate());
   BOOST_LOG_TRIVIAL(debug) << "Performing DFS from " << graph[startVertex].getName();
   ParentMap parentMap;
-  boost::depth_first_search(graph,
+  boost::depth_first_search(filteredGraph,
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(startVertex));
   // Check for a path between startPoint and each register.
@@ -365,7 +375,10 @@ Graph::getAllFanOut(VertexID startVertex) const {
 /// Report all paths fanning into a net/register/port.
 std::vector<VertexIDVec>
 Graph::getAllFanIn(VertexID finishVertex) const {
-  auto reverseGraph = boost::make_reverse_graph(graph);
+  FilteredInternalGraph filteredGraph(graph,
+                                      EdgePredicate(&graph),
+                                      VertexPredicate());
+  auto reverseGraph = boost::make_reverse_graph(filteredGraph);
   BOOST_LOG_TRIVIAL(debug) << "Performing DFS in reverse graph from " << graph[finishVertex].getName();
   ParentMap parentMap;
   boost::depth_first_search(reverseGraph,
@@ -417,7 +430,8 @@ pathProduct(const std::vector<std::vector<VertexIDVec>>& intPaths) {
 std::vector<VertexIDVec>
 Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
                           const VertexIDVec &avoidPointIDs) const {
-  FilteredInternalGraph filteredGraph(graph, boost::keep_all(),
+  FilteredInternalGraph filteredGraph(graph,
+                                      EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
   std::vector<std::vector<VertexIDVec> > intPaths;
   // Elaborate all paths between each adjacent waypoint.
@@ -453,7 +467,8 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
 /// Report a single path between a set of named points.
 VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
                                       const VertexIDVec &avoidPointIDs) const {
-  FilteredInternalGraph filteredGraph(graph, boost::keep_all(),
+  FilteredInternalGraph filteredGraph(graph,
+                                      EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
   std::vector<VertexID> path;
   // Construct the path between each adjacent waypoint.

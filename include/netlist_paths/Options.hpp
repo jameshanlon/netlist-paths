@@ -24,6 +24,7 @@ class Options {
   MatchType matchType;
   bool ignoreHierarchyMarkers;
   bool matchOneVertex;
+  bool traverseRegisters;
 
 public:
   bool isMatchExact() const { return matchType == MatchType::EXACT; }
@@ -32,6 +33,7 @@ public:
   bool isMatchOneVertex() const { return matchOneVertex; }
   bool isMatchAnyVertex() const { return !matchOneVertex; }
   bool shouldIgnoreHierarchyMarkers() const { return ignoreHierarchyMarkers; }
+  bool shouldTraverseRegisters() const { return traverseRegisters; }
   bool isVerboseMode() const { return verboseMode; }
   bool isDebugMode() const { return debugMode; }
 
@@ -59,6 +61,12 @@ public:
   /// Set matching to identify multiple vertices, and for just one to be
   /// chosen arbitrarily.
   void setMatchAnyVertex() { matchOneVertex = false; }
+
+  /// Enable path traversal of registers.
+  void enableTraverseRegisters() { traverseRegisters = true; }
+
+  /// Disable path traversal of registers.
+  void disableTraverseRegisters() { traverseRegisters = false; }
 
   /// Enable verbose output.
   void setVerbose() {
@@ -94,7 +102,8 @@ private:
       verboseMode(false),
       matchType(MatchType::EXACT),
       ignoreHierarchyMarkers(false),
-      matchOneVertex(true) {
+      matchOneVertex(true),
+      traverseRegisters(false) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
     setQuiet();

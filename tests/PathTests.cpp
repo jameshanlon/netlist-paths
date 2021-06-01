@@ -567,6 +567,57 @@ BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
 }
 
 //===----------------------------------------------------------------------===//
+// Test path queries through registers.
+//===----------------------------------------------------------------------===//
+
+BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
+  netlist_paths::Options::getInstance().enableTraverseRegisters();
+  {
+    // Any path: in -> a -> b -> out
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+    BOOST_TEST(vertices.size() == 7);
+    CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
+    CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.a");
+    CHECK_VAR_REPORT(vertices[4], "DST_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(vertices[6], "VAR", "logic", "out");
+  }
+  {
+    // Any path: a -> b -> out
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(vertices.size() == 5);
+    CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
+    CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(vertices[4], "VAR", "logic", "out");
+  }
+  {
+    // Any path: b -> out
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
+    BOOST_TEST(vertices.size() == 3);
+    CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "out");
+  }
+  {
+    // Fanout: in
+    auto paths = np->getAllFanOut("in");
+    std::vector<const std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
+    BOOST_TEST(paths.size() == endPoints.size());
+    for (auto path : paths) {
+      BOOST_TEST((std::find(endPoints.begin(), endPoints.end(), path.back()->getName()) != endPoints.end()));
+    }
+  }
+  {
+    // Fanout: out
+    auto paths = np->getAllFanIn("out");
+    std::vector<const std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
+    BOOST_TEST(paths.size() == startPoints.size());
+    for (auto path : paths) {
+      BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.front()->getName()) != startPoints.end()));
+    }
+  }
+}
+
+//===----------------------------------------------------------------------===//
 // Vlvbound bug
 //===----------------------------------------------------------------------===//
 

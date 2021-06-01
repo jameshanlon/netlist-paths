@@ -10,7 +10,6 @@ Netlist::Netlist(const std::string &filename) {
   ReadVerilatorXML(netlist, files, dtypes, filename);
   netlist.markAliasRegisters();
   netlist.splitRegVertices();
-
 }
 
 std::vector<Vertex*>

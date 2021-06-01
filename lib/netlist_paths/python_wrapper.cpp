@@ -86,6 +86,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("set_match_regex",               &Options::setMatchRegex)
     .def("set_match_any_vertex",          &Options::setMatchAnyVertex)
     .def("set_match_one_vertex",          &Options::setMatchOneVertex)
+    .def("enable_traverse_registers",     &Options::enableTraverseRegisters)
+    .def("disable_traverse_registers",    &Options::disableTraverseRegisters)
     .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers)
     .def("set_respect_hierarchy_markers", &Options::setRespectHierarchyMarkers);
 

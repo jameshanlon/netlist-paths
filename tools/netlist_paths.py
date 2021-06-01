@@ -161,38 +161,48 @@ def main():
                         dest='avoid_points',
                         metavar='point',
                         help='Specify a point for a path to avoid')
+    parser.add_argument('--traverse-registers',
+                        action='store_const',
+                        const=lambda: Options.get_instance().enable_traverse_registers(),
+                        default=lambda *args: None,
+                        help='Allow paths to traverse registers')
     parser.add_argument('--all-paths',
                         action='store_true',
                         help='Find all paths between two points (exponential time)')
-    # FIXME: ordering of regex and wildcard should be respected.
     parser.add_argument('--regex',
-                        action='store_true',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_match_regex(),
+                        default=lambda *args: None,
                         help='Enable regular expression matching of names')
     parser.add_argument('--wildcard',
-                        action='store_true',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_match_wildcard(),
+                        default=lambda *args: None,
                         help='Enable wildcard matching of names')
     parser.add_argument('--ignore-hierarchy-markers',
-                        action='store_true',
+                        action='store_const',
+                        const=lambda: Options.ignore_hierarchy_markers(),
+                        default=lambda *args: None,
                         help='Ignore hierarchy markers: _ . /')
     parser.add_argument('-v', '--verbose',
-                        action='store_true',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_verbose(),
+                        default=lambda *args: None,
                         help='Print execution information')
     parser.add_argument('-d', '--debug',
-                        action='store_true',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_debug(),
+                        default=lambda *args: None,
                         help='Print debugging information')
     args = parser.parse_args()
 
-    # Setup options
-    if args.wildcard:
-        Options.get_instance().set_match_wildcard()
-    if args.regex:
-        Options.get_instance().set_match_regex()
-    if args.ignore_hierarchy_markers:
-        Options.ignore_hierarchy_markers()
-    if args.verbose:
-        Options.get_instance().set_verbose()
-    if args.debug:
-        Options.get_instance().set_debug()
+    # Setup options.
+    args.traverse_registers()
+    args.regex()
+    args.wildcard()
+    args.ignore_hierarchy_markers()
+    args.verbose()
+    args.debug()
 
     try:
 
