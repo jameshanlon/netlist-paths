@@ -33,7 +33,7 @@ message(STATUS "Boost_INCLUDE_DIRS  = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARIES     = ${Boost_LIBRARIES}")
 
 # CXX compiler
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_compile_options(-Wall -pedantic)
