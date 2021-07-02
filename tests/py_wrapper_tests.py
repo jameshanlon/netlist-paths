@@ -19,7 +19,7 @@ class TestPyWrapper(unittest.TestCase):
         """
         comp = RunVerilator(defs.INSTALL_PREFIX)
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, filename), 'netlist.xml')
-        Options.get_instance().set_respect_hierarchy_markers()
+        Options.get_instance().set_ignore_hierarchy_markers(False)
         Options.get_instance().set_match_exact()
         return Netlist('netlist.xml')
 

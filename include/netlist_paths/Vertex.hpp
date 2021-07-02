@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include "netlist_paths/Location.hpp"
 #include "netlist_paths/DTypes.hpp"
+#include "netlist_paths/Options.hpp"
 
 namespace netlist_paths {
 
@@ -377,11 +378,12 @@ public:
             direction == VertexDirection::INOUT);
   }
 
-  /// Return true if the vertex is a valid start point for a path.
+  /// Return true if the vertex is a valid start point for a combinatorial path
+  /// within the netlist.
   ///   - Source register
   ///   - Alias of a source register
   ///   - A top input or inout port
-  inline bool isStartPoint() const {
+  inline bool isCombStartPoint() const {
     return !deleted &&
            (astType == VertexAstType::SRC_REG ||
             astType == VertexAstType::SRC_REG_ALIAS ||
@@ -389,11 +391,12 @@ public:
             (direction == VertexDirection::INOUT && top));
   }
 
-  /// Return true if the vertex is a valid end point for a path.
+  /// Return true if the vertex is a valid end point for a combinatorial path
+  /// within the netlist.
   ///   - Destination register
   ///   - Alias of a destination register
   ///   - A top output or inout port
-  inline bool isEndPoint() const {
+  inline bool isCombEndPoint() const {
     return !deleted &&
            (astType == VertexAstType::DST_REG ||
             astType == VertexAstType::DST_REG_ALIAS ||
@@ -401,9 +404,38 @@ public:
             (direction == VertexDirection::INOUT && top));
   }
 
+  /// Return true if the vertex is a valid start point for a path.
+  inline bool isStartPoint() const {
+    if (Options::getInstance().isRestrictStartPoints()) {
+      return isCombStartPoint();
+    } else {
+      // Otherwise, a start point can be any non-destination vertex that is not
+      // ignored or deleted.
+      return !isDstReg() && !isDstRegAlias() && !canIgnore() && !deleted;
+    }
+  }
+
+  /// Return true if the vertex is a valid end point for a path.
+  inline bool isEndPoint() const {
+    if (Options::getInstance().isRestrictEndPoints()) {
+      return isCombEndPoint();
+    } else {
+      // Otherwise, an end point can be any non-destination vertex that is not
+      // ignored or deleted.
+      return !isSrcReg() && !isSrcRegAlias() && !canIgnore() && !deleted;
+    }
+  }
+
   /// Return true if the vertex is a valid mid point for a path.
   inline bool isMidPoint() const {
-    return !isStartPoint() && !isEndPoint();
+    if (Options::getInstance().shouldTraverseRegisters()) {
+      // Any node is a valid mid point if registers are traversed.
+      return isNamed();
+    } else {
+      // Otherwise, a mid point is otherwise any node that does not start or end
+      // a combinatorial path.
+      return !isCombStartPoint() && !isCombEndPoint() && !canIgnore() && !deleted;
+    }
   }
 
   /// Return true if the vertex has been introduced by Verilator.
@@ -418,13 +450,13 @@ public:
     }
   }
 
-  /// Return true if the vertex has a name that should be included in reports.
+  /// Return true if the vertex has a name, ie is a variable of some description.
   inline bool isNamed() const {
     return !isLogic() &&
            !isSrcReg() &&
            !isSrcRegAlias() &&
            !canIgnore() &&
-           !isDeleted();
+           !deleted;
   }
 
   /// Return a string description of this vertex.

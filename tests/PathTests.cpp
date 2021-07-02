@@ -572,7 +572,7 @@ BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
-  netlist_paths::Options::getInstance().enableTraverseRegisters();
+  netlist_paths::Options::getInstance().setTraverseRegisters(true);
   {
     // Any path: in -> a -> b -> out
     auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
