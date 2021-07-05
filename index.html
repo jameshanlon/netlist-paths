@@ -441,9 +441,15 @@ fsm.state_q packed union
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N13netlist_paths7Options25setIgnoreHierarchyMarkersEb">
-<span id="_CPPv3N13netlist_paths7Options25setIgnoreHierarchyMarkersEb"></span><span id="_CPPv2N13netlist_paths7Options25setIgnoreHierarchyMarkersEb"></span><span id="netlist_paths::Options::setIgnoreHierarchyMarkers__b"></span><span class="target" id="classnetlist__paths_1_1_options_1a9e894b1250e2e1d936dac684abf56932"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setIgnoreHierarchyMarkers</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options25setIgnoreHierarchyMarkersEb" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Set matching to ignore (true) or respect (false) hierarchy markers (only with wildcard or regular expression matching modes). Note that hierarchy markers are ‘.’, ‘/’ and ‘_’. </p>
+<dt id="_CPPv4N13netlist_paths7Options25setIgnoreHierarchyMarkersEv">
+<span id="_CPPv3N13netlist_paths7Options25setIgnoreHierarchyMarkersEv"></span><span id="_CPPv2N13netlist_paths7Options25setIgnoreHierarchyMarkersEv"></span><span id="netlist_paths::Options::setIgnoreHierarchyMarkers"></span><span class="target" id="classnetlist__paths_1_1_options_1a0284be3a939fca9b33d83f267b740827"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setIgnoreHierarchyMarkers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options25setIgnoreHierarchyMarkersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set matching to ignore hierarchy markers (only with wildcard or regular expression matching modes). Hierarchy markers are ‘.’, ‘/’ and ‘_’. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths7Options26setRespectHierarchyMarkersEv">
+<span id="_CPPv3N13netlist_paths7Options26setRespectHierarchyMarkersEv"></span><span id="_CPPv2N13netlist_paths7Options26setRespectHierarchyMarkersEv"></span><span id="netlist_paths::Options::setRespectHierarchyMarkers"></span><span class="target" id="classnetlist__paths_1_1_options_1a00a9ff186a2428fd4ee0b07e99726f5c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setRespectHierarchyMarkers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options26setRespectHierarchyMarkersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Set matching to respect hierarchy markers (ie not to ignore them, only with wildcard or regular expression matching modes). </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -459,21 +465,15 @@ fsm.state_q packed union
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N13netlist_paths7Options20setTraverseRegistersEb">
-<span id="_CPPv3N13netlist_paths7Options20setTraverseRegistersEb"></span><span id="_CPPv2N13netlist_paths7Options20setTraverseRegistersEb"></span><span id="netlist_paths::Options::setTraverseRegisters__b"></span><span class="target" id="classnetlist__paths_1_1_options_1af92032245b514503753ac1ca8d727955"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setTraverseRegisters</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options20setTraverseRegistersEb" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Enable or disable path traversal of registers. </p>
+<dt id="_CPPv4N13netlist_paths7Options23enableTraverseRegistersEv">
+<span id="_CPPv3N13netlist_paths7Options23enableTraverseRegistersEv"></span><span id="_CPPv2N13netlist_paths7Options23enableTraverseRegistersEv"></span><span id="netlist_paths::Options::enableTraverseRegisters"></span><span class="target" id="classnetlist__paths_1_1_options_1a37d22d00e668966ff342596b4ca802ab"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">enableTraverseRegisters</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options23enableTraverseRegistersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enable path traversal of registers. </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4N13netlist_paths7Options22setRestrictStartPointsEb">
-<span id="_CPPv3N13netlist_paths7Options22setRestrictStartPointsEb"></span><span id="_CPPv2N13netlist_paths7Options22setRestrictStartPointsEb"></span><span id="netlist_paths::Options::setRestrictStartPoints__b"></span><span class="target" id="classnetlist__paths_1_1_options_1a2af27413904e834513a632c91b0d110c"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setRestrictStartPoints</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options22setRestrictStartPointsEb" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Set path start point restriction. When set to true, paths must start on top-level ports or registers. When set to false, paths can start on any variable. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4N13netlist_paths7Options20setRestrictEndPointsEb">
-<span id="_CPPv3N13netlist_paths7Options20setRestrictEndPointsEb"></span><span id="_CPPv2N13netlist_paths7Options20setRestrictEndPointsEb"></span><span id="netlist_paths::Options::setRestrictEndPoints__b"></span><span class="target" id="classnetlist__paths_1_1_options_1aa30dc120bd2e71017cfb17d346f168ef"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setRestrictEndPoints</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options20setRestrictEndPointsEb" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Set path end point restriction. When set to true, paths must end on top-level ports or registers. When set to false, paths can end on any variable. </p>
+<dt id="_CPPv4N13netlist_paths7Options24disableTraverseRegistersEv">
+<span id="_CPPv3N13netlist_paths7Options24disableTraverseRegistersEv"></span><span id="_CPPv2N13netlist_paths7Options24disableTraverseRegistersEv"></span><span id="netlist_paths::Options::disableTraverseRegisters"></span><span class="target" id="classnetlist__paths_1_1_options_1aae7cc861ec30ca9650b431aea7c9cf0a"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">disableTraverseRegisters</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options24disableTraverseRegistersEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Disable path traversal of registers. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1028,9 +1028,9 @@ fsm.state_q packed union
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK13netlist_paths6Vertex16isCombStartPointEv">
-<span id="_CPPv3NK13netlist_paths6Vertex16isCombStartPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex16isCombStartPointEv"></span><span id="netlist_paths::Vertex::isCombStartPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ab21ecb839ebe8ea0dde3c22970c6009d"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isCombStartPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex16isCombStartPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid start point for a combinatorial path within the netlist.<ul class="simple">
+<dt id="_CPPv4NK13netlist_paths6Vertex12isStartPointEv">
+<span id="_CPPv3NK13netlist_paths6Vertex12isStartPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex12isStartPointEv"></span><span id="netlist_paths::Vertex::isStartPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a531153842875898430a17d778d57fe41"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isStartPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex12isStartPointEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return true if the vertex is a valid start point for a path.<ul class="simple">
 <li><p>Source register</p></li>
 <li><p>Alias of a source register</p></li>
 <li><p>A top input or inout port </p></li>
@@ -1039,26 +1039,14 @@ fsm.state_q packed union
 </dd></dl>
 
 <dl class="cpp function">
-<dt id="_CPPv4NK13netlist_paths6Vertex14isCombEndPointEv">
-<span id="_CPPv3NK13netlist_paths6Vertex14isCombEndPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex14isCombEndPointEv"></span><span id="netlist_paths::Vertex::isCombEndPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a9679ae7a3d837e631ba152f3a922caf8"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isCombEndPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex14isCombEndPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid end point for a combinatorial path within the netlist.<ul class="simple">
+<dt id="_CPPv4NK13netlist_paths6Vertex10isEndPointEv">
+<span id="_CPPv3NK13netlist_paths6Vertex10isEndPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex10isEndPointEv"></span><span id="netlist_paths::Vertex::isEndPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ae4555860c4c888aed40231e4be051ae6"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isEndPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex10isEndPointEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return true if the vertex is a valid end point for a path.<ul class="simple">
 <li><p>Destination register</p></li>
 <li><p>Alias of a destination register</p></li>
 <li><p>A top output or inout port </p></li>
 </ul>
 </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4NK13netlist_paths6Vertex12isStartPointEv">
-<span id="_CPPv3NK13netlist_paths6Vertex12isStartPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex12isStartPointEv"></span><span id="netlist_paths::Vertex::isStartPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a531153842875898430a17d778d57fe41"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isStartPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex12isStartPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid start point for a path. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt id="_CPPv4NK13netlist_paths6Vertex10isEndPointEv">
-<span id="_CPPv3NK13netlist_paths6Vertex10isEndPointEv"></span><span id="_CPPv2NK13netlist_paths6Vertex10isEndPointEv"></span><span id="netlist_paths::Vertex::isEndPointC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ae4555860c4c888aed40231e4be051ae6"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isEndPoint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex10isEndPointEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex is a valid end point for a path. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1076,7 +1064,7 @@ fsm.state_q packed union
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths6Vertex7isNamedEv">
 <span id="_CPPv3NK13netlist_paths6Vertex7isNamedEv"></span><span id="_CPPv2NK13netlist_paths6Vertex7isNamedEv"></span><span id="netlist_paths::Vertex::isNamedC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1aae0b3a0f129b64a089421dc3ca560586"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">bool</span> <code class="sig-name descname"><span class="pre">isNamed</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex7isNamedEv" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return true if the vertex has a name, ie is a variable of some description. </p>
+<dd><p>Return true if the vertex has a name that should be included in reports. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1450,6 +1438,24 @@ fsm.state_q packed union
 <dt id="py_netlist_paths.Options">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">Options</span></code><a class="headerlink" href="#py_netlist_paths.Options" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
+<dt id="py_netlist_paths.Options.disable_traverse_registers">
+<code class="sig-name descname"><span class="pre">disable_traverse_registers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.disable_traverse_registers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void disable_traverse_registers(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.enable_traverse_registers">
+<code class="sig-name descname"><span class="pre">enable_traverse_registers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.enable_traverse_registers" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void enable_traverse_registers(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="py_netlist_paths.Options.get_instance">
 <em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">get_instance</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Options</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.get_instance" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
@@ -1469,9 +1475,9 @@ fsm.state_q packed union
 
 <dl class="py method">
 <dt id="py_netlist_paths.Options.set_ignore_hierarchy_markers">
-<code class="sig-name descname"><span class="pre">set_ignore_hierarchy_markers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em>, <em class="sig-param"><span class="pre">(bool)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_ignore_hierarchy_markers" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_ignore_hierarchy_markers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_ignore_hierarchy_markers" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_ignore_hierarchy_markers(netlist_paths::Options {lvalue},bool)</p>
+<dt>C++ signature :</dt><dd><p>void set_ignore_hierarchy_markers(netlist_paths::Options {lvalue})</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1522,28 +1528,10 @@ fsm.state_q packed union
 </dd></dl>
 
 <dl class="py method">
-<dt id="py_netlist_paths.Options.set_restrict_end_points">
-<code class="sig-name descname"><span class="pre">set_restrict_end_points</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em>, <em class="sig-param"><span class="pre">(bool)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_restrict_end_points" title="Permalink to this definition">¶</a></dt>
+<dt id="py_netlist_paths.Options.set_respect_hierarchy_markers">
+<code class="sig-name descname"><span class="pre">set_respect_hierarchy_markers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_respect_hierarchy_markers" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_restrict_end_points(netlist_paths::Options {lvalue},bool)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="py_netlist_paths.Options.set_restrict_start_points">
-<code class="sig-name descname"><span class="pre">set_restrict_start_points</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em>, <em class="sig-param"><span class="pre">(bool)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_restrict_start_points" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_restrict_start_points(netlist_paths::Options {lvalue},bool)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="py_netlist_paths.Options.set_traverse_registers">
-<code class="sig-name descname"><span class="pre">set_traverse_registers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em>, <em class="sig-param"><span class="pre">(bool)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_traverse_registers" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_traverse_registers(netlist_paths::Options {lvalue},bool)</p>
+<dt>C++ signature :</dt><dd><p>void set_respect_hierarchy_markers(netlist_paths::Options {lvalue})</p>
 </dd>
 </dl>
 </dd></dl>
