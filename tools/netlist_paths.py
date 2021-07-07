@@ -78,7 +78,7 @@ def dump_path_report(netlist, path, fd):
             row = ('', '', '', path[index].get_ast_type_str(), path[index].get_location_str())
             index += 1
         rows.append(row)
-    if len(rows) > 0:
+    if len(rows) > 1:
         # Write the table out.
         write_table(rows, fd)
     else:
@@ -163,7 +163,7 @@ def main():
                         help='Specify a point for a path to avoid')
     parser.add_argument('--traverse-registers',
                         action='store_const',
-                        const=lambda: Options.get_instance().enable_traverse_registers(),
+                        const=lambda: Options.get_instance().set_traverse_registers(True),
                         default=lambda *args: None,
                         help='Allow paths to traverse registers')
     parser.add_argument('--start-anywhere',

@@ -88,6 +88,8 @@ void Graph::markAliasRegisters() {
             graph[assignAliasTargets.front()].setDstRegAlias();
             BOOST_LOG_TRIVIAL(debug) << boost::format("Marked %s as REG alias of %s")
                 % graph[assignAliasTargets.front()].getName() % graph[v].getName();
+            // Create a mapping of the alias name to the (destination) register vertex ID.
+            aliasMap[graph[assignAliasTargets.front()].getName()] = v;
           }
         }
       }
@@ -162,7 +164,6 @@ void Graph::updateVarAliases() {
       for (auto sourceVertex : sourceVertices) {
         VertexID sourceVar = sourceVertex;
         if (!graph[sourceVar].isReg()) {
-          std::cout << "var " << graph[sourceVar].getName() << " to " << graph[aliasVar].getName() << "\n";
           // We have VAR -> ASSIGN_ALIAS -> VAR (alias)
           // Add back edges: VAR (alias) -> ASSIGN_ALIAS
           //                 ASSIGN_ALIAS -> VAR
@@ -469,11 +470,29 @@ pathProduct(const std::vector<std::vector<VertexIDVec>>& intPaths) {
   return resultPaths;
 }
 
+/// Return true if exactly two waypoints correspond to aliases of the same variable.
+bool Graph::isAliasPath(const VertexIDVec &waypointIDs) const {
+  if (waypointIDs.size() == 2 &&
+      aliasMap.count(graph[waypointIDs[0]].getName()) &&
+      aliasMap.count(graph[waypointIDs[1]].getName())) {
+    return aliasMap.at(graph[waypointIDs[0]].getName()) ==
+               aliasMap.at(graph[waypointIDs[1]].getName());
+  }
+  return false;
+}
+
 /// Report all paths between start and finish points.
 /// Though points currently unsupported.
 std::vector<VertexIDVec>
 Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
                           const VertexIDVec &avoidPointIDs) const {
+  // Special case for paths between aliases of the same variable.
+  if (isAliasPath(waypointIDs)) {
+    BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
+                                  % graph[waypointIDs[0]].getName()
+                                  % graph[waypointIDs[1]].getName();
+    return {{waypointIDs[0], waypointIDs[1]}};
+  }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
@@ -511,6 +530,13 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
 /// Report a single path between a set of named points.
 VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
                                       const VertexIDVec &avoidPointIDs) const {
+  // Special case for paths between aliases of the same variable.
+  if (isAliasPath(waypointIDs)) {
+    BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
+                                  % graph[waypointIDs[0]].getName()
+                                  % graph[waypointIDs[1]].getName();
+    return {waypointIDs[0], waypointIDs[1]};
+  }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
