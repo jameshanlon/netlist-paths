@@ -155,14 +155,13 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // NOTE: can differentiate between the generate instances of the pipeline.
   auto vertices = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_module.g_pipestage[0].u_pipestage.data_q"));
-  BOOST_TEST(vertices.size() == 7);
+  BOOST_TEST(vertices.size() == 6);
   CHECK_VAR_REPORT(vertices[0], "VAR", "[31:0] logic", "i_data");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[2], "VAR", "[31:0] logic [8:0]", "pipeline_module.routing");
-  CHECK_LOG_REPORT(vertices[3], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[4], "VAR", "[31:0] logic", "pipeline_module.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
-  CHECK_LOG_REPORT(vertices[5], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[6], "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
+  CHECK_VAR_REPORT(vertices[1], "VAR", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.i_data");
+  CHECK_LOG_REPORT(vertices[2], "ASSIGN_ALIAS");
+  CHECK_VAR_REPORT(vertices[3], "VAR", "[31:0] logic", "pipeline_module.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
+  CHECK_LOG_REPORT(vertices[4], "ASSIGN_DLY");
+  CHECK_VAR_REPORT(vertices[5], "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
@@ -615,6 +614,51 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
       BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.front()->getName()) != startPoints.end()));
     }
   }
+}
+
+//===----------------------------------------------------------------------===//
+// Test handling of aliases.
+//===----------------------------------------------------------------------===//
+
+// Alias start point (due to inlining of the sub module).
+BOOST_FIXTURE_TEST_CASE(alias_start_point, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("alias_start_point.sv"));
+  netlist_paths::Options::getInstance().setRestrictStartPoints(false);
+  // alias_start_point.u_a.out is an alias of alias_start_point.x, check that it can be used as a start point.
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("alias_start_point.x",       "alias_start_point.y_q")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("alias_start_point.u_a.out", "alias_start_point.y_q")));
+}
+
+// Check that paths between variables in two sub modules can start and end on
+// the different variables or aliases of those points.
+BOOST_FIXTURE_TEST_CASE(aliases_sub_comb, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("aliases_sub_comb.sv"));
+  netlist_paths::Options::getInstance().setRestrictStartPoints(false);
+  netlist_paths::Options::getInstance().setRestrictEndPoints(false);
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_a.out",       "aliases_sub_comb.u_b.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_a.out",       "aliases_sub_comb.u_b.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_a.client_in", "aliases_sub_comb.u_b.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_a.client_in", "aliases_sub_comb.u_b.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_b.out",       "aliases_sub_comb.u_a.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_b.out",       "aliases_sub_comb.u_a.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_b.client_in", "aliases_sub_comb.u_a.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_comb.u_b.client_in", "aliases_sub_comb.u_a.client_out")));
+}
+
+// Same again, but this time with sub modules that register their inputs
+// directly to outputs.
+BOOST_FIXTURE_TEST_CASE(aliases_sub_reg, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("aliases_sub_reg.sv"));
+  netlist_paths::Options::getInstance().setRestrictStartPoints(false);
+  netlist_paths::Options::getInstance().setRestrictEndPoints(false);
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.out",       "aliases_sub_reg.u_b.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.out",       "aliases_sub_reg.u_b.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.client_in", "aliases_sub_reg.u_b.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.client_in", "aliases_sub_reg.u_b.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.out",       "aliases_sub_reg.u_a.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.out",       "aliases_sub_reg.u_a.client_out")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.client_in", "aliases_sub_reg.u_a.in")));
+  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.client_in", "aliases_sub_reg.u_a.client_out")));
 }
 
 //===----------------------------------------------------------------------===//
