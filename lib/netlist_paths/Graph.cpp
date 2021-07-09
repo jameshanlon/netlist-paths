@@ -168,15 +168,19 @@ void Graph::dumpDotFile(const std::string &outputFilename) const {
   if (!outputFile.is_open()) {
     throw Exception(std::string("unable to open ")+outputFilename);
   }
+  FilteredInternalGraph filteredGraph(graph,
+                                      EdgePredicate(&graph),
+                                      VertexPredicate({}));
   // Loop over all vertices and print properties.
   outputFile << "digraph netlist {\n";
-  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
-    outputFile << v << boost::format(" [label=\"%s %s\"]\n") % graph[v].getName() %graph[v].getAstTypeStr();
+  BGL_FORALL_VERTICES(v, filteredGraph, FilteredInternalGraph) {
+    outputFile << v << boost::format(" [label=\"%s %s\"]\n")
+                    % graph[v].getName() % graph[v].getAstTypeStr();
   }
   // Loop over all edges.
-  BGL_FORALL_EDGES(e, graph, InternalGraph) {
-    outputFile << boost::source(e, graph) << " -> "
-               << boost::target(e, graph) << ";\n";
+  BGL_FORALL_EDGES(e, filteredGraph, FilteredInternalGraph) {
+    outputFile << boost::format("%d -> %d;\n")
+                    % boost::source(e, graph) % boost::target(e, graph);
   }
   outputFile << "}\n";
   outputFile.close();
