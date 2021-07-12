@@ -75,10 +75,10 @@ def dump_path_report(netlist, path, fd):
             index += 1
         # Statement only.
         else:
-            row = ('', '', path[index].get_ast_type_str(), '', path[index].get_location_str())
+            row = ('', '', '', path[index].get_ast_type_str(), path[index].get_location_str())
             index += 1
         rows.append(row)
-    if len(rows) > 0:
+    if len(rows) > 1:
         # Write the table out.
         write_table(rows, fd)
     else:
@@ -163,9 +163,19 @@ def main():
                         help='Specify a point for a path to avoid')
     parser.add_argument('--traverse-registers',
                         action='store_const',
-                        const=lambda: Options.get_instance().enable_traverse_registers(),
+                        const=lambda: Options.get_instance().set_traverse_registers(True),
                         default=lambda *args: None,
                         help='Allow paths to traverse registers')
+    parser.add_argument('--start-anywhere',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_restrict_start_points(False),
+                        default=lambda *args: None,
+                        help='Allow paths to start on any variable')
+    parser.add_argument('--end-anywhere',
+                        action='store_const',
+                        const=lambda: Options.get_instance().set_restrict_end_points(False),
+                        default=lambda *args: None,
+                        help='Allow paths to end on any variable')
     parser.add_argument('--all-paths',
                         action='store_true',
                         help='Find all paths between two points (exponential time)')
@@ -201,6 +211,8 @@ def main():
     args.regex()
     args.wildcard()
     args.ignore_hierarchy_markers()
+    args.start_anywhere()
+    args.end_anywhere()
     args.verbose()
     args.debug()
 

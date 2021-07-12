@@ -48,7 +48,7 @@ struct TestContext {
     qualifiedNames(topName);
     // Default options.
     netlist_paths::Options::getInstance().setMatchExact();
-    netlist_paths::Options::getInstance().setRespectHierarchyMarkers();
+    netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(false);
   }
 
   /// Compile a test and create a netlist object.

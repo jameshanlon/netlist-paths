@@ -10,6 +10,7 @@ Netlist::Netlist(const std::string &filename) {
   ReadVerilatorXML(netlist, files, dtypes, filename);
   netlist.markAliasRegisters();
   netlist.splitRegVertices();
+  netlist.updateVarAliases();
 }
 
 std::vector<Vertex*>
@@ -274,7 +275,7 @@ std::vector<std::vector<Vertex*> > Netlist::getAllPaths(Waypoints waypoints) con
 std::vector<std::vector<Vertex*> > Netlist::getAllFanOut(const std::string startName) const {
   auto vertex = getStartVertex(startName, Options::getInstance().isMatchAnyVertex());
   if (vertex == netlist.nullVertex()) {
-    throw Exception(std::string("could not find begin vertex "+startName));
+    throw Exception(std::string("could not find start vertex "+startName));
   }
   return createVertexPtrVecVec(netlist.getAllFanOut(vertex));
 }

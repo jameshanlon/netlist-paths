@@ -56,12 +56,21 @@ public:
 };
 
 /// Get all vertices connected by out edges from vertex.
-VertexIDVec Graph::getAdjacentVertices(VertexID vertex) const {
+VertexIDVec Graph::getAdjacentVerticesOutEdges(VertexID vertex) const {
   std::vector<VertexID> targets;
   BGL_FORALL_OUTEDGES(vertex, outEdge, graph, InternalGraph) {
     targets.push_back(boost::target(outEdge, graph));
   }
   return targets;
+}
+
+/// Get all vertices connected by in edges from vertex.
+VertexIDVec Graph::getAdjacentVerticesInEdges(VertexID vertex) const {
+  std::vector<VertexID> sources;
+  BGL_FORALL_INEDGES(vertex, outEdge, graph, InternalGraph) {
+    sources.push_back(boost::source(outEdge, graph));
+  }
+  return sources;
 }
 
 /// For any register vertex that is alias assigned to another variable, mark
@@ -71,14 +80,16 @@ VertexIDVec Graph::getAdjacentVertices(VertexID vertex) const {
 void Graph::markAliasRegisters() {
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
-      for (auto target : getAdjacentVertices(v)) {
+      for (auto target : getAdjacentVerticesOutEdges(v)) {
         if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
-          VertexIDVec assignAliasTargets = getAdjacentVertices(target);
+          VertexIDVec assignAliasTargets = getAdjacentVerticesOutEdges(target);
           assert(assignAliasTargets.size() == 1);
           if (assignAliasTargets.front() != v) {
             graph[assignAliasTargets.front()].setDstRegAlias();
             BOOST_LOG_TRIVIAL(debug) << boost::format("Marked %s as REG alias of %s")
                 % graph[assignAliasTargets.front()].getName() % graph[v].getName();
+            // Create a mapping of the alias name to the (destination) register vertex ID.
+            aliasMap[graph[assignAliasTargets.front()].getName()] = v;
           }
         }
       }
@@ -91,6 +102,8 @@ void Graph::markAliasRegisters() {
 /// follows combinatorial paths in the netlist and allows traversals of the
 /// graph to trace combinatorial timing paths.
 void Graph::splitRegVertices() {
+  // Create a list of vertices to iterate over since this transform adds new
+  // vertices and would invalidate a vertex iterator.
   VertexIDVec regVertices;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isReg()) {
@@ -103,13 +116,13 @@ void Graph::splitRegVertices() {
     srcReg.setSrcReg();
     auto srcRegVertex = boost::add_vertex(srcReg, graph);
     // Collect all adjacent vertices (to which there are out edges).
-    std::vector<VertexID> adjacentVertices = getAdjacentVertices(v);
+    std::vector<VertexID> adjacentVertices = getAdjacentVerticesOutEdges(v);
     // Create or move edges to src register vertex.
     for (auto target : adjacentVertices) {
 
       // Handle ASSIGN_ALIAS nodes.
       if (graph[target].getAstType() == VertexAstType::ASSIGN_ALIAS) {
-        VertexIDVec assignAliasTargets = getAdjacentVertices(target);
+        VertexIDVec assignAliasTargets = getAdjacentVerticesOutEdges(target);
         assert(assignAliasTargets.size() == 1);
         if (assignAliasTargets.front() != v) {
           // If we have REG -> ASSIGN_ALIAS -> VAR, then duplicate
@@ -134,6 +147,34 @@ void Graph::splitRegVertices() {
 
       // And copy the same out edge to the new srcReg.
       boost::add_edge(srcRegVertex, target, graph);
+    }
+  }
+}
+
+/// Add additional edges from variable aliases, through the ASSIGN_ALIAS node,
+/// to allow the alias variable to act as a start point.
+void Graph::updateVarAliases() {
+  BGL_FORALL_VERTICES(v, graph, InternalGraph) {
+    if (graph[v].getAstType() == VertexAstType::ASSIGN_ALIAS) {
+      VertexIDVec sourceVertices = getAdjacentVerticesInEdges(v);
+      VertexIDVec targetVertices = getAdjacentVerticesOutEdges(v);
+      assert(targetVertices.size() == 1);
+      VertexID assignAlias = v;
+      VertexID aliasVar = targetVertices.front();
+      for (auto sourceVertex : sourceVertices) {
+        VertexID sourceVar = sourceVertex;
+        if (!graph[sourceVar].isReg()) {
+          // We have VAR -> ASSIGN_ALIAS -> VAR (alias)
+          // Add back edges: VAR (alias) -> ASSIGN_ALIAS
+          //                 ASSIGN_ALIAS -> VAR
+          if (!boost::edge(aliasVar, assignAlias, graph).second) {
+            boost::add_edge(aliasVar, assignAlias, graph);
+          }
+          if (!boost::edge(assignAlias, sourceVar, graph).second) {
+            boost::add_edge(assignAlias, sourceVar, graph);
+          }
+        }
+      }
     }
   }
 }
@@ -429,11 +470,29 @@ pathProduct(const std::vector<std::vector<VertexIDVec>>& intPaths) {
   return resultPaths;
 }
 
+/// Return true if exactly two waypoints correspond to aliases of the same variable.
+bool Graph::isAliasPath(const VertexIDVec &waypointIDs) const {
+  if (waypointIDs.size() == 2 &&
+      aliasMap.count(graph[waypointIDs[0]].getName()) &&
+      aliasMap.count(graph[waypointIDs[1]].getName())) {
+    return aliasMap.at(graph[waypointIDs[0]].getName()) ==
+               aliasMap.at(graph[waypointIDs[1]].getName());
+  }
+  return false;
+}
+
 /// Report all paths between start and finish points.
 /// Though points currently unsupported.
 std::vector<VertexIDVec>
 Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
                           const VertexIDVec &avoidPointIDs) const {
+  // Special case for paths between aliases of the same variable.
+  if (isAliasPath(waypointIDs)) {
+    BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
+                                  % graph[waypointIDs[0]].getName()
+                                  % graph[waypointIDs[1]].getName();
+    return {{waypointIDs[0], waypointIDs[1]}};
+  }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
@@ -471,6 +530,13 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
 /// Report a single path between a set of named points.
 VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
                                       const VertexIDVec &avoidPointIDs) const {
+  // Special case for paths between aliases of the same variable.
+  if (isAliasPath(waypointIDs)) {
+    BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
+                                  % graph[waypointIDs[0]].getName()
+                                  % graph[waypointIDs[1]].getName();
+    return {waypointIDs[0], waypointIDs[1]};
+  }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));

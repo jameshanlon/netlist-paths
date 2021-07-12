@@ -19,7 +19,7 @@ class TestPyWrapper(unittest.TestCase):
         """
         comp = RunVerilator(defs.INSTALL_PREFIX)
         comp.run(os.path.join(defs.TEST_SRC_PREFIX, filename), 'netlist.xml')
-        Options.get_instance().set_respect_hierarchy_markers()
+        Options.get_instance().set_ignore_hierarchy_markers(False)
         Options.get_instance().set_match_exact()
         return Netlist('netlist.xml')
 
@@ -145,7 +145,7 @@ class TestPyWrapper(unittest.TestCase):
         # Pipeline module
         np = self.compile_test('pipeline_module.sv')
         path = np.get_any_path(Waypoints('i_data', 'pipeline_module.g_pipestage[0].u_pipestage.data_q'))
-        self.assertTrue(len(path) == 7)
+        self.assertTrue(len(path) == 6)
 
     def test_path_all_any_to_any(self):
         """

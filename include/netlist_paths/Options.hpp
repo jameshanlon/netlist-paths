@@ -25,6 +25,8 @@ class Options {
   bool ignoreHierarchyMarkers;
   bool matchOneVertex;
   bool traverseRegisters;
+  bool restrictStartPoints;
+  bool restrictEndPoints;
 
 public:
   bool isMatchExact() const { return matchType == MatchType::EXACT; }
@@ -34,6 +36,8 @@ public:
   bool isMatchAnyVertex() const { return !matchOneVertex; }
   bool shouldIgnoreHierarchyMarkers() const { return ignoreHierarchyMarkers; }
   bool shouldTraverseRegisters() const { return traverseRegisters; }
+  bool isRestrictStartPoints() const { return restrictStartPoints; }
+  bool isRestrictEndPoints() const { return restrictEndPoints; }
   bool isVerboseMode() const { return verboseMode; }
   bool isDebugMode() const { return debugMode; }
 
@@ -46,13 +50,10 @@ public:
   /// Set matching to be exact.
   void setMatchExact() { matchType = MatchType::EXACT; }
 
-  /// Set matching to ignore hierarchy markers (only with wildcard or regular
-  /// expression matching modes). Hierarchy markers are '.', '/' and '_'.
-  void setIgnoreHierarchyMarkers() { ignoreHierarchyMarkers = true; }
-
-  /// Set matching to respect hierarchy markers (ie not to ignore them, only
-  /// with wildcard or regular expression matching modes).
-  void setRespectHierarchyMarkers() { ignoreHierarchyMarkers = false; }
+  /// Set matching to ignore (true) or respect (false) hierarchy markers (only
+  /// with wildcard or regular expression matching modes). Note that hierarchy
+  /// markers are '.', '/' and '_'.
+  void setIgnoreHierarchyMarkers(bool value) { ignoreHierarchyMarkers = value; }
 
   /// Set matching to identify one vertex, and for it to be an error if more
   /// than one vertex is matched.
@@ -62,11 +63,18 @@ public:
   /// chosen arbitrarily.
   void setMatchAnyVertex() { matchOneVertex = false; }
 
-  /// Enable path traversal of registers.
-  void enableTraverseRegisters() { traverseRegisters = true; }
+  /// Enable or disable path traversal of registers.
+  void setTraverseRegisters(bool value) { traverseRegisters = value; }
 
-  /// Disable path traversal of registers.
-  void disableTraverseRegisters() { traverseRegisters = false; }
+  /// Set path start point restriction. When set to true, paths must start on
+  /// top-level ports or registers. When set to false, paths can start on any
+  /// variable.
+  void setRestrictStartPoints(bool value) { restrictStartPoints = value; }
+
+  /// Set path end point restriction. When set to true, paths must end on
+  /// top-level ports or registers. When set to false, paths can end on any
+  /// variable.
+  void setRestrictEndPoints(bool value) { restrictEndPoints = value; }
 
   /// Enable verbose output.
   void setVerbose() {
@@ -103,7 +111,9 @@ private:
       matchType(MatchType::EXACT),
       ignoreHierarchyMarkers(false),
       matchOneVertex(true),
-      traverseRegisters(false) {
+      traverseRegisters(false),
+      restrictStartPoints(true),
+      restrictEndPoints(true) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
     setQuiet();

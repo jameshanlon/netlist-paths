@@ -73,10 +73,15 @@ using FilteredInternalGraph = boost::filtered_graph<InternalGraph,
 class Graph {
 private:
   InternalGraph graph;
+  std::map<std::string, VertexID> aliasMap;
 
   bool vertexTypeMatch(VertexID vertex, VertexNetlistType graphType) const;
 
-  VertexIDVec getAdjacentVertices(VertexID vertex) const;
+  bool isAliasPath(const VertexIDVec &waypointIDs) const;
+
+  VertexIDVec getAdjacentVerticesOutEdges(VertexID vertex) const;
+
+  VertexIDVec getAdjacentVerticesInEdges(VertexID vertex) const;
 
   VertexIDVec determinePath(ParentMap &parentMap,
                             VertexIDVec path,
@@ -136,6 +141,9 @@ public:
 
   /// Split register vertices into source and destination parts.
   void splitRegVertices();
+
+  /// Add additional edges to variable aliases.
+  void updateVarAliases();
 
   /// Perform some checks on the final graph.
   void checkGraph() const;
