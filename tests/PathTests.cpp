@@ -617,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
 }
 
 //===----------------------------------------------------------------------===//
-// Test handling of aliases.
+// Test handling of aliases and path start/end point restrictions.
 //===----------------------------------------------------------------------===//
 
 // Alias start point (due to inlining of the sub module).
@@ -653,12 +653,8 @@ BOOST_FIXTURE_TEST_CASE(aliases_sub_reg, TestContext) {
   netlist_paths::Options::getInstance().setRestrictEndPoints(false);
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.out",       "aliases_sub_reg.u_b.in")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.out",       "aliases_sub_reg.u_b.client_out")));
-  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.client_in", "aliases_sub_reg.u_b.in")));
-  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_a.client_in", "aliases_sub_reg.u_b.client_out")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.out",       "aliases_sub_reg.u_a.in")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.out",       "aliases_sub_reg.u_a.client_out")));
-  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.client_in", "aliases_sub_reg.u_a.in")));
-  BOOST_TEST(np->pathExists(netlist_paths::Waypoints("aliases_sub_reg.u_b.client_in", "aliases_sub_reg.u_a.client_out")));
 }
 
 //===----------------------------------------------------------------------===//

@@ -49,6 +49,10 @@ struct TestContext {
     // Default options.
     netlist_paths::Options::getInstance().setMatchExact();
     netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(false);
+    netlist_paths::Options::getInstance().setMatchOneVertex();
+    netlist_paths::Options::getInstance().setTraverseRegisters(false);
+    netlist_paths::Options::getInstance().setRestrictStartPoints(true);
+    netlist_paths::Options::getInstance().setRestrictEndPoints(true);
   }
 
   /// Compile a test and create a netlist object.

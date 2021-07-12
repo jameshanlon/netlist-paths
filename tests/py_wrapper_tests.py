@@ -186,6 +186,24 @@ class TestPyWrapper(unittest.TestCase):
         path = np.get_any_path(Waypoints('i_c', 'o_c'))
         self.assertTrue(len(path))
 
+    def test_through_registers(self):
+      """
+      Test enabling path traversal through registers.
+      """
+      np = self.compile_test('basic_ff_chain.sv')
+      Options.get_instance().set_traverse_registers(True)
+      self.assertTrue(np.path_exists(Waypoints('in', 'out')))
+
+    def test_restrict_start_end_points(self):
+      """
+      Test relaxation of path start/end point options.
+      """
+      np = self.compile_test('aliases_sub_reg.sv')
+      Options.get_instance().set_restrict_start_points(False)
+      Options.get_instance().set_restrict_end_points(False)
+      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out',       'aliases_sub_reg.u_b.in')))
+      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out',       'aliases_sub_reg.u_b.client_out')))
+
 
 if __name__ == '__main__':
     unittest.main()
