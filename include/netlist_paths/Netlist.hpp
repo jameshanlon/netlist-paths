@@ -15,7 +15,7 @@ namespace netlist_paths {
 
 /// Wrapper for Python to manage the netlist object.
 class Netlist {
-  Graph netlist;
+  Graph graph;
   std::vector<File> files;
   std::vector<std::shared_ptr<DType>> dtypes;
   std::vector<VertexID> waypoints;
@@ -203,7 +203,7 @@ public:
 
   /// Return a vector of pointers to vertices that have names.
   std::vector<Vertex*> getNamedVerticesPtr(const std::string pattern=std::string()) const {
-    return createVertexPtrVec(netlist.getVertices(pattern, VertexNetlistType::IS_NAMED));
+    return createVertexPtrVec(graph.getVertices(pattern, VertexNetlistType::IS_NAMED));
   }
 
   /// Return a vector of pointers to net vertices.
@@ -212,7 +212,7 @@ public:
   ///
   /// \returns A vector of pointers to Vertex objects.
   std::vector<Vertex*> getNetVerticesPtr(const std::string pattern=std::string()) const {
-    return createVertexPtrVec(netlist.getVertices(pattern, VertexNetlistType::NET));
+    return createVertexPtrVec(graph.getVertices(pattern, VertexNetlistType::NET));
   }
 
   /// Return a vector of pointers to port vertices.
@@ -221,7 +221,7 @@ public:
   ///
   /// \returns A vector of pointers to Vertex objects.
   std::vector<Vertex*> getPortVerticesPtr(const std::string pattern=std::string()) const {
-    return createVertexPtrVec(netlist.getVertices(pattern, VertexNetlistType::PORT));
+    return createVertexPtrVec(graph.getVertices(pattern, VertexNetlistType::PORT));
   }
 
   /// Return a vector of pointers to register vertices.
@@ -230,18 +230,18 @@ public:
   ///
   /// \returns A vector of pointers to Vertex objects.
   std::vector<Vertex*> getRegVerticesPtr(const std::string pattern=std::string()) const {
-    return createVertexPtrVec(netlist.getVertices(pattern, VertexNetlistType::REG));
+    return createVertexPtrVec(graph.getVertices(pattern, VertexNetlistType::REG));
   }
 
   /// Write a dot-file represenation of the netlist graph to a file.
   ///
   /// \param outputFilename The file to write the dot output to.
   void dumpDotFile(const std::string &outputFilename) const {
-    netlist.dumpDotFile(outputFilename);
+    graph.dumpDotFile(outputFilename);
   }
 
   /// Return true if the netlist is empty.
-  bool isEmpty() const { return netlist.numVertices() == 0; }
+  bool isEmpty() const { return graph.numVertices() == 0; }
 };
 
 } // End namespace.
