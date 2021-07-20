@@ -259,34 +259,32 @@ bool Netlist::pathExists(Waypoints waypoints) const {
   return !graph.getAnyPointToPoint(waypointIDs, avoidPointIDs).empty();
 }
 
-std::vector<Vertex*> Netlist::getAnyPath(Waypoints waypoints) const {
+Path Netlist::getAnyPath(Waypoints waypoints) const {
   auto waypointIDs = readWaypoints(waypoints);
   auto avoidPointIDs = readAvoidPoints(waypoints);
-  return createVertexPtrVec(graph.getAnyPointToPoint(waypointIDs,
-                                                       avoidPointIDs));
+  return graph.getAnyPointToPoint(waypointIDs, avoidPointIDs);
 }
 
-std::vector<std::vector<Vertex*> > Netlist::getAllPaths(Waypoints waypoints) const {
+std::vector<Path> Netlist::getAllPaths(Waypoints waypoints) const {
   auto waypointIDs = readWaypoints(waypoints);
   auto avoidPointIDs = readAvoidPoints(waypoints);
-  return createVertexPtrVecVec(graph.getAllPointToPoint(waypointIDs,
-                                                          avoidPointIDs));
+  return graph.getAllPointToPoint(waypointIDs, avoidPointIDs);
 }
 
-std::vector<std::vector<Vertex*> > Netlist::getAllFanOut(const std::string startName) const {
+std::vector<Path> Netlist::getAllFanOut(const std::string startName) const {
   auto vertex = getStartVertex(startName, Options::getInstance().isMatchAnyVertex());
   if (vertex == graph.nullVertex()) {
     throw Exception(std::string("could not find start vertex "+startName));
   }
-  return createVertexPtrVecVec(graph.getAllFanOut(vertex));
+  return graph.getAllFanOut(vertex);
 }
 
-std::vector<std::vector<Vertex*> > Netlist::getAllFanIn(const std::string endName) const {
+std::vector<Path> Netlist::getAllFanIn(const std::string endName) const {
   auto vertex = getEndVertex(endName, Options::getInstance().isMatchAnyVertex());
   if (vertex == graph.nullVertex()) {
     throw Exception(std::string("could not find end vertex "+endName));
   }
-  return createVertexPtrVecVec(graph.getAllFanIn(vertex));
+  return graph.getAllFanIn(vertex);
 }
 
 std::vector<std::reference_wrapper<const Vertex> >

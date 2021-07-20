@@ -148,11 +148,11 @@ class TestPyWrapper(unittest.TestCase):
         # Pipeline
         np = self.compile_test('pipeline_loops.sv')
         path = np.get_any_path(Waypoints('i_data', 'pipeline_loops.data_q'))
-        self.assertTrue(len(path) == 3)
+        self.assertTrue(path.length() == 3)
         # Pipeline module
         np = self.compile_test('pipeline_module.sv')
         path = np.get_any_path(Waypoints('i_data', 'pipeline_module.g_pipestage[0].u_pipestage.data_q'))
-        self.assertTrue(len(path) == 6)
+        self.assertTrue(path.length() == 6)
 
     def test_path_all_any_to_any(self):
         """
@@ -186,12 +186,12 @@ class TestPyWrapper(unittest.TestCase):
         Options.get_instance().set_match_wildcard()
         Options.get_instance().set_match_any_vertex()
         path = np.get_any_path(Waypoints('i_*', 'o_*'))
-        self.assertTrue(len(path))
+        self.assertTrue(not path.empty())
         path = np.get_any_path(Waypoints('i_b', 'o_b'))
-        self.assertTrue(len(path))
+        self.assertTrue(not path.empty())
         Options.get_instance().set_match_one_vertex()
         path = np.get_any_path(Waypoints('i_c', 'o_c'))
-        self.assertTrue(len(path))
+        self.assertTrue(not path.empty())
 
     def test_through_registers(self):
       """

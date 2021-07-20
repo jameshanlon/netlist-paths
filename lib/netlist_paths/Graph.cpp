@@ -21,6 +21,7 @@
 #include "netlist_paths/Exception.hpp"
 #include "netlist_paths/Graph.hpp"
 #include "netlist_paths/Options.hpp"
+#include "netlist_paths/Path.hpp"
 #include "netlist_paths/Utilities.hpp"
 
 using namespace netlist_paths;
@@ -115,7 +116,7 @@ void Graph::splitRegVertices() {
     // Create a new 'source' reg vertex.
     Vertex srcReg(graph[v]);
     srcReg.setSrcReg();
-    auto srcRegVertex = boost::add_vertex(srcReg, graph);
+    auto srcRegVertex = addVertex(srcReg);
     // Collect all adjacent vertices (to which there are out edges).
     std::vector<VertexID> adjacentVertices = getAdjacentVerticesOutEdges(v);
     // Create or move edges to src register vertex.
@@ -133,8 +134,8 @@ void Graph::splitRegVertices() {
           Vertex assignAlias(graph[target]);
           Vertex aliasVar(graph[assignAliasTargets.front()]);
           aliasVar.setSrcRegAlias();
-          auto assignAliasVertex = boost::add_vertex(assignAlias, graph);
-          auto aliasVarVertex = boost::add_vertex(aliasVar, graph);
+          auto assignAliasVertex = addVertex(assignAlias);
+          auto aliasVarVertex = addVertex(aliasVar);
           boost::add_edge(aliasVarVertex, assignAliasVertex, graph);
           boost::add_edge(assignAliasVertex, srcRegVertex, graph);
           continue;
@@ -353,22 +354,20 @@ VertexIDVec Graph::getVertices(const std::string &pattern,
 
 /// Given the tree structure from a DFS, traverse the tree from leaf to root to
 /// return a path.
-VertexIDVec Graph::determinePath(ParentMap &parentMap,
-                                 VertexIDVec path,
-                                 VertexID startVertex,
-                                 VertexID finishVertex) const {
-  path.push_back(finishVertex);
+Path Graph::determinePath(ParentMap &parentMap,
+                          Path path,
+                          VertexID startVertex,
+                          VertexID finishVertex) const {
+  path.appendVertex(&graph[finishVertex]);
   if (finishVertex == startVertex) {
     return path;
   }
   if (parentMap[finishVertex].empty()) {
-    return VertexIDVec();
+    return Path();
   }
   assert(parentMap[finishVertex].size() == 1);
   auto nextVertex = parentMap[finishVertex].front();
-  assert(std::find(std::begin(path),
-                   std::end(path),
-                   nextVertex) == std::end(path));
+  assert(!path.contains(&(graph[nextVertex])));
   return determinePath(parentMap, path, startVertex, nextVertex);
 }
 
@@ -376,29 +375,21 @@ VertexIDVec Graph::determinePath(ParentMap &parentMap,
 /// This performs a DFS starting at the end point. It is not feasible for large
 /// graphs since the number of simple paths grows exponentially.
 void Graph::determineAllPaths(ParentMap &parentMap,
-                              std::vector<VertexIDVec> &result,
-                              VertexIDVec path,
+                              std::vector<Path> &result,
+                              Path path,
                               VertexID startVertex,
                               VertexID finishVertex) const {
-  path.push_back(finishVertex);
+  path.appendVertex(&graph[finishVertex]);
   if (finishVertex == startVertex) {
     BOOST_LOG_TRIVIAL(debug) << "Found path";
     result.push_back(path);
     return;
   }
   BOOST_LOG_TRIVIAL(debug) << boost::format("length %d vertex %s")
-                                % path.size() % graph[finishVertex].toString();
-  // Dump path.
-  if (Options::getInstance().isDebugMode()) {
-    for (auto v : path) {
-      if (!graph[v].isLogic()) {
-        BOOST_LOG_TRIVIAL(debug) << " " << graph[v].getName();
-      }
-    }
-  }
+                                % path.length() % graph[finishVertex].toString();
   BOOST_LOG_TRIVIAL(debug) << (parentMap[finishVertex].empty() ? "DEAD END" : "");
   for (auto vertex : parentMap[finishVertex]) {
-    if (std::find(std::begin(path), std::end(path), vertex) == std::end(path)) {
+    if (!path.contains(&graph[vertex])) {
       determineAllPaths(parentMap, result, path, startVertex, vertex);
     } else {
       BOOST_LOG_TRIVIAL(debug) << "Cycle detected";
@@ -407,7 +398,7 @@ void Graph::determineAllPaths(ParentMap &parentMap,
 }
 
 /// Report all paths fanning out from a net/register/port.
-std::vector<VertexIDVec>
+std::vector<Path>
 Graph::getAllFanOut(VertexID startVertex) const {
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
@@ -418,15 +409,15 @@ Graph::getAllFanOut(VertexID startVertex) const {
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(startVertex));
   // Check for a path between startPoint and each register.
-  std::vector<VertexIDVec> paths;
+  std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isEndPoint()) {
       auto path = determinePath(parentMap,
-                                VertexIDVec(),
+                                Path(),
                                 startVertex,
                                 static_cast<VertexID>(v));
       if (!path.empty()) {
-        std::reverse(std::begin(path), std::end(path));
+        path.reverse();
         paths.push_back(path);
       }
     }
@@ -435,7 +426,7 @@ Graph::getAllFanOut(VertexID startVertex) const {
 }
 
 /// Report all paths fanning into a net/register/port.
-std::vector<VertexIDVec>
+std::vector<Path>
 Graph::getAllFanIn(VertexID finishVertex) const {
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
@@ -447,11 +438,11 @@ Graph::getAllFanIn(VertexID finishVertex) const {
       boost::visitor(DfsVisitor(parentMap, false))
         .root_vertex(finishVertex));
   // Check for a path between endPoint and each register.
-  std::vector<VertexIDVec> paths;
+  std::vector<Path> paths;
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (graph[v].isStartPoint()) {
       auto path = determinePath(parentMap,
-                                VertexIDVec(),
+                                Path(),
                                 finishVertex,
                                 static_cast<VertexID>(v));
       if (!path.empty()) {
@@ -466,20 +457,20 @@ Graph::getAllFanIn(VertexID finishVertex) const {
 /// through point), return a vector of paths that is the cartesian product of
 /// the paths in each stage. Based on code in:
 ///   https://stackoverflow.com/questions/5279051/how-can-i-create-cartesian-product-of-vector-of-vectors
-std::vector<VertexIDVec>
-pathProduct(const std::vector<std::vector<VertexIDVec>>& intPaths) {
-  std::vector<VertexIDVec> resultPaths = {{}};
-  for (const auto& stagePaths : intPaths) {
-    std::vector<VertexIDVec> newPaths;
+std::vector<Path>
+pathProduct(const std::vector<std::vector<Path>>& intPaths) {
+  std::vector<Path> resultPaths = {Path()};
+  for (const auto &stagePaths : intPaths) {
+    std::vector<Path> newPaths;
     // Multiply each of the existing (sub) paths, with the next sub paths.
     // Ie for each path create a new path with the next sub path appended.
-    for (const auto& resultPath : resultPaths) {
+    for (const auto &resultPath : resultPaths) {
       for (const auto &subPath : stagePaths) {
-        VertexIDVec path(subPath);
-        std::reverse(path.begin(), path.end());
+        Path path(subPath);
+        path.reverse();
         // Append the new sub path to the existing 'resultPath'.
         newPaths.push_back(resultPath);
-        newPaths.back().insert(newPaths.back().end(), path.begin(), path.end()-1);
+        newPaths.back().appendPath(path);
       }
     }
     resultPaths = std::move(newPaths);
@@ -500,7 +491,7 @@ bool Graph::isAliasPath(const VertexIDVec &waypointIDs) const {
 
 /// Report all paths between start and finish points.
 /// Though points currently unsupported.
-std::vector<VertexIDVec>
+std::vector<Path>
 Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
                           const VertexIDVec &avoidPointIDs) const {
   // Special case for paths between aliases of the same variable.
@@ -508,12 +499,12 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
     BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
                                   % graph[waypointIDs[0]].getName()
                                   % graph[waypointIDs[1]].getName();
-    return {{waypointIDs[0], waypointIDs[1]}};
+    return {Path({&graph[waypointIDs[0]], &graph[waypointIDs[1]]})};
   }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
-  std::vector<std::vector<VertexIDVec> > intPaths;
+  std::vector<std::vector<Path>> intPaths;
   // Elaborate all paths between each adjacent waypoint.
   for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
     auto beginVertex = waypointIDs[i];
@@ -524,10 +515,10 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
         boost::visitor(DfsVisitor(parentMap, true))
           .root_vertex(beginVertex));
     BOOST_LOG_TRIVIAL(debug) << "Determining all paths to " << graph[endVertex].getName();
-    std::vector<VertexIDVec> paths;
+    std::vector<Path> paths;
     determineAllPaths(parentMap,
                       paths,
-                      VertexIDVec(),
+                      Path(),
                       beginVertex,
                       endVertex);
     if (paths.empty()) {
@@ -539,25 +530,25 @@ Graph::getAllPointToPoint(const VertexIDVec &waypointIDs,
   // Construct the final paths.
   auto paths = pathProduct(intPaths);
   for (auto &path : paths) {
-    path.push_back(waypointIDs.back());
+    path.appendVertex(&graph[waypointIDs.back()]);
   }
   return paths;
 }
 
 /// Report a single path between a set of named points.
-VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
-                                      const VertexIDVec &avoidPointIDs) const {
+Path Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
+                               const VertexIDVec &avoidPointIDs) const {
   // Special case for paths between aliases of the same variable.
   if (isAliasPath(waypointIDs)) {
     BOOST_LOG_TRIVIAL(debug) << boost::format("%s is alias of %s")
                                   % graph[waypointIDs[0]].getName()
                                   % graph[waypointIDs[1]].getName();
-    return {waypointIDs[0], waypointIDs[1]};
+    return {Path({&graph[waypointIDs[0]], &graph[waypointIDs[1]]})};
   }
   FilteredInternalGraph filteredGraph(graph,
                                       EdgePredicate(&graph),
                                       VertexPredicate(&avoidPointIDs));
-  std::vector<VertexID> path;
+  Path path;
   // Construct the path between each adjacent waypoint.
   for (std::size_t i = 0; i < waypointIDs.size()-1; ++i) {
     auto startVertex = waypointIDs[i];
@@ -569,16 +560,16 @@ VertexIDVec Graph::getAnyPointToPoint(const VertexIDVec &waypointIDs,
           .root_vertex(startVertex));
     BOOST_LOG_TRIVIAL(debug) << "Determining a path to " << graph[finishVertex].getName();
     auto subPath = determinePath(parentMap,
-                                 VertexIDVec(),
+                                 Path(),
                                  startVertex,
                                  finishVertex);
     if (subPath.empty()) {
       // No path exists.
-      return VertexIDVec();
+      return Path();
     }
-    std::reverse(std::begin(subPath), std::end(subPath));
-    path.insert(std::end(path), std::begin(subPath), std::end(subPath)-1);
+    subPath.reverse();
+    path.appendPath(subPath);
   }
-  path.push_back(waypointIDs.back());
+  path.appendVertex(&graph[waypointIDs.back()]);
   return path;
 }

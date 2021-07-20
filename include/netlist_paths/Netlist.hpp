@@ -169,28 +169,28 @@ public:
   /// \param waypoints A waypoints object constraining the path.
   ///
   /// \returns A path if one exists, otherwise an empty vector.
-  std::vector<Vertex*> getAnyPath(Waypoints waypoints) const;
+  Path getAnyPath(Waypoints waypoints) const;
 
   /// Return all paths between two points, useful for testing.
   ///
   /// \param waypoints A waypoints object constraining the path.
   ///
   /// \returns All paths matching the waypoints, otherwise an empty vector.
-  std::vector<std::vector<Vertex*> > getAllPaths(Waypoints waypoints) const;
+  std::vector<Path> getAllPaths(Waypoints waypoints) const;
 
   /// Return a vector of paths fanning out from a particular start point.
   ///
   /// \param startName A pattern matching a start point.
   ///
   /// \returns All paths fanning out from the matching startpoint, otherwise an empty vector.
-  std::vector<std::vector<Vertex*> > getAllFanOut(const std::string startName) const;
+  std::vector<Path> getAllFanOut(const std::string startName) const;
 
   /// Return a vector of paths fanning out from a particular start point.
   ///
   /// \param endName A pattern matching an end point.
   ///
   /// \returns All paths fanning in to the matching endpoint, otherwise an empty vector.
-  std::vector<std::vector<Vertex*> > getAllFanIn(const std::string endName) const;
+  std::vector<Path> getAllFanIn(const std::string endName) const;
 
   //===--------------------------------------------------------------------===//
   // Netlist access.

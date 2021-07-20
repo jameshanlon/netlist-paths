@@ -1,8 +1,9 @@
 set(SOURCES
+    Graph.cpp
     Netlist.cpp
-    RunVerilator.cpp
+    Path.cpp
     ReadVerilatorXML.cpp
-    Graph.cpp)
+    RunVerilator.cpp)
 
 # Compile a shared library to link with the Python module since Boost
 # distributions are expecting this.

@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <boost/algorithm/string.hpp>
+#include <boost/graph/graph_traits.hpp>
 #include "netlist_paths/Location.hpp"
 #include "netlist_paths/DTypes.hpp"
 #include "netlist_paths/Options.hpp"
@@ -206,6 +207,7 @@ inline const char *getVertexDirectionStr(VertexDirection direction) {
 
 /// A class representing a vertex in the netlist graph.
 class Vertex {
+  size_t id;
   VertexAstType astType;
   VertexDirection direction;
   Location location;
@@ -265,6 +267,7 @@ public:
 
   /// Copy constructor.
   Vertex(const Vertex &v) :
+      id(v.id),
       astType(v.astType),
       direction(v.direction),
       location(v.location),
@@ -512,6 +515,7 @@ public:
   // Various getters and setters.
   //===--------------------------------------------------------------------===//
 
+  void setID(size_t idValue) { id = idValue; }
   void setDeleted() { deleted = true; }
   void setVar() { astType = VertexAstType::VAR; }
   void setSrcReg() { astType = VertexAstType::SRC_REG; }
@@ -527,6 +531,7 @@ public:
     // Remove the const cast to make it compatible with the boost::python wrappers.
     return const_cast<DType*>(dtype.get());
   }
+  size_t getID() const { return id; }
   const std::string getName() const { return name; }
   const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
   const std::string getSimpleAstTypeStr() const { return getSimpleVertexAstTypeStr(astType); }

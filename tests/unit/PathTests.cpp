@@ -105,83 +105,89 @@ BOOST_FIXTURE_TEST_CASE(path_none, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv"));
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
-  BOOST_TEST(vertices.size() == 7);
-  CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "basic_assign_chain.a");
-  CHECK_LOG_REPORT(vertices[3], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[4], "VAR", "logic", "basic_assign_chain.b");
-  CHECK_LOG_REPORT(vertices[5], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[6], "VAR", "logic", "out");
+  auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+  BOOST_TEST(path.length() == 7);
+  CHECK_VAR_REPORT(path.getVertex(0), "VAR", "logic", "in");
+  CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(2), "VAR", "logic", "basic_assign_chain.a");
+  CHECK_LOG_REPORT(path.getVertex(3), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(4), "VAR", "logic", "basic_assign_chain.b");
+  CHECK_LOG_REPORT(path.getVertex(5), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_comb_chain.sv"));
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
-  BOOST_TEST(vertices.size() == 7);
-  CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "basic_comb_chain.a");
-  CHECK_LOG_REPORT(vertices[3], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[4], "VAR", "logic", "basic_comb_chain.b");
-  CHECK_LOG_REPORT(vertices[5], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[6], "VAR", "logic", "out");
+  auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+  BOOST_TEST(path.length() == 7);
+  CHECK_VAR_REPORT(path.getVertex(0), "VAR", "logic", "in");
+  CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(2), "VAR", "logic", "basic_comb_chain.a");
+  CHECK_LOG_REPORT(path.getVertex(3), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(4), "VAR", "logic", "basic_comb_chain.b");
+  CHECK_LOG_REPORT(path.getVertex(5), "ASSIGN");
+  CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
-  // in -> a
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "basic_ff_chain.a"));
-  BOOST_TEST(vertices.size() == 3);
-  CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.a");
-  // a -> b
-  vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "basic_ff_chain.b"));
-  BOOST_TEST(vertices.size() == 3);
-  CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.b");
-  // b -> out
-  vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
-  BOOST_TEST(vertices.size() == 3);
-  CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN");
-  CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "out");
+  {
+    // in -> a
+    auto path = np->getAnyPath(netlist_paths::Waypoints("in", "basic_ff_chain.a"));
+    BOOST_TEST(path.length() == 3);
+    CHECK_VAR_REPORT(path.getVertex(0), "VAR", "logic", "in");
+    CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN_DLY");
+    CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.a");
+  }
+  {
+    // a -> b
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "basic_ff_chain.b"));
+    BOOST_TEST(path.length() == 3);
+    CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.a");
+    CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN_DLY");
+    CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.b");
+  }
+  {
+    // b -> out
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
+    BOOST_TEST(path.length() == 3);
+    CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.b");
+    CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN");
+    CHECK_VAR_REPORT(path.getVertex(2), "VAR", "logic", "out");
+  }
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // NOTE: can differentiate between the generate instances of the pipeline.
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_module.g_pipestage[0].u_pipestage.data_q"));
-  BOOST_TEST(vertices.size() == 6);
-  CHECK_VAR_REPORT(vertices[0], "VAR", "[31:0] logic", "i_data");
-  CHECK_VAR_REPORT(vertices[1], "VAR", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.i_data");
-  CHECK_LOG_REPORT(vertices[2], "ASSIGN_ALIAS");
-  CHECK_VAR_REPORT(vertices[3], "VAR", "[31:0] logic", "pipeline_module.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
-  CHECK_LOG_REPORT(vertices[4], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[5], "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
+  auto path = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_module.g_pipestage[0].u_pipestage.data_q"));
+  BOOST_TEST(path.length() == 6);
+  CHECK_VAR_REPORT(path.getVertex(0), "VAR", "[31:0] logic", "i_data");
+  CHECK_VAR_REPORT(path.getVertex(1), "VAR", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.i_data");
+  CHECK_LOG_REPORT(path.getVertex(2), "ASSIGN_ALIAS");
+  CHECK_VAR_REPORT(path.getVertex(3), "VAR", "[31:0] logic", "pipeline_module.__Vcellinp__g_pipestage[0].u_pipestage__i_data");
+  CHECK_LOG_REPORT(path.getVertex(4), "ASSIGN_DLY");
+  CHECK_VAR_REPORT(path.getVertex(5), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_loops.sv"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_loops.data_q"));
-  BOOST_TEST(vertices.size() == 3);
-  CHECK_VAR_REPORT(vertices[0], "VAR", "[31:0] logic", "i_data");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[2], "DST_REG", "[31:0] logic [7:0]", "pipeline_loops.data_q");
+  auto path = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_loops.data_q"));
+  BOOST_TEST(path.length() == 3);
+  CHECK_VAR_REPORT(path.getVertex(0), "VAR", "[31:0] logic", "i_data");
+  CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN_DLY");
+  CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "[31:0] logic [7:0]", "pipeline_loops.data_q");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
   BOOST_CHECK_NO_THROW(compile("pipeline_no_loops.sv"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
-  auto vertices = np->getAnyPath(netlist_paths::Waypoints("pipeline_no_loops.data_q", "pipeline_no_loops.data_q"));
-  BOOST_TEST(vertices.size() == 3);
-  CHECK_VAR_REPORT(vertices[0], "SRC_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
-  CHECK_LOG_REPORT(vertices[1], "ASSIGN_DLY");
-  CHECK_VAR_REPORT(vertices[2], "DST_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
+  auto path = np->getAnyPath(netlist_paths::Waypoints("pipeline_no_loops.data_q", "pipeline_no_loops.data_q"));
+  BOOST_TEST(path.length() == 3);
+  CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
+  CHECK_LOG_REPORT(path.getVertex(1), "ASSIGN_DLY");
+  CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "[31:0] logic [2:0]", "pipeline_no_loops.data_q");
 }
 
 //===----------------------------------------------------------------------===//
@@ -192,18 +198,21 @@ BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   auto paths = np->getAllPaths(netlist_paths::Waypoints("in", "out"));
   BOOST_TEST(paths.size() == 3);
-  BOOST_TEST(paths[0].size() == 5);
-  CHECK_VAR_REPORT(paths[0][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[0][2], "VAR", "logic", "multiple_paths.a");
-  CHECK_VAR_REPORT(paths[0][4], "VAR", "logic", "out");
-  BOOST_TEST(paths[1].size() == 5);
-  CHECK_VAR_REPORT(paths[1][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[1][2], "VAR", "logic", "multiple_paths.b");
-  CHECK_VAR_REPORT(paths[1][4], "VAR", "logic", "out");
-  BOOST_TEST(paths[2].size() == 5);
-  CHECK_VAR_REPORT(paths[2][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[2][2], "VAR", "logic", "multiple_paths.c");
-  CHECK_VAR_REPORT(paths[2][4], "VAR", "logic", "out");
+  // Path 1
+  BOOST_TEST(paths[0].length() == 5);
+  CHECK_VAR_REPORT(paths[0].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[0].getVertex(2), "VAR", "logic", "multiple_paths.a");
+  CHECK_VAR_REPORT(paths[0].getVertex(4), "VAR", "logic", "out");
+  // Path 2
+  BOOST_TEST(paths[1].length() == 5);
+  CHECK_VAR_REPORT(paths[1].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[1].getVertex(2), "VAR", "logic", "multiple_paths.b");
+  CHECK_VAR_REPORT(paths[1].getVertex(4), "VAR", "logic", "out");
+  // Path 3
+  BOOST_TEST(paths[2].length() == 5);
+  CHECK_VAR_REPORT(paths[2].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[2].getVertex(2), "VAR", "logic", "multiple_paths.c");
+  CHECK_VAR_REPORT(paths[2].getVertex(4), "VAR", "logic", "out");
 }
 
 //===----------------------------------------------------------------------===//
@@ -222,15 +231,18 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanOut("in");
   BOOST_TEST(paths.size() == 3);
-  BOOST_TEST(paths[0].size() == 3);
-  CHECK_VAR_REPORT(paths[0][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[0][2], "DST_REG", "logic", "fan_out_in.a");
-  BOOST_TEST(paths[1].size() == 3);
-  CHECK_VAR_REPORT(paths[1][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[1][2], "DST_REG", "logic", "fan_out_in.b");
-  BOOST_TEST(paths[2].size() == 3);
-  CHECK_VAR_REPORT(paths[2][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[2][2], "DST_REG", "logic", "fan_out_in.c");
+  // Path 1
+  BOOST_TEST(paths[0].length() == 3);
+  CHECK_VAR_REPORT(paths[0].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[0].getVertex(2), "DST_REG", "logic", "fan_out_in.a");
+  // Path 2
+  BOOST_TEST(paths[1].length() == 3);
+  CHECK_VAR_REPORT(paths[1].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[1].getVertex(2), "DST_REG", "logic", "fan_out_in.b");
+  // Path 3
+  BOOST_TEST(paths[2].length() == 3);
+  CHECK_VAR_REPORT(paths[2].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[2].getVertex(2), "DST_REG", "logic", "fan_out_in.c");
 }
 
 /// Test paths fanning into an end point.
@@ -238,15 +250,18 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in, TestContext) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanIn("out");
   BOOST_TEST(paths.size() == 3);
-  BOOST_TEST(paths[0].size() == 3);
-  CHECK_VAR_REPORT(paths[0][0], "SRC_REG", "logic", "fan_out_in.a");
-  CHECK_VAR_REPORT(paths[0][2], "VAR", "logic", "out");
-  BOOST_TEST(paths[1].size() == 3);
-  CHECK_VAR_REPORT(paths[1][0], "SRC_REG", "logic", "fan_out_in.b");
-  CHECK_VAR_REPORT(paths[1][2], "VAR", "logic", "out");
-  BOOST_TEST(paths[2].size() == 3);
-  CHECK_VAR_REPORT(paths[2][0], "SRC_REG", "logic", "fan_out_in.c");
-  CHECK_VAR_REPORT(paths[2][2], "VAR", "logic", "out");
+  // Path 1
+  BOOST_TEST(paths[0].length() == 3);
+  CHECK_VAR_REPORT(paths[0].getVertex(0), "SRC_REG", "logic", "fan_out_in.a");
+  CHECK_VAR_REPORT(paths[0].getVertex(2), "VAR", "logic", "out");
+  // Path 2
+  BOOST_TEST(paths[1].length() == 3);
+  CHECK_VAR_REPORT(paths[1].getVertex(0), "SRC_REG", "logic", "fan_out_in.b");
+  CHECK_VAR_REPORT(paths[1].getVertex(2), "VAR", "logic", "out");
+  // Path 3
+  BOOST_TEST(paths[2].length() == 3);
+  CHECK_VAR_REPORT(paths[2].getVertex(0), "SRC_REG", "logic", "fan_out_in.c");
+  CHECK_VAR_REPORT(paths[2].getVertex(2), "VAR", "logic", "out");
 }
 
 /// Test that invalid through points throw exceptions.
@@ -269,15 +284,18 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out_modules, TestContext) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in_modules.sv"));
   auto paths = np->getAllFanOut("in");
   BOOST_TEST(paths.size() == 3);
-  BOOST_TEST(paths[0].size() == 3);
-  CHECK_VAR_REPORT(paths[0][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[0][2], "DST_REG", "logic", "fan_out_in_modules.foo_a.x");
-  BOOST_TEST(paths[1].size() == 3);
-  CHECK_VAR_REPORT(paths[1][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[1][2], "DST_REG", "logic", "fan_out_in_modules.foo_b.x");
-  BOOST_TEST(paths[2].size() == 3);
-  CHECK_VAR_REPORT(paths[2][0], "VAR", "logic", "in");
-  CHECK_VAR_REPORT(paths[2][2], "DST_REG", "logic", "fan_out_in_modules.foo_c.x");
+  // Path 1
+  BOOST_TEST(paths[0].length() == 3);
+  CHECK_VAR_REPORT(paths[0].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[0].getVertex(2), "DST_REG", "logic", "fan_out_in_modules.foo_a.x");
+  // Path 2
+  BOOST_TEST(paths[1].length() == 3);
+  CHECK_VAR_REPORT(paths[1].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[1].getVertex(2), "DST_REG", "logic", "fan_out_in_modules.foo_b.x");
+  // Path 3
+  BOOST_TEST(paths[2].length() == 3);
+  CHECK_VAR_REPORT(paths[2].getVertex(0), "VAR", "logic", "in");
+  CHECK_VAR_REPORT(paths[2].getVertex(2), "DST_REG", "logic", "fan_out_in_modules.foo_c.x");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
@@ -285,21 +303,21 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in_modules.sv"));
   auto paths = np->getAllFanIn("out");
   BOOST_TEST(paths.size() == 3);
-  BOOST_TEST(paths[0].size() == 6);
-  CHECK_VAR_REPORT(paths[0][0], "SRC_REG", "logic", "fan_out_in_modules.foo_a.x");
-  CHECK_VAR_REPORT(paths[0][2], "VAR", "logic", "fan_out_in_modules.a");
-  CHECK_VAR_REPORT(paths[0][4], "VAR", "logic", "fan_out_in_modules.foo_a.out");
-  CHECK_VAR_REPORT(paths[0][5], "VAR", "logic", "out");
-  BOOST_TEST(paths[1].size() == 6);\
-  CHECK_VAR_REPORT(paths[1][0], "SRC_REG", "logic", "fan_out_in_modules.foo_b.x");
-  CHECK_VAR_REPORT(paths[1][2], "VAR", "logic", "fan_out_in_modules.b");
-  CHECK_VAR_REPORT(paths[1][4], "VAR", "logic", "fan_out_in_modules.foo_b.out");
-  CHECK_VAR_REPORT(paths[1][5], "VAR", "logic", "out");
-  BOOST_TEST(paths[2].size() == 6);
-  CHECK_VAR_REPORT(paths[2][0], "SRC_REG", "logic", "fan_out_in_modules.foo_c.x");
-  CHECK_VAR_REPORT(paths[2][2], "VAR", "logic", "fan_out_in_modules.c");
-  CHECK_VAR_REPORT(paths[2][4], "VAR", "logic", "fan_out_in_modules.foo_c.out");
-  CHECK_VAR_REPORT(paths[2][5], "VAR", "logic", "out");
+  BOOST_TEST(paths[0].length() == 6);
+  CHECK_VAR_REPORT(paths[0].getVertex(0), "SRC_REG", "logic", "fan_out_in_modules.foo_a.x");
+  CHECK_VAR_REPORT(paths[0].getVertex(2), "VAR", "logic", "fan_out_in_modules.a");
+  CHECK_VAR_REPORT(paths[0].getVertex(4), "VAR", "logic", "fan_out_in_modules.foo_a.out");
+  CHECK_VAR_REPORT(paths[0].getVertex(5), "VAR", "logic", "out");
+  BOOST_TEST(paths[1].length() == 6);\
+  CHECK_VAR_REPORT(paths[1].getVertex(0), "SRC_REG", "logic", "fan_out_in_modules.foo_b.x");
+  CHECK_VAR_REPORT(paths[1].getVertex(2), "VAR", "logic", "fan_out_in_modules.b");
+  CHECK_VAR_REPORT(paths[1].getVertex(4), "VAR", "logic", "fan_out_in_modules.foo_b.out");
+  CHECK_VAR_REPORT(paths[1].getVertex(5), "VAR", "logic", "out");
+  BOOST_TEST(paths[2].length() == 6);
+  CHECK_VAR_REPORT(paths[2].getVertex(0), "SRC_REG", "logic", "fan_out_in_modules.foo_c.x");
+  CHECK_VAR_REPORT(paths[2].getVertex(2), "VAR", "logic", "fan_out_in_modules.c");
+  CHECK_VAR_REPORT(paths[2].getVertex(4), "VAR", "logic", "fan_out_in_modules.foo_c.out");
+  CHECK_VAR_REPORT(paths[2].getVertex(5), "VAR", "logic", "out");
 }
 
 BOOST_FIXTURE_TEST_CASE(path_false_fan_in_out, TestContext) {
@@ -327,7 +345,21 @@ BOOST_FIXTURE_TEST_CASE(all_paths_single_through_point, TestContext) {
     waypoints.addThroughPoint("multiple_paths.a");
     auto paths = np->getAllPaths(waypoints);
     BOOST_TEST(paths.size() == 1);
-    BOOST_TEST(paths.front()[2]->getName() == "multiple_paths.a");
+    BOOST_TEST(paths.front().getVertex(2)->getName() == "multiple_paths.a");
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.b");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 1);
+    BOOST_TEST(paths.front().getVertex(2)->getName() == "multiple_paths.b");
+  }
+  {
+    auto waypoints = netlist_paths::Waypoints("in", "out");
+    waypoints.addThroughPoint("multiple_paths.c");
+    auto paths = np->getAllPaths(waypoints);
+    BOOST_TEST(paths.size() == 1);
+    BOOST_TEST(paths.front().getVertex(2)->getName() == "multiple_paths.c");
   }
   {
     // No valid path (no route between a and b).
@@ -364,17 +396,17 @@ BOOST_FIXTURE_TEST_CASE(any_path_single_through_point, TestContext) {
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
     waypoints.addThroughPoint("multiple_paths.a");
-    auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.size() == 5);
-    BOOST_TEST(vertices[2]->getName() == "multiple_paths.a");
+    auto path = np->getAnyPath(waypoints);
+    BOOST_TEST(path.length() == 5);
+    BOOST_TEST(path.getVertex(2)->getName() == "multiple_paths.a");
   }
   {
     // No valid path (no route between a and b).
     auto waypoints = netlist_paths::Waypoints("in", "out");
     waypoints.addThroughPoint("multiple_paths.a");
     waypoints.addThroughPoint("multiple_paths.b");
-    auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.empty());
+    auto path = np->getAnyPath(waypoints);
+    BOOST_TEST(path.empty());
   }
 }
 
@@ -386,8 +418,8 @@ BOOST_FIXTURE_TEST_CASE(any_path_multiple_through_points, TestContext) {
     auto waypoints = netlist_paths::Waypoints("in", "out");
     waypoints.addThroughPoint("three_multi_path_stages.all_a");
     waypoints.addThroughPoint("three_multi_path_stages.all_b");
-    auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.size() == 13);
+    auto path = np->getAnyPath(waypoints);
+    BOOST_TEST(path.length() == 13);
   }
   {
     // No valid path (ordering of through points).
@@ -428,14 +460,14 @@ BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
   BOOST_CHECK_NO_THROW(compile("one_avoid_point.sv"));
   {
     auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
-    auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.size() > 0);
+    auto path = np->getAnyPath(waypoints);
+    BOOST_TEST(!path.empty());
   }
   {
     auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
     waypoints.addAvoidPoint("one_avoid_point.foo");
-    auto vertices = np->getAnyPath(waypoints);
-    BOOST_TEST(vertices.empty());
+    auto path = np->getAnyPath(waypoints);
+    BOOST_TEST(path.empty());
   }
   {
     auto waypoints = netlist_paths::Waypoints("i_a", "o_a");
@@ -459,8 +491,8 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
     waypoints.addAvoidPoint("multiple_paths.a");
     auto paths = np->getAllPaths(waypoints);
     BOOST_TEST(paths.size() == 2);
-    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.a");
-    BOOST_TEST(paths[1][3]->getName() != "multiple_paths.a");
+    BOOST_TEST(paths[0].getVertex(3)->getName() != "multiple_paths.a");
+    BOOST_TEST(paths[1].getVertex(3)->getName() != "multiple_paths.a");
   }
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -468,8 +500,8 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
     waypoints.addAvoidPoint("multiple_paths.b");
     auto paths = np->getAllPaths(waypoints);
     BOOST_TEST(paths.size() == 1);
-    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.a");
-    BOOST_TEST(paths[0][3]->getName() != "multiple_paths.b");
+    BOOST_TEST(paths[0].getVertex(3)->getName() != "multiple_paths.a");
+    BOOST_TEST(paths[0].getVertex(3)->getName() != "multiple_paths.b");
   }
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -511,19 +543,19 @@ BOOST_FIXTURE_TEST_CASE(multiple_separate_paths, TestContext) {
   netlist_paths::Options::getInstance().setMatchAnyVertex();
   {
     auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_*"));
-    BOOST_TEST(path.size());
+    BOOST_TEST(path.length());
   }
   {
     auto path = np->getAnyPath(netlist_paths::Waypoints("i_*", "o_a"));
-    BOOST_TEST(path.size());
+    BOOST_TEST(path.length());
   }
   {
     auto path = np->getAnyPath(netlist_paths::Waypoints("i_a", "o_*"));
-    BOOST_TEST(path.size());
+    BOOST_TEST(path.length());
   }
   {
     auto path = np->getAnyPath(netlist_paths::Waypoints("i_b", "o_b"));
-    BOOST_TEST(path.size());
+    BOOST_TEST(path.length());
   }
 }
 
@@ -576,46 +608,46 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   {
     // Any path: in -> a -> b -> out
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
-    BOOST_TEST(vertices.size() == 7);
-    CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
-    CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.a");
-    CHECK_VAR_REPORT(vertices[4], "DST_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(vertices[6], "VAR", "logic", "out");
+    auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+    BOOST_TEST(path.length() == 7);
+    CHECK_VAR_REPORT(path.getVertex(0), "VAR", "logic", "in");
+    CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.a");
+    CHECK_VAR_REPORT(path.getVertex(4), "DST_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
   }
   {
     // Any path: a -> b -> out
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
-    BOOST_TEST(vertices.size() == 5);
-    CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
-    CHECK_VAR_REPORT(vertices[2], "DST_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(vertices[4], "VAR", "logic", "out");
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(path.length() == 5);
+    CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.a");
+    CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(path.getVertex(4), "VAR", "logic", "out");
   }
   {
     // Any path: b -> out
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
-    BOOST_TEST(vertices.size() == 3);
-    CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "out");
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
+    BOOST_TEST(path.length() == 3);
+    CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.b");
+    CHECK_VAR_REPORT(path.getVertex(2), "VAR", "logic", "out");
   }
 
   // Check also the through-register paths don't appear when not traversing registers.
   {
     netlist_paths::Options::getInstance().setTraverseRegisters(false);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
-    BOOST_TEST(vertices.size() == 0);
+    auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+    BOOST_TEST(path.empty());
   }
   {
     netlist_paths::Options::getInstance().setTraverseRegisters(false);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
-    BOOST_TEST(vertices.size() == 0);
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(path.empty());
   }
   {
     netlist_paths::Options::getInstance().setTraverseRegisters(false);
-    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
-    BOOST_TEST(vertices.size() == 0);
+    auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(path.empty());
   }
 
   // Check fanout and fanin path queries.
@@ -626,7 +658,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
     std::vector<std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == endPoints.size());
     for (auto path : paths) {
-      BOOST_TEST((std::find(endPoints.begin(), endPoints.end(), path.back()->getName()) != endPoints.end()));
+      BOOST_TEST((std::find(endPoints.begin(), endPoints.end(), path.getFinishVertex()->getName()) != endPoints.end()));
     }
   }
   {
@@ -636,7 +668,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
     std::vector<std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == startPoints.size());
     for (auto path : paths) {
-      BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.front()->getName()) != startPoints.end()));
+      BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.getStartVertex()->getName()) != startPoints.end()));
     }
   }
 }

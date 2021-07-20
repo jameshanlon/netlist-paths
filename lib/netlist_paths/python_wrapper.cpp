@@ -6,6 +6,7 @@
 #include "netlist_paths/Options.hpp"
 #include "netlist_paths/RunVerilator.hpp"
 #include "netlist_paths/Vertex.hpp"
+#include "netlist_paths/Path.hpp"
 #include "netlist_paths/Waypoints.hpp"
 
 void translateException(const netlist_paths::Exception& e) {
@@ -53,6 +54,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
                         dtype_to_str_overloads());
 
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
+     .def("get_id",            &Vertex::getID)
      .def("get_name",          &Vertex::getName)
      .def("get_ast_type_str",  &Vertex::getSimpleAstTypeStr)
      .def("get_direction_str", &Vertex::getDirStr)
@@ -73,18 +75,33 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
      .def("is_public",         &Vertex::isPublic)
      .def("can_ignore",        &Vertex::canIgnore);
 
-  class_<std::vector<Vertex*> >("Path")
+  class_<Path>("Path")
+    .def("append_vertex",     &Path::appendVertex)
+    .def("append_path",       &Path::appendPath)
+    .def("contains_vertex",   &Path::contains)
+    .def("reverse",           &Path::reverse)
+    .def("get_vertices",      &Path::getVerticesNoConst)
+    .def("get_vertex",        &Path::getVertexNoConst,
+                              return_value_policy<reference_existing_object>())
+    .def("get_start_vertex",  &Path::getStartVertexNoConst,
+                              return_value_policy<reference_existing_object>())
+    .def("get_finish_vertex", &Path::getFinishVertexNoConst,
+                              return_value_policy<reference_existing_object>())
+    .def("length",            &Path::length)
+    .def("empty",             &Path::empty);
+
+  class_<std::vector<Vertex*> >("VertexList")
       .def(vector_indexing_suite<std::vector<Vertex*> >());
 
-  class_<std::vector<std::vector<Vertex*> > >("PathList")
-      .def(vector_indexing_suite<std::vector<std::vector<Vertex*> > >());
+  class_<std::vector<Path> >("PathList")
+      .def(vector_indexing_suite<std::vector<Path> >());
 
   class_<std::vector<DType*> >("DType")
       .def(vector_indexing_suite<std::vector<DType*> >());
 
   class_<Options, boost::noncopyable>("Options", no_init)
-    .def("get_instance",       &Options::getInstancePtr,
-                               return_value_policy<reference_existing_object>())
+    .def("get_instance",                  &Options::getInstancePtr,
+                                          return_value_policy<reference_existing_object>())
     .staticmethod("get_instance")
     .def("set_verbose",                   &Options::setVerbose)
     .def("set_debug",                     &Options::setDebug)

@@ -279,17 +279,23 @@ Exception
 
 .. doxygenclass:: netlist_paths::XMLException
 
+Netlist
+-------
+
+.. doxygenclass:: netlist_paths::Netlist
+   :members:
+
 Options
 -------
 
 .. doxygenclass:: netlist_paths::Options
    :members:
 
-Netlist
--------
+Path
+-----
 
-.. doxygenclass:: netlist_paths::Netlist
-   :members:
+.. doxygenclass:: netlist_paths::Path
+  :members:
 
 RunVerilator
 ------------
@@ -308,7 +314,6 @@ Vertex
 .. doxygenenum:: netlist_paths::VertexNetlistType
 
 .. doxygenenum:: netlist_paths::VertexDirection
-
 
 Waypoints
 ---------

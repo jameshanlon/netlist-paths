@@ -80,21 +80,30 @@ def dump_path_report(netlist, path, fd):
     rows = []
     rows.append(('Name', 'Type', 'DType', 'Statement', 'Location'))
     index = 0
-    while index < len(path):
+    while index < path.length():
         # Var reference and logic statement.
-        if index+1 < len(path) and \
-            not path[index].is_logic() and \
-            path[index+1].is_logic():
-            row = (path[index].get_name(), path[index].get_ast_type_str(), path[index].get_dtype_str(),
-                   path[index+1].get_ast_type_str(), path[index+1].get_location_str())
+        vcurrent = path.get_vertex(index)
+        vnext = path.get_vertex(index+1)
+        if index+1 < path.length() and \
+           not vcurrent.is_logic() and \
+           vnext.is_logic():
+            row = (vcurrent.get_name(),
+                   vcurrent.get_ast_type_str(),
+                   vcurrent.get_dtype_str(),
+                   vnext.get_ast_type_str(),
+                   vnext.get_location_str())
             index += 2
         # Var reference only.
-        elif not path[index].is_logic():
-            row = (path[index].get_name(), path[index].get_ast_type_str(), path[index].get_dtype_str(), '', '')
+        elif not vcurrent.is_logic():
+            row = (vcurrent.get_name(),
+                   vcurrent.get_ast_type_str(),
+                   vcurrent.get_dtype_str(),
+                   '',
+                   '')
             index += 1
         # Statement only.
         else:
-            row = ('', '', '', path[index].get_ast_type_str(), path[index].get_location_str())
+            row = ('', '', '', vcurrent.get_ast_type_str(), vcurrent.get_location_str())
             index += 1
         rows.append(row)
     if len(rows) > 1:

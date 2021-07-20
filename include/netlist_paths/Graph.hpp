@@ -4,70 +4,15 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/filtered_graph.hpp>
-#include <boost/graph/graph_traits.hpp>
 #include <boost/tokenizer.hpp>
 #include "netlist_paths/DTypes.hpp"
 #include "netlist_paths/Edge.hpp"
 #include "netlist_paths/Options.hpp"
+#include "netlist_paths/InternalGraph.hpp"
+#include "netlist_paths/Path.hpp"
 #include "netlist_paths/Vertex.hpp"
 
 namespace netlist_paths {
-
-using InternalGraph = boost::adjacency_list<boost::vecS,
-                                            boost::vecS,
-                                            boost::bidirectionalS,
-                                            Vertex,
-                                            Edge>;
-using VertexID = boost::graph_traits<InternalGraph>::vertex_descriptor;
-using EdgeID = boost::graph_traits<InternalGraph>::edge_descriptor;
-using ParentMap = std::map<VertexID, std::vector<VertexID>>;
-using VertexIDVec = std::vector<VertexID>;
-
-/// An edge predicate for the filtered graph.
-struct EdgePredicate {
-
-  const InternalGraph *graph;
-
-  EdgePredicate() {}
-
-  EdgePredicate(const InternalGraph *graph) : graph(graph) {}
-
-  bool operator()(EdgeID edgeID) const {
-    // Include all edges if traversal of registers is enabled, otherwise only
-    // include edges that do not traverse a register.
-    if (Options::getInstance().shouldTraverseRegisters()) {
-      return true;
-    } else {
-      return !(*graph)[edgeID].isThroughRegister();
-    }
-  }
-};
-
-/// A vertex predicate for the filtered graph.
-struct VertexPredicate {
-  const VertexIDVec *avoidPointIDs;
-
-  VertexPredicate() : avoidPointIDs(nullptr) {}
-
-  VertexPredicate(const VertexIDVec *avoidPointIDs) :
-      avoidPointIDs(avoidPointIDs) {}
-
-  /// Return true if the vertex should be excluded from the search.
-  bool operator()(VertexID vertexID) const {
-    if (!avoidPointIDs) {
-      return true;
-    } else {
-      return !std::binary_search(avoidPointIDs->begin(), avoidPointIDs->end(),
-                                 vertexID);
-    }
-  }
-};
-
-using FilteredInternalGraph = boost::filtered_graph<InternalGraph,
-                                                    EdgePredicate,
-                                                    VertexPredicate>;
 
 /// A class representing a netlist graph.
 class Graph {
@@ -83,14 +28,14 @@ private:
 
   VertexIDVec getAdjacentVerticesInEdges(VertexID vertex) const;
 
-  VertexIDVec determinePath(ParentMap &parentMap,
-                            VertexIDVec path,
-                            VertexID startVertexId,
-                            VertexID endVertexId) const;
+  Path determinePath(ParentMap &parentMap,
+                     Path path,
+                     VertexID startVertexId,
+                     VertexID endVertexId) const;
 
   void determineAllPaths(ParentMap &parentMap,
-                         std::vector<VertexIDVec> &result,
-                         VertexIDVec path,
+                         std::vector<Path> &result,
+                         Path path,
                          VertexID startVertex,
                          VertexID endVertex) const;
 
@@ -101,10 +46,19 @@ public:
   // Graph construction methods.
   //===--------------------------------------------------------------------===//
 
+  /// Add a Vertex object to the graph.
+  VertexID addVertex(Vertex &vertex) {
+    auto vertexID = boost::add_vertex(vertex, graph);
+    graph[vertexID].setID(vertexID);
+    return vertexID;
+  }
+
   /// Add a logic vertex to the graph.
   VertexID addLogicVertex(VertexAstType type, Location location) {
     auto vertex = Vertex(type, location);
-    return boost::add_vertex(vertex, graph);
+    auto vertexID = boost::add_vertex(vertex, graph);
+    graph[vertexID].setID(vertexID);
+    return vertexID;
   }
 
   /// Add a variable vertex to the graph.
@@ -118,7 +72,9 @@ public:
                         bool isPublic) {
     auto vertex = Vertex(type, direction, location, dtype, name, isParam,
                          paramValue, isPublic);
-    return boost::add_vertex(vertex, graph);
+    auto vertexID = boost::add_vertex(vertex, graph);
+    graph[vertexID].setID(vertexID);
+    return vertexID;
   }
 
   /// Add an edge to the graph. Don't allow multi-edges.
@@ -206,10 +162,10 @@ public:
   //===--------------------------------------------------------------------===//
 
   /// Return a list of paths from a start vertex.
-  std::vector<VertexIDVec> getAllFanOut(VertexID startVertex) const;
+  std::vector<Path> getAllFanOut(VertexID startVertex) const;
 
   /// Return a list of paths to an end vertex.
-  std::vector<VertexIDVec> getAllFanIn(VertexID endVertex) const;
+  std::vector<Path> getAllFanIn(VertexID endVertex) const;
 
   /// Count the fanout from a start vertex.
   size_t getfanOutDegree(VertexID startVertex);
@@ -219,13 +175,13 @@ public:
 
   /// Return any path between the specified waypoints, avoiding the specified
   /// mid points.
-  VertexIDVec getAnyPointToPoint(const VertexIDVec &waypointIDs,
-                                 const VertexIDVec &avoidPointIDs) const;
+  Path getAnyPointToPoint(const VertexIDVec &waypointIDs,
+                          const VertexIDVec &avoidPointIDs) const;
 
   /// Return all paths between the specified waypoints, avoiding the specified
   /// mid points.
-  std::vector<VertexIDVec> getAllPointToPoint(const VertexIDVec &waypoints,
-                                              const VertexIDVec &avoidPointIDs) const;
+  std::vector<Path> getAllPointToPoint(const VertexIDVec &waypoints,
+                                       const VertexIDVec &avoidPointIDs) const;
 
   //===--------------------------------------------------------------------===//
   // Miscellaneous getters and setters.
