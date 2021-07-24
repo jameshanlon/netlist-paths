@@ -1,10 +1,10 @@
-add_executable(netlist-paths main.cpp)
+add_executable(netlist-paths-old main.cpp)
 
-target_link_libraries(netlist-paths
+target_link_libraries(netlist-paths-old
                       netlist_paths
                       ${Boost_LIBRARIES}
                       ${CMAKE_DL_LIBS} # Required for Boost_DLL
                       pthread)
 
-#install(TARGETS netlist-paths
-#        DESTINATION bin)
+install(TARGETS netlist-paths-old
+        DESTINATION bin)
