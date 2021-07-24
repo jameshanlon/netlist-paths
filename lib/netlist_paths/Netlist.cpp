@@ -94,7 +94,7 @@ VertexID Netlist::getStartVertex(const std::string &name, bool matchAny) const {
   auto vertices = graph.getStartVertices(name);
   if (!matchAny) {
     if (vertices.size() > 1) {
-      throw Exception(reportMultipleMatches(vertices, name, "begin point"));
+      throw Exception(reportMultipleMatches(vertices, name, "start point"));
     }
     if (vertices.size() == 1) {
       return vertices.front();

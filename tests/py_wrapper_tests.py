@@ -26,6 +26,12 @@ class TestPyWrapper(unittest.TestCase):
     def test_verilator_bin(self):
         self.assertTrue(os.path.exists(defs.INSTALL_PREFIX))
 
+    def test_option_ignore_hierarchy_markers(self):
+        np = self.compile_test('counter.sv')
+        Options.get_instance().set_ignore_hierarchy_markers(True)
+        self.assertTrue(np.path_exists(Waypoints('counter/counter_q', 'counter/o_count')))
+        self.assertTrue(np.path_exists(Waypoints('counter_counter_q', 'counter_o_count')))
+
     def test_adder_path_points(self):
         """
         Test basic querying of path start and end points.
@@ -201,8 +207,8 @@ class TestPyWrapper(unittest.TestCase):
       np = self.compile_test('aliases_sub_reg.sv')
       Options.get_instance().set_restrict_start_points(False)
       Options.get_instance().set_restrict_end_points(False)
-      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out',       'aliases_sub_reg.u_b.in')))
-      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out',       'aliases_sub_reg.u_b.client_out')))
+      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.in')))
+      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.client_out')))
 
 
 if __name__ == '__main__':

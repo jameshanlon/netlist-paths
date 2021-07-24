@@ -10,6 +10,7 @@
 #include <regex>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/iteration_macros.hpp>
@@ -307,6 +308,20 @@ VertexIDVec Graph::getVerticesRegex(const std::string &name,
 
 VertexID Graph::getVertexExact(const std::string &name,
                                VertexNetlistType graphType) const {
+  if (Options::getInstance().shouldIgnoreHierarchyMarkers()) {
+    // If hierarchy markers should be ignored, then use regex matching, but
+    // constrain the supplied name to match exactly and expect only one matching
+    // vertex.
+    auto matchingVertices = getVerticesRegex(boost::str(boost::format("^%s$") % name),
+                                             graphType);
+    if (matchingVertices.size() > 1) {
+      throw Exception(std::string("malformed exact pattern: ") + name);
+    }
+    if (matchingVertices.size() == 0) {
+      return nullVertex();
+    }
+    return matchingVertices.front();
+  }
   BGL_FORALL_VERTICES(v, graph, InternalGraph) {
     if (vertexTypeMatch(v, graphType) &&
         graph[v].getName() == name) {

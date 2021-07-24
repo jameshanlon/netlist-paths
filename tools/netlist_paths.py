@@ -191,7 +191,7 @@ def main():
                         help='Enable wildcard matching of names')
     parser.add_argument('--ignore-hierarchy-markers',
                         action='store_const',
-                        const=lambda: Options.ignore_hierarchy_markers(),
+                        const=lambda: Options.get_instance().set_ignore_hierarchy_markers(True),
                         default=lambda *args: None,
                         help='Ignore hierarchy markers: _ . /')
     parser.add_argument('-v', '--verbose',

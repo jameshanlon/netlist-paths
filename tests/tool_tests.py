@@ -36,6 +36,14 @@ class TestTool(unittest.TestCase):
         returncode, _ = self.run_np(['--compile', test_path])
         self.assertEqual(returncode, 0)
 
+    def test_option_ignore_hierarchy_markers(self):
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv')
+        returncode, stdout = self.run_np(['--compile', test_path,
+                                          '--from', 'counter/counter_q',
+                                          '--to', 'counter/o_count',
+                                          '--ignore-hierarchy-markers'])
+        self.assertEqual(returncode, 0)
+
     def test_dump_names(self):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv')
         returncode, stdout = self.run_np(['--compile', test_path, '--dump-names'])

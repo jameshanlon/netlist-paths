@@ -115,6 +115,11 @@ BOOST_FIXTURE_TEST_CASE(hierarchy_separators_counter, TestContext) {
   BOOST_CHECK_NO_THROW(compile("counter.sv", "counter"));
   netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(true);
 
+  netlist_paths::Options::getInstance().setMatchExact();
+  BOOST_TEST(np->regExists("counter.counter_q")); // Heir dot
+  BOOST_TEST(np->regExists("counter/counter_q")); // Heir slash
+  BOOST_TEST(np->regExists("counter_counter_q")); // Flat
+
   netlist_paths::Options::getInstance().setMatchRegex();
   BOOST_TEST(np->regExists("counter.counter_q")); // Heir dot
   BOOST_TEST(np->regExists("counter/counter_q")); // Heir slash
