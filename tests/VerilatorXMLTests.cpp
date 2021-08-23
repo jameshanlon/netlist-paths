@@ -53,3 +53,11 @@ BOOST_FIXTURE_TEST_CASE(assign_alias_regs, TestContext) {
   BOOST_TEST(np->regExists("assign_alias_regs.sum.add.register_q"));
   BOOST_TEST(np->regExists("assign_alias_regs.__Vcellout__sum.add__register_q"));
 }
+
+/// Verilator can introduce references to variables in packages that do not
+/// have a corresponding variable declaration in a varscope. See
+/// https://github.com/jameshanlon/netlist-paths/issues/7
+BOOST_FIXTURE_TEST_CASE(var_no_scope, TestContext) {
+  BOOST_CHECK_NO_THROW(compile("var_no_scope.sv"));
+  BOOST_TEST(!np->isEmpty());
+}
