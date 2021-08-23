@@ -22,6 +22,7 @@ enum class VertexAstType {
   ASSIGN_ALIAS,
   ASSIGN_DLY,
   ASSIGN_W,
+  CASE,
   C_FUNC,
   C_METHOD_CALL,
   C_STMT,
@@ -30,8 +31,10 @@ enum class VertexAstType {
   IF,
   INITIAL,
   INSTANCE,
+  JUMP_BLOCK,
   LOGIC,
   PORT,
+  READ_MEM,
   SEN_GATE,
   SEN_ITEM,
   SRC_REG,
@@ -79,6 +82,7 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "ASSIGN_ALIAS",  VertexAstType::ASSIGN_ALIAS },
       { "ASSIGN_DLY",    VertexAstType::ASSIGN_DLY },
       { "ASSIGN_W",      VertexAstType::ASSIGN_W },
+      { "CASE",          VertexAstType::CASE },
       { "C_FUNC",        VertexAstType::C_FUNC },
       { "C_METHOD_CALL", VertexAstType::C_METHOD_CALL },
       { "C_STMT",        VertexAstType::C_STMT },
@@ -87,8 +91,10 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "IF",            VertexAstType::IF },
       { "INITIAL",       VertexAstType::INITIAL },
       { "INSTANCE",      VertexAstType::INSTANCE },
+      { "JUMP_BLOCK",    VertexAstType::JUMP_BLOCK },
       { "LOGIC",         VertexAstType::LOGIC },
       { "PORT",          VertexAstType::PORT },
+      { "READ_MEM",      VertexAstType::READ_MEM },
       { "SEN_GATE",      VertexAstType::SEN_GATE },
       { "SEN_ITEM",      VertexAstType::SEN_ITEM },
       { "SRC_REG",       VertexAstType::SRC_REG },
@@ -109,6 +115,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN_ALIAS";
     case VertexAstType::ASSIGN_DLY:    return "ASSIGN_DLY";
     case VertexAstType::ASSIGN_W:      return "ASSIGN_W";
+    case VertexAstType::CASE:          return "CASE";
     case VertexAstType::C_FUNC:        return "C_FUNC";
     case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
     case VertexAstType::C_STMT:        return "C_STMT";
@@ -120,6 +127,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::INVALID:       return "INVALID";
     case VertexAstType::LOGIC:         return "LOGIC";
     case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::READ_MEM:      return "READ_MEM";
     case VertexAstType::SEN_GATE:      return "SEN_GATE";
     case VertexAstType::SEN_ITEM:      return "SEN_ITEM";
     case VertexAstType::SRC_REG:       return "SRC_REG";
@@ -139,6 +147,7 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN";
     case VertexAstType::ASSIGN_DLY:    return "ASSIGN";
     case VertexAstType::ASSIGN_W:      return "ASSIGN";
+    case VertexAstType::CASE:          return "CASE";
     case VertexAstType::C_FUNC:        return "C_FUNCTION";
     case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
     case VertexAstType::C_STMT:        return "C_STATEMENT";
@@ -150,6 +159,7 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::INVALID:       return "INVALID";
     case VertexAstType::LOGIC:         return "LOGIC";
     case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::READ_MEM:      return "READ_MEM";
     case VertexAstType::SEN_GATE:      return "SEN";
     case VertexAstType::SEN_ITEM:      return "SEN";
     case VertexAstType::SRC_REG:       return "REG";
