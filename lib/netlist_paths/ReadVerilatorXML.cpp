@@ -11,30 +11,46 @@
 using namespace netlist_paths;
 
 enum class AstNode {
+  ADD,
   ALWAYS,
   ALWAYS_PUBLIC,
+  ARRAY_SEL,
   ASSIGN,
   ASSIGN_ALIAS,
   ASSIGN_DLY,
   ASSIGN_W,
   BASIC_DTYPE,
+  COMMENT,
+  COND,
   CONST,
   CONT_ASSIGN,
   C_FUNC,
+  C_NEW,
+  C_METHOD_CALL,
+  C_STMT,
+  CLASS_REF_DTYPE,
   ENUM,
+  EXTEND,
+  EQ,
+  GTS,
+  IF,
   IFACE_REF_DTYPE,
   INITIAL,
   INSTANCE,
   INTF_REF,
   MEMBER_DTYPE,
   MODULE,
+  OR,
   PACKED_ARRAY,
   RANGE,
   REF_DTYPE,
   SCOPE,
+  SEL,
   SEN_GATE,
   SEN_ITEM,
+  SEN_TREE,
   STRUCT_DTYPE,
+  TEXT,
   TOP_SCOPE,
   TYPEDEF,
   TYPE_TABLE,
@@ -43,35 +59,53 @@ enum class AstNode {
   VAR,
   VAR_REF,
   VAR_SCOPE,
+  VOID_DTYPE,
+  WHILE,
   INVALID
 };
 
 /// Convert a string name into an AstNode type.
 static AstNode resolveNode(const char *name) {
   static std::map<std::string, AstNode> mappings {
+      { "add",              AstNode::ADD },
       { "always",           AstNode::ALWAYS },
       { "alwayspublic",     AstNode::ALWAYS_PUBLIC },
+      { "arraysel",         AstNode::ARRAY_SEL },
       { "assign",           AstNode::ASSIGN },
       { "assignalias",      AstNode::ASSIGN_ALIAS },
       { "assigndly",        AstNode::ASSIGN_DLY },
       { "assignw",          AstNode::ASSIGN_W },
       { "basicdtype",       AstNode::BASIC_DTYPE },
       { "cfunc",            AstNode::C_FUNC },
+      { "cnew",             AstNode::C_NEW },
+      { "cmethodcall",      AstNode::C_METHOD_CALL },
+      { "cstmt",            AstNode::C_STMT },
+      { "comment",          AstNode::COMMENT },
+      { "cond",             AstNode::COND },
       { "const",            AstNode::CONST },
       { "contassign",       AstNode::CONT_ASSIGN },
+      { "classrefdtype",    AstNode::CLASS_REF_DTYPE },
       { "enumdtype",        AstNode::ENUM },
+      { "extend",           AstNode::EXTEND },
+      { "eq",               AstNode::EQ },
+      { "gts",              AstNode::GTS },
+      { "if",               AstNode::IF },
       { "ifacerefdtype",    AstNode::IFACE_REF_DTYPE },
       { "initial",          AstNode::INITIAL },
       { "instance",         AstNode::INSTANCE },
       { "intfref",          AstNode::INTF_REF },
       { "memberdtype",      AstNode::MEMBER_DTYPE },
       { "module",           AstNode::MODULE },
+      { "or",               AstNode::OR, },
       { "packarraydtype",   AstNode::PACKED_ARRAY },
       { "refdtype",         AstNode::REF_DTYPE },
       { "scope",            AstNode::SCOPE },
+      { "sel",              AstNode::SEL },
       { "sengate",          AstNode::SEN_GATE },
       { "senitem",          AstNode::SEN_ITEM },
+      { "sentree",          AstNode::SEN_TREE },
       { "structdtype",      AstNode::STRUCT_DTYPE },
+      { "text",             AstNode::TEXT },
       { "topscope",         AstNode::TOP_SCOPE },
       { "typedef",          AstNode::TYPEDEF },
       { "typetable",        AstNode::TYPE_TABLE },
@@ -80,6 +114,8 @@ static AstNode resolveNode(const char *name) {
       { "var",              AstNode::VAR },
       { "varref",           AstNode::VAR_REF },
       { "varscope",         AstNode::VAR_SCOPE },
+      { "voiddtype",        AstNode::VOID_DTYPE },
+      { "while",            AstNode::WHILE },
   };
   auto it = mappings.find(name);
   return (it != mappings.end()) ? it->second : AstNode::INVALID;
@@ -88,38 +124,58 @@ static AstNode resolveNode(const char *name) {
 void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   // Handle node by type.
   switch (resolveNode(node->name())) {
+  case AstNode::ADD:             visitAdd(node);                         break;
   case AstNode::ALWAYS:          visitAlways(node);                      break;
   case AstNode::ALWAYS_PUBLIC:   visitAlways(node);                      break;
+  case AstNode::ARRAY_SEL:       visitArraySel(node);                    break;
   case AstNode::ASSIGN:          visitAssign(node);                      break;
   case AstNode::ASSIGN_ALIAS:    visitAssignAlias(node);                 break;
   case AstNode::ASSIGN_DLY:      visitAssignDly(node);                   break;
   case AstNode::ASSIGN_W:        visitAssign(node);                      break;
   case AstNode::BASIC_DTYPE:     visitBasicDtype(node);                  break;
+  case AstNode::COMMENT:         visitComment(node);                     break;
+  case AstNode::COND:            visitCond(node);                        break;
+  case AstNode::CONST:           visitConst(node);                       break;
   case AstNode::CONT_ASSIGN:     visitAssign(node);                      break;
   case AstNode::C_FUNC:          visitCFunc(node);                       break;
+  case AstNode::C_NEW:           visitCNew(node);                        break;
+  case AstNode::C_METHOD_CALL:   visitCMethodCall(node);                 break;
+  case AstNode::C_STMT:          visitCStmt(node);                       break;
+  case AstNode::CLASS_REF_DTYPE: visitClassRefDType(node);               break;
   case AstNode::ENUM:            visitEnumDType(node);                   break;
+  case AstNode::EXTEND:          visitExtend(node);                      break;
+  case AstNode::EQ:              visitEq(node);                          break;
+  case AstNode::GTS:             visitGts(node);                         break;
+  case AstNode::IF:              visitIf(node);                          break;
   case AstNode::IFACE_REF_DTYPE: visitInterfaceRefDType(node);           break;
   case AstNode::INITIAL:         visitInitial(node);                     break;
   case AstNode::INSTANCE:        visitInstance(node);                    break;
   case AstNode::INTF_REF:        visitInterfaceRef(node);                break;
   case AstNode::MEMBER_DTYPE:    visitMemberDType(node);                 break;
+  case AstNode::OR:              visitOr(node);                          break;
   case AstNode::PACKED_ARRAY:    visitArrayDType(node, true);            break;
   case AstNode::REF_DTYPE:       visitRefDtype(node);                    break;
   case AstNode::SCOPE:           visitScope(node);                       break;
+  case AstNode::SEL:             visitSel(node);                         break;
   case AstNode::SEN_GATE:        visitSenGate(node);                     break;
   case AstNode::SEN_ITEM:        visitSenItem(node);                     break;
+  case AstNode::SEN_TREE:        visitSenTree(node);                     break;
   case AstNode::STRUCT_DTYPE:    visitAggregateDType<StructDType>(node); break;
   case AstNode::TOP_SCOPE:       visitScope(node);                       break;
   case AstNode::TYPEDEF:         visitTypedef(node);                     break;
   case AstNode::UNION_DTYPE:     visitAggregateDType<UnionDType>(node);  break;
   case AstNode::UNPACKED_ARRAY:  visitArrayDType(node, false);           break;
+  case AstNode::TEXT:            visitText(node);                        break;
   case AstNode::VAR:             visitVar(node);                         break;
   case AstNode::VAR_REF:         visitVarRef(node);                      break;
   case AstNode::VAR_SCOPE:       visitVarScope(node);                    break;
+  case AstNode::VOID_DTYPE:      visitVoidDType(node);                   break;
+  case AstNode::WHILE:           visitWhile(node);                       break;
   default:
-    BOOST_LOG_TRIVIAL(debug) << "Unrecognised node: " << node->name();
-    visitNode(node);
-    break;
+    throw XMLException(std::string("Unrecognised node ")+node->name());
+    //BOOST_LOG_TRIVIAL(debug) << "Unrecognised node: " << node->name();
+    //visitNode(node);
+    //break;
   }
 }
 
@@ -358,12 +414,21 @@ void ReadVerilatorXML::visitNode(XMLNode *node) {
   iterateChildren(node);
 }
 
+void ReadVerilatorXML::visitAdd(XMLNode *node) {
+  iterateChildren(node);
+}
+
 void ReadVerilatorXML::visitModule(XMLNode *node) {
   iterateChildren(node);
 }
 
 void ReadVerilatorXML::visitScope(XMLNode *node) {
   newScope(node);
+}
+
+void ReadVerilatorXML::visitArraySel(XMLNode *node) {
+  //visitVarRef();
+  //visitVarRef();
 }
 
 void ReadVerilatorXML::visitAssign(XMLNode *node) {
@@ -388,8 +453,36 @@ void ReadVerilatorXML::visitInitial(XMLNode *node) {
   newStatement(node, VertexAstType::INITIAL);
 }
 
+void ReadVerilatorXML::visitCond(XMLNode *node) {
+  // Skip.
+}
+
+void ReadVerilatorXML::visitComment(XMLNode *node) {
+  // Skip.
+}
+
+void ReadVerilatorXML::visitExtend(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitEq(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitGts(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitIf(XMLNode *node) {
+  newStatement(node, VertexAstType::IF);
+}
+
 void ReadVerilatorXML::visitInstance(XMLNode *node) {
   newStatement(node, VertexAstType::INSTANCE);
+}
+
+void ReadVerilatorXML::visitOr(XMLNode *node) {
+  iterateChildren(node);
 }
 
 void ReadVerilatorXML::visitSenItem(XMLNode *node) {
@@ -400,12 +493,28 @@ void ReadVerilatorXML::visitSenItem(XMLNode *node) {
   }
 }
 
+void ReadVerilatorXML::visitSenTree(XMLNode *node) {
+  iterateChildren(node);
+}
+
 void ReadVerilatorXML::visitSenGate(XMLNode *node) {
   newStatement(node, VertexAstType::SEN_GATE);
 }
 
 void ReadVerilatorXML::visitCFunc(XMLNode *node) {
   newStatement(node, VertexAstType::C_FUNC);
+}
+
+void ReadVerilatorXML::visitCNew(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitCMethodCall(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitCStmt(XMLNode *node) {
+  newStatement(node, VertexAstType::C_STMT);
 }
 
 void ReadVerilatorXML::visitVar(XMLNode *node) {
@@ -426,12 +535,24 @@ void ReadVerilatorXML::visitInterfaceRef(XMLNode *node) {
   iterateChildren(node);
 }
 
+void ReadVerilatorXML::visitSel(XMLNode *node) {
+  iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitText(XMLNode *node) {
+  // Pass.
+}
+
 void ReadVerilatorXML::visitTypeTable(XMLNode *node) {
   iterateChildren(node);
 }
 
 void ReadVerilatorXML::visitTypedef(XMLNode *node) {
   iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitWhile(XMLNode *node) {
+  newStatement(node, VertexAstType::WHILE);
 }
 
 void ReadVerilatorXML::visitBasicDtype(XMLNode *node) {
@@ -582,6 +703,25 @@ void ReadVerilatorXML::visitEnumDType(XMLNode *node) {
 
 void ReadVerilatorXML::visitInterfaceRefDType(XMLNode *node) {
  // To do.
+}
+
+void ReadVerilatorXML::visitVoidDType(XMLNode *node) {
+  auto id = node->first_attribute("id")->value();
+  if (dtypeMappings.count(id) == 0) {
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    dtypeMappings[id] = std::make_shared<VoidDType>(location);
+    addDtype(dtypeMappings[id]);
+  }
+}
+
+void ReadVerilatorXML::visitClassRefDType(XMLNode *node) {
+  auto id = node->first_attribute("id")->value();
+  if (dtypeMappings.count(id) == 0) {
+    auto name = node->first_attribute("name")->value();
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    dtypeMappings[id] = std::make_shared<ClassRefDType>(name, location);
+    addDtype(dtypeMappings[id]);
+  }
 }
 
 void ReadVerilatorXML::readXML(const std::string &filename) {

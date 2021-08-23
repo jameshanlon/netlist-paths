@@ -266,12 +266,34 @@ public:
   void setSubDType(std::shared_ptr<DType> sdt) { subDType = sdt; }
 
   virtual const std::string toString(const std::string suffix="") const override {
-    return std::string("emum") + suffix;
+    return std::string("enum") + suffix;
   }
 
   virtual size_t getWidth() const override {
     return subDType->getWidth();
   }
+};
+
+class ClassRefDType : public DType {
+public:
+
+  /// Construct a class reference data type.
+  ///
+  /// \param name     The name of the type.
+  /// \param location The source location of the type.
+  ClassRefDType(const std::string &name, Location &location) :
+      DType(name, location) {}
+
+};
+
+class VoidDType : public DType {
+public:
+
+  /// Construct a void data type.
+  ///
+  /// \param location The source location of the type.
+  VoidDType(Location &location):
+      DType(std::string(), location) {}
 };
 
 } // End namespace.
