@@ -119,7 +119,8 @@ private:
       matchOneVertex(true),
       traverseRegisters(false),
       restrictStartPoints(true),
-      restrictEndPoints(true) {
+      restrictEndPoints(true),
+      errorOnUnmatchedNode(false) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
     setQuiet();
