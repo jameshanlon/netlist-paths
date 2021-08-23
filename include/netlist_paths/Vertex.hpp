@@ -26,8 +26,10 @@ enum class VertexAstType {
   C_FUNC,
   C_METHOD_CALL,
   C_STMT,
+  DISPLAY,
   DST_REG,
   DST_REG_ALIAS,
+  FINISH,
   IF,
   INITIAL,
   INSTANCE,
@@ -86,8 +88,10 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "C_FUNC",        VertexAstType::C_FUNC },
       { "C_METHOD_CALL", VertexAstType::C_METHOD_CALL },
       { "C_STMT",        VertexAstType::C_STMT },
+      { "DISPLAY",       VertexAstType::DISPLAY },
       { "DST_REG",       VertexAstType::DST_REG },
       { "DST_REG_ALIAS", VertexAstType::DST_REG_ALIAS },
+      { "FINISH",        VertexAstType::FINISH },
       { "IF",            VertexAstType::IF },
       { "INITIAL",       VertexAstType::INITIAL },
       { "INSTANCE",      VertexAstType::INSTANCE },
@@ -119,8 +123,10 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::C_FUNC:        return "C_FUNC";
     case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
     case VertexAstType::C_STMT:        return "C_STMT";
+    case VertexAstType::DISPLAY:       return "DISPLAY";
     case VertexAstType::DST_REG:       return "DST_REG";
     case VertexAstType::DST_REG_ALIAS: return "DST_REG_ALIAS";
+    case VertexAstType::FINISH:        return "FINISH";
     case VertexAstType::IF:            return "IF";
     case VertexAstType::INITIAL:       return "INITIAL";
     case VertexAstType::INSTANCE:      return "INSTANCE";
@@ -151,8 +157,10 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::C_FUNC:        return "C_FUNCTION";
     case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
     case VertexAstType::C_STMT:        return "C_STATEMENT";
+    case VertexAstType::DISPLAY:       return "DISPLAY";
     case VertexAstType::DST_REG:       return "REG";
     case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
+    case VertexAstType::FINISH:        return "FINISH";
     case VertexAstType::IF:            return "IF";
     case VertexAstType::INITIAL:       return "INITIAL";
     case VertexAstType::INSTANCE:      return "INSTANCE";
@@ -366,10 +374,11 @@ public:
            astType == VertexAstType::C_FUNC ||
            astType == VertexAstType::C_METHOD_CALL ||
            astType == VertexAstType::C_STMT ||
+           astType == VertexAstType::DISPLAY ||
+           astType == VertexAstType::FINISH ||
            astType == VertexAstType::IF ||
            astType == VertexAstType::INITIAL ||
            astType == VertexAstType::SEN_GATE ||
-           astType == VertexAstType::SEN_ITEM ||
            astType == VertexAstType::WHILE;
   }
 

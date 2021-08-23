@@ -33,11 +33,15 @@ enum class AstNode {
   C_METHOD_CALL,
   C_NEW,
   C_STMT,
+  DISPLAY,
+  DIV,
+  DIVS,
   ENUM_DTYPE,
   EQ,
   EQWILD,
   EXTEND,
   EXTENDS,
+  FINISH,
   GT,
   GTE,
   GTES,
@@ -55,6 +59,10 @@ enum class AstNode {
   LTES,
   LTS,
   MEMBER_DTYPE,
+  MOD,
+  MODS,
+  MOD_DIV,
+  MOD_DIVS,
   MODULE,
   MUL,
   MULS,
@@ -82,6 +90,7 @@ enum class AstNode {
   SHIFTRS,
   STRUCT_DTYPE,
   SUB,
+  TEST_PLUS_ARGS,
   TEXT,
   TOP_SCOPE,
   TYPEDEF,
@@ -121,12 +130,16 @@ static AstNode resolveNode(const char *name) {
       { "cond",             AstNode::COND },
       { "const",            AstNode::CONST },
       { "contassign",       AstNode::CONT_ASSIGN },
+      { "display",          AstNode::DISPLAY },
+      { "div",              AstNode::DIV },
+      { "divs",             AstNode::DIVS },
       { "cstmt",            AstNode::C_STMT },
       { "enumdtype",        AstNode::ENUM_DTYPE },
       { "eq",               AstNode::EQ },
       { "eqwild",           AstNode::EQWILD },
       { "extend",           AstNode::EXTEND },
       { "extends",          AstNode::EXTENDS },
+      { "finish",           AstNode::FINISH },
       { "gt",               AstNode::GT },
       { "gte",              AstNode::GTE },
       { "gtes",             AstNode::GTES },
@@ -144,6 +157,10 @@ static AstNode resolveNode(const char *name) {
       { "ltes",             AstNode::LTES },
       { "lts",              AstNode::LTS },
       { "memberdtype",      AstNode::MEMBER_DTYPE },
+      { "mod",              AstNode::MOD },
+      { "mods",             AstNode::MODS },
+      { "moddiv",           AstNode::MOD_DIV },
+      { "moddivs",          AstNode::MOD_DIVS },
       { "module",           AstNode::MODULE },
       { "mul",              AstNode::MUL },
       { "muls",             AstNode::MULS },
@@ -170,6 +187,7 @@ static AstNode resolveNode(const char *name) {
       { "shiftrs",          AstNode::SHIFTRS },
       { "structdtype",      AstNode::STRUCT_DTYPE },
       { "sub",              AstNode::SUB },
+      { "testplusargs",     AstNode::TEST_PLUS_ARGS },
       { "text",             AstNode::TEXT },
       { "topscope",         AstNode::TOP_SCOPE },
       { "typedef",          AstNode::TYPEDEF },
@@ -212,11 +230,13 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::C_METHOD_CALL:   visitCMethodCall(node);                 break;
   case AstNode::C_NEW:           visitCNew(node);                        break;
   case AstNode::C_STMT:          visitCStmt(node);                       break;
+  case AstNode::DISPLAY:         visitDisplay(node);                     break;
   case AstNode::ENUM_DTYPE:      visitEnumDType(node);                   break;
   case AstNode::EQ:              visitNode(node);                        break;
   case AstNode::EQWILD:          visitNode(node);                        break;
   case AstNode::EXTEND:          visitNode(node);                        break;
   case AstNode::EXTENDS:         visitNode(node);                        break;
+  case AstNode::FINISH:          visitFinish(node);                      break;
   case AstNode::GT:              visitNode(node);                        break;
   case AstNode::GTE:             visitNode(node);                        break;
   case AstNode::GTES:            visitNode(node);                        break;
@@ -234,6 +254,10 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::LTES:            visitNode(node);                        break;
   case AstNode::LTS:             visitNode(node);                        break;
   case AstNode::MEMBER_DTYPE:    visitMemberDType(node);                 break;
+  case AstNode::MOD:             visitNode(node);                        break;
+  case AstNode::MODS:            visitNode(node);                        break;
+  case AstNode::MOD_DIV:         visitNode(node);                        break;
+  case AstNode::MOD_DIVS:        visitNode(node);                        break;
   case AstNode::MUL:             visitNode(node);                        break;
   case AstNode::MULS:            visitNode(node);                        break;
   case AstNode::NEGATE:          visitNode(node);                        break;
@@ -259,6 +283,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::SHIFTRS:         visitNode(node);                        break;
   case AstNode::STRUCT_DTYPE:    visitAggregateDType<StructDType>(node); break;
   case AstNode::SUB:             visitNode(node);                        break;
+  case AstNode::TEST_PLUS_ARGS:  visitNode(node);                        break;
   case AstNode::TEXT:            visitNode(node);                        break;
   case AstNode::TOP_SCOPE:       visitScope(node);                       break;
   case AstNode::TYPEDEF:         visitTypedef(node);                     break;
@@ -272,9 +297,8 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::XOR:             visitNode(node);                        break;
   default:
     //throw XMLException(std::string("Unrecognised node ")+node->name());
-    std::cout<<std::string("Unrecognised node ")+node->name()<<"\n";
-    //BOOST_LOG_TRIVIAL(debug) << "Unrecognised node: " << node->name();
-    //visitNode(node);
+    BOOST_LOG_TRIVIAL(warning) << "Unrecognised node: " << node->name();
+    visitNode(node);
     //break;
   }
 }
@@ -584,6 +608,14 @@ void ReadVerilatorXML::visitCMethodCall(XMLNode *node) {
 
 void ReadVerilatorXML::visitCStmt(XMLNode *node) {
   newStatement(node, VertexAstType::C_STMT);
+}
+
+void ReadVerilatorXML::visitDisplay(XMLNode *node) {
+  newStatement(node, VertexAstType::DISPLAY);
+}
+
+void ReadVerilatorXML::visitFinish(XMLNode *node) {
+  newStatement(node, VertexAstType::FINISH);
 }
 
 void ReadVerilatorXML::visitVar(XMLNode *node) {
