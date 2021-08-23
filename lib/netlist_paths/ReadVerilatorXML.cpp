@@ -227,8 +227,8 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::CONST:           visitNode(node);                        break; // Don't visit consts unless expected
   case AstNode::CONT_ASSIGN:     visitAssign(node);                      break;
   case AstNode::C_FUNC:          visitCFunc(node);                       break;
-  case AstNode::C_METHOD_CALL:   visitCMethodCall(node);                 break;
-  case AstNode::C_NEW:           visitCNew(node);                        break;
+  case AstNode::C_METHOD_CALL:   visitNode(node);                        break;
+  case AstNode::C_NEW:           visitNode(node);                        break;
   case AstNode::C_STMT:          visitCStmt(node);                       break;
   case AstNode::DISPLAY:         visitDisplay(node);                     break;
   case AstNode::ENUM_DTYPE:      visitEnumDType(node);                   break;
@@ -296,10 +296,13 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::WHILE:           visitWhile(node);                       break;
   case AstNode::XOR:             visitNode(node);                        break;
   default:
-    //throw XMLException(std::string("Unrecognised node ")+node->name());
-    BOOST_LOG_TRIVIAL(warning) << "Unrecognised node: " << node->name();
-    visitNode(node);
-    //break;
+    if (Options::getInstance().isErrorOnUnmatchedNode()) {
+      throw XMLException(std::string("Unrecognised node ")+node->name());
+    } else {
+      BOOST_LOG_TRIVIAL(warning) << "Unrecognised node: " << node->name();
+      visitNode(node);
+      break;
+    }
   }
 }
 
@@ -596,14 +599,6 @@ void ReadVerilatorXML::visitSenGate(XMLNode *node) {
 
 void ReadVerilatorXML::visitCFunc(XMLNode *node) {
   newStatement(node, VertexAstType::C_FUNC);
-}
-
-void ReadVerilatorXML::visitCNew(XMLNode *node) {
-  iterateChildren(node);
-}
-
-void ReadVerilatorXML::visitCMethodCall(XMLNode *node) {
-  iterateChildren(node);
 }
 
 void ReadVerilatorXML::visitCStmt(XMLNode *node) {

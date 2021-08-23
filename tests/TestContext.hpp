@@ -47,6 +47,7 @@ struct TestContext {
     uniqueNames();
     qualifiedNames(topName);
     // Default options.
+    netlist_paths::Options::getInstance().setErrorOnUnmatchedNode(true);
     netlist_paths::Options::getInstance().setMatchExact();
     netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(false);
     netlist_paths::Options::getInstance().setMatchOneVertex();
