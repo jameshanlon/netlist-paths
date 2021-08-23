@@ -33,15 +33,15 @@ The following dependencies must be installed:
 - C++ compiler supporting C++14
 - CMake (minimum 3.12.0)
 - Boost (minimum 1.65.0)
-- Python 3.8
+- Python (minimum 3.8)
 - Make
 - Autoconf
 - Flex
 - Bison
-- Doxygen (only if building the documentation)
+- Doxygen (only required if building the documentation)
 
 To build and install netlist paths, configure the build system with CMake, then
-run Make:
+run Make, for example:
 
 .. code-block:: bash
 
@@ -49,7 +49,7 @@ run Make:
   ...
   ➜ mkdir Release
   ➜ cd Release
-  ➜ cmake .. -DCMAKE_BUILD_TYPE=Release
+  ➜ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./install
   ...
   ➜ make -j8 install
   ...
@@ -61,8 +61,9 @@ Optionally, run the unit tests:
   ➜ ctest
   ...
 
-To build the documentation add ``-DNETLIST_PATHS_BUILD_DOCS=1`` to the ``cmake``
-command, and before running the ``cmake`` step, install the dependencies in a virtualenv:
+To build the documentation add ``-DNETLIST_PATHS_BUILD_DOCS=1`` to the
+``cmake`` command, and before running the ``cmake`` step, install the
+dependencies in a virtualenv:
 
 .. code-block:: bash
 

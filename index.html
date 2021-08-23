@@ -212,20 +212,20 @@ Netlist Paths is oriented towards command-line use for exploration of a design
 <li><p>C++ compiler supporting C++14</p></li>
 <li><p>CMake (minimum 3.12.0)</p></li>
 <li><p>Boost (minimum 1.65.0)</p></li>
-<li><p>Python 3.8</p></li>
+<li><p>Python (minimum 3.8)</p></li>
 <li><p>Make</p></li>
 <li><p>Autoconf</p></li>
 <li><p>Flex</p></li>
 <li><p>Bison</p></li>
-<li><p>Doxygen (only if building the documentation)</p></li>
+<li><p>Doxygen (only required if building the documentation)</p></li>
 </ul>
 <p>To build and install netlist paths, configure the build system with CMake, then
-run Make:</p>
+run Make, for example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ git submodule update --init --recursive
 ...
 ➜ mkdir Release
 ➜ <span class="nb">cd</span> Release
-➜ cmake .. -DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+➜ cmake .. -DCMAKE_BUILD_TYPE<span class="o">=</span>Release -DCMAKE_INSTALL_PREFIX<span class="o">=</span>./install
 ...
 ➜ make -j8 install
 ...
@@ -236,8 +236,9 @@ run Make:</p>
 ...
 </pre></div>
 </div>
-<p>To build the documentation add <code class="docutils literal notranslate"><span class="pre">-DNETLIST_PATHS_BUILD_DOCS=1</span></code> to the <code class="docutils literal notranslate"><span class="pre">cmake</span></code>
-command, and before running the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> step, install the dependencies in a virtualenv:</p>
+<p>To build the documentation add <code class="docutils literal notranslate"><span class="pre">-DNETLIST_PATHS_BUILD_DOCS=1</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">cmake</span></code> command, and before running the <code class="docutils literal notranslate"><span class="pre">cmake</span></code> step, install the
+dependencies in a virtualenv:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ <span class="nb">cd</span> Release
 ➜ virtualenv -p python3 env
 ...
