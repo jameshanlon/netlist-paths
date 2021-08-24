@@ -180,7 +180,7 @@ static AstNode resolveNode(const char *name) {
       { "refdtype",         AstNode::REF_DTYPE },
       { "replicate",        AstNode::REPLICATE },
       { "scope",            AstNode::SCOPE },
-      { "scope_name",       AstNode::SCOPE_NAME },
+      { "scopename",        AstNode::SCOPE_NAME },
       { "sel",              AstNode::SEL },
       { "sengate",          AstNode::SEN_GATE },
       { "senitem",          AstNode::SEN_ITEM },
