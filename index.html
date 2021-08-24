@@ -378,7 +378,7 @@ fsm.state_q packed union
 <dt id="_CPPv4N13netlist_paths5DTypeE">
 <span id="_CPPv3N13netlist_paths5DTypeE"></span><span id="_CPPv2N13netlist_paths5DTypeE"></span><span id="netlist_paths::DType"></span><span class="target" id="classnetlist__paths_1_1_d_type"></span><em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">netlist_paths</span><code class="sig-prename descclassname"><span class="pre">::</span></code></code><code class="sig-name descname"><span class="pre">DType</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths5DTypeE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Base class for data types. </p>
-<p>Subclassed by netlist_paths::ArrayDType, netlist_paths::BasicDType, netlist_paths::EnumDType, netlist_paths::MemberDType, netlist_paths::RefDType, netlist_paths::StructDType, netlist_paths::UnionDType</p>
+<p>Subclassed by netlist_paths::ArrayDType, netlist_paths::BasicDType, netlist_paths::ClassRefDType, netlist_paths::EnumDType, netlist_paths::MemberDType, netlist_paths::RefDType, netlist_paths::StructDType, netlist_paths::UnionDType, netlist_paths::VoidDType</p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -475,6 +475,12 @@ fsm.state_q packed union
 <dt id="_CPPv4N13netlist_paths7Options20setRestrictEndPointsEb">
 <span id="_CPPv3N13netlist_paths7Options20setRestrictEndPointsEb"></span><span id="_CPPv2N13netlist_paths7Options20setRestrictEndPointsEb"></span><span id="netlist_paths::Options::setRestrictEndPoints__b"></span><span class="target" id="classnetlist__paths_1_1_options_1aa30dc120bd2e71017cfb17d346f168ef"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setRestrictEndPoints</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options20setRestrictEndPointsEb" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Set path end point restriction. When set to true, paths must end on top-level ports or registers. When set to false, paths can end on any variable. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N13netlist_paths7Options23setErrorOnUnmatchedNodeEb">
+<span id="_CPPv3N13netlist_paths7Options23setErrorOnUnmatchedNodeEb"></span><span id="_CPPv2N13netlist_paths7Options23setErrorOnUnmatchedNodeEb"></span><span id="netlist_paths::Options::setErrorOnUnmatchedNode__b"></span><span class="target" id="classnetlist__paths_1_1_options_1a6ee2ffd56d2a56d9b5e24474feeab3fc"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">void</span> <code class="sig-name descname"><span class="pre">setErrorOnUnmatchedNode</span></code><span class="sig-paren">(</span><span class="pre">bool</span> <em><span class="pre">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options23setErrorOnUnmatchedNodeEb" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Setup the XML parser to raise an error when an unmatched node is encountered. For testing purposes only. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1113,8 +1119,8 @@ fsm.state_q packed union
 <dd><p><a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> types corresponding to the Verilator XML AST format. </p>
 <p><em>Values:</em></p>
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType5LOGICE">
-<span id="_CPPv3N13netlist_paths13VertexAstType5LOGICE"></span><span id="_CPPv2N13netlist_paths13VertexAstType5LOGICE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a15558ac2038de31bc6452aaf5cb12e44"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">LOGIC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType5LOGICE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType6ALWAYSE">
+<span id="_CPPv3N13netlist_paths13VertexAstType6ALWAYSE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6ALWAYSE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7af3fc827ade4b968e50406496907ef962"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">ALWAYS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6ALWAYSE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1138,8 +1144,48 @@ fsm.state_q packed union
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType6ALWAYSE">
-<span id="_CPPv3N13netlist_paths13VertexAstType6ALWAYSE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6ALWAYSE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7af3fc827ade4b968e50406496907ef962"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">ALWAYS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6ALWAYSE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType4CASEE">
+<span id="_CPPv3N13netlist_paths13VertexAstType4CASEE"></span><span id="_CPPv2N13netlist_paths13VertexAstType4CASEE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7abea5438a9521adc1b23a9117024bbb43"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">CASE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType4CASEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType6C_FUNCE">
+<span id="_CPPv3N13netlist_paths13VertexAstType6C_FUNCE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6C_FUNCE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a75226381ea13bab5f1ed55dee2191a03"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">C_FUNC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6C_FUNCE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType13C_METHOD_CALLE">
+<span id="_CPPv3N13netlist_paths13VertexAstType13C_METHOD_CALLE"></span><span id="_CPPv2N13netlist_paths13VertexAstType13C_METHOD_CALLE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7adbe19453b2a5841c8b357183ed0c7428"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">C_METHOD_CALL</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType13C_METHOD_CALLE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType6C_STMTE">
+<span id="_CPPv3N13netlist_paths13VertexAstType6C_STMTE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6C_STMTE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a83724fa4623f2caf1a4fb15a0262e4e2"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">C_STMT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6C_STMTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType7DISPLAYE">
+<span id="_CPPv3N13netlist_paths13VertexAstType7DISPLAYE"></span><span id="_CPPv2N13netlist_paths13VertexAstType7DISPLAYE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ac97ad854bf48c774ad3d0863fe1ec8cd"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DISPLAY</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType7DISPLAYE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType7DST_REGE">
+<span id="_CPPv3N13netlist_paths13VertexAstType7DST_REGE"></span><span id="_CPPv2N13netlist_paths13VertexAstType7DST_REGE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a06d81a6aa227b3cbc8f066ed969724f0"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType7DST_REGE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType13DST_REG_ALIASE">
+<span id="_CPPv3N13netlist_paths13VertexAstType13DST_REG_ALIASE"></span><span id="_CPPv2N13netlist_paths13VertexAstType13DST_REG_ALIASE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a4e14bab9125ed021f55a54ba23ad9f7d"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG_ALIAS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType13DST_REG_ALIASE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType6FINISHE">
+<span id="_CPPv3N13netlist_paths13VertexAstType6FINISHE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6FINISHE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ae73b26e82a742972e6213f965a808795"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">FINISH</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6FINISHE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType2IFE">
+<span id="_CPPv3N13netlist_paths13VertexAstType2IFE"></span><span id="_CPPv2N13netlist_paths13VertexAstType2IFE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ade6ee2b5d856295add4d5e3631fbfb93"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">IF</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType2IFE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1153,33 +1199,13 @@ fsm.state_q packed union
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType7SRC_REGE">
-<span id="_CPPv3N13netlist_paths13VertexAstType7SRC_REGE"></span><span id="_CPPv2N13netlist_paths13VertexAstType7SRC_REGE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ad8ff43cfb47f7d9a7446c17c6703bffb"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SRC_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType7SRC_REGE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType10JUMP_BLOCKE">
+<span id="_CPPv3N13netlist_paths13VertexAstType10JUMP_BLOCKE"></span><span id="_CPPv2N13netlist_paths13VertexAstType10JUMP_BLOCKE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ace199e5e1b44ac16ecc661abfcf9a1db"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">JUMP_BLOCK</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType10JUMP_BLOCKE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType7DST_REGE">
-<span id="_CPPv3N13netlist_paths13VertexAstType7DST_REGE"></span><span id="_CPPv2N13netlist_paths13VertexAstType7DST_REGE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a06d81a6aa227b3cbc8f066ed969724f0"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType7DST_REGE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType8SEN_GATEE">
-<span id="_CPPv3N13netlist_paths13VertexAstType8SEN_GATEE"></span><span id="_CPPv2N13netlist_paths13VertexAstType8SEN_GATEE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ac88370e6b73d4bfb34a1a5a524403a11"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SEN_GATE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType8SEN_GATEE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType8SEN_ITEME">
-<span id="_CPPv3N13netlist_paths13VertexAstType8SEN_ITEME"></span><span id="_CPPv2N13netlist_paths13VertexAstType8SEN_ITEME"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a21e9dbbebd93f7f95420476d77a262ce"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SEN_ITEM</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType8SEN_ITEME" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType3VARE">
-<span id="_CPPv3N13netlist_paths13VertexAstType3VARE"></span><span id="_CPPv2N13netlist_paths13VertexAstType3VARE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ad6f4440b8633f973d33c78928bdac2e1"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">VAR</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType3VARE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType4WIREE">
-<span id="_CPPv3N13netlist_paths13VertexAstType4WIREE"></span><span id="_CPPv2N13netlist_paths13VertexAstType4WIREE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a42ee4959b75f8347e0c2c511d0c45f57"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">WIRE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType4WIREE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType5LOGICE">
+<span id="_CPPv3N13netlist_paths13VertexAstType5LOGICE"></span><span id="_CPPv2N13netlist_paths13VertexAstType5LOGICE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a15558ac2038de31bc6452aaf5cb12e44"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">LOGIC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType5LOGICE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1188,18 +1214,43 @@ fsm.state_q packed union
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType8READ_MEME">
+<span id="_CPPv3N13netlist_paths13VertexAstType8READ_MEME"></span><span id="_CPPv2N13netlist_paths13VertexAstType8READ_MEME"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a105473598dc3d30c8112f18865e8d97e"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">READ_MEM</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType8READ_MEME" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType8SEN_GATEE">
+<span id="_CPPv3N13netlist_paths13VertexAstType8SEN_GATEE"></span><span id="_CPPv2N13netlist_paths13VertexAstType8SEN_GATEE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ac88370e6b73d4bfb34a1a5a524403a11"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SEN_GATE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType8SEN_GATEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType8SFORMATFE">
+<span id="_CPPv3N13netlist_paths13VertexAstType8SFORMATFE"></span><span id="_CPPv2N13netlist_paths13VertexAstType8SFORMATFE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a2cebfa5e4ee98fe380728b09408ab1eb"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SFORMATF</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType8SFORMATFE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType7SRC_REGE">
+<span id="_CPPv3N13netlist_paths13VertexAstType7SRC_REGE"></span><span id="_CPPv2N13netlist_paths13VertexAstType7SRC_REGE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ad8ff43cfb47f7d9a7446c17c6703bffb"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SRC_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType7SRC_REGE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
 <dt id="_CPPv4N13netlist_paths13VertexAstType13SRC_REG_ALIASE">
 <span id="_CPPv3N13netlist_paths13VertexAstType13SRC_REG_ALIASE"></span><span id="_CPPv2N13netlist_paths13VertexAstType13SRC_REG_ALIASE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7afaac50358392eca26d3e7ff68fa40eb2"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">SRC_REG_ALIAS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType13SRC_REG_ALIASE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType13DST_REG_ALIASE">
-<span id="_CPPv3N13netlist_paths13VertexAstType13DST_REG_ALIASE"></span><span id="_CPPv2N13netlist_paths13VertexAstType13DST_REG_ALIASE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a4e14bab9125ed021f55a54ba23ad9f7d"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG_ALIAS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType13DST_REG_ALIASE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType3VARE">
+<span id="_CPPv3N13netlist_paths13VertexAstType3VARE"></span><span id="_CPPv2N13netlist_paths13VertexAstType3VARE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ad6f4440b8633f973d33c78928bdac2e1"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">VAR</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType3VARE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths13VertexAstType6C_FUNCE">
-<span id="_CPPv3N13netlist_paths13VertexAstType6C_FUNCE"></span><span id="_CPPv2N13netlist_paths13VertexAstType6C_FUNCE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a75226381ea13bab5f1ed55dee2191a03"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">C_FUNC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType6C_FUNCE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths13VertexAstType5WHILEE">
+<span id="_CPPv3N13netlist_paths13VertexAstType5WHILEE"></span><span id="_CPPv2N13netlist_paths13VertexAstType5WHILEE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7ac0ca84371abbc18f52fd48e32195cd15"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">WHILE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType5WHILEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths13VertexAstType4WIREE">
+<span id="_CPPv3N13netlist_paths13VertexAstType4WIREE"></span><span id="_CPPv2N13netlist_paths13VertexAstType4WIREE"></span><span class="target" id="_vertex_8hpp_1a9604c68734e4a2b40c228c051f0d91f7a42ee4959b75f8347e0c2c511d0c45f57"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">WIRE</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths13VertexAstType4WIREE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1215,13 +1266,48 @@ fsm.state_q packed union
 <dd><p><a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> categorisation within the netlist graph, used for selecting collections of vertices with particular properties. </p>
 <p><em>Values:</em></p>
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType3REGE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType3REGE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType3REGE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43af4cf3fe4b67244332eecec055742d449"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType3REGE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType7DST_REGE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType7DST_REGE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType7DST_REGE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a06d81a6aa227b3cbc8f066ed969724f0"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType7DST_REGE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType7DST_REGE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType7DST_REGE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType7DST_REGE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a06d81a6aa227b3cbc8f066ed969724f0"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType7DST_REGE" title="Permalink to this definition">¶</a><br /></dt>
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType13DST_REG_ALIASE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType13DST_REG_ALIASE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType13DST_REG_ALIASE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a4e14bab9125ed021f55a54ba23ad9f7d"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG_ALIAS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType13DST_REG_ALIASE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType9END_POINTE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType9END_POINTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType9END_POINTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a4ab23c05512811ac6a6f5ffe77059200"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">END_POINT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType9END_POINTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType8IS_NAMEDE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType8IS_NAMEDE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType8IS_NAMEDE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43ad40fd5456741ebf3f16fbc9364dd97f8"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">IS_NAMED</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType8IS_NAMEDE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType5LOGICE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType5LOGICE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType5LOGICE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a15558ac2038de31bc6452aaf5cb12e44"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">LOGIC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType5LOGICE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType9MID_POINTE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType9MID_POINTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType9MID_POINTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43ae4f15c9dd2d5af03c270c1689547239f"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">MID_POINT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType9MID_POINTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType3NETE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType3NETE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType3NETE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a347aadfc505a4bc6b2f9d81363d2331c"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">NET</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType3NETE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType4PORTE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType4PORTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType4PORTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a463c00141b4c3a7f76acd3540052f8f5"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">PORT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType4PORTE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt id="_CPPv4N13netlist_paths17VertexNetlistType3REGE">
+<span id="_CPPv3N13netlist_paths17VertexNetlistType3REGE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType3REGE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43af4cf3fe4b67244332eecec055742d449"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">REG</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType3REGE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1235,43 +1321,8 @@ fsm.state_q packed union
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType13DST_REG_ALIASE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType13DST_REG_ALIASE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType13DST_REG_ALIASE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a4e14bab9125ed021f55a54ba23ad9f7d"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">DST_REG_ALIAS</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType13DST_REG_ALIASE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType3NETE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType3NETE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType3NETE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a347aadfc505a4bc6b2f9d81363d2331c"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">NET</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType3NETE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType5LOGICE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType5LOGICE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType5LOGICE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a15558ac2038de31bc6452aaf5cb12e44"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">LOGIC</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType5LOGICE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType4PORTE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType4PORTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType4PORTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a463c00141b4c3a7f76acd3540052f8f5"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">PORT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType4PORTE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
 <dt id="_CPPv4N13netlist_paths17VertexNetlistType11START_POINTE">
 <span id="_CPPv3N13netlist_paths17VertexNetlistType11START_POINTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType11START_POINTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43aa4e2fa8a08204f76c3047dccedde84c4"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">START_POINT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType11START_POINTE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType9MID_POINTE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType9MID_POINTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType9MID_POINTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43ae4f15c9dd2d5af03c270c1689547239f"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">MID_POINT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType9MID_POINTE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType9END_POINTE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType9END_POINTE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType9END_POINTE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43a4ab23c05512811ac6a6f5ffe77059200"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">END_POINT</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType9END_POINTE" title="Permalink to this definition">¶</a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp enumerator">
-<dt id="_CPPv4N13netlist_paths17VertexNetlistType8IS_NAMEDE">
-<span id="_CPPv3N13netlist_paths17VertexNetlistType8IS_NAMEDE"></span><span id="_CPPv2N13netlist_paths17VertexNetlistType8IS_NAMEDE"></span><span class="target" id="_vertex_8hpp_1a3b5e8418bae457dbd3e1ceff1fa11e43ad40fd5456741ebf3f16fbc9364dd97f8"></span><em class="property"><span class="pre">enumerator</span> </em><code class="sig-name descname"><span class="pre">IS_NAMED</span></code><a class="headerlink" href="#_CPPv4N13netlist_paths17VertexNetlistType8IS_NAMEDE" title="Permalink to this definition">¶</a><br /></dt>
 <dd></dd></dl>
 
 <dl class="cpp enumerator">
@@ -1464,6 +1515,15 @@ fsm.state_q packed union
 <code class="sig-name descname"><span class="pre">set_debug</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_debug" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>C++ signature :</dt><dd><p>void set_debug(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Options.set_error_on_unmatched_node">
+<code class="sig-name descname"><span class="pre">set_error_on_unmatched_node</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Options)arg1</span></em>, <em class="sig-param"><span class="pre">(bool)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Options.set_error_on_unmatched_node" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_error_on_unmatched_node(netlist_paths::Options {lvalue},bool)</p>
 </dd>
 </dl>
 </dd></dl>
