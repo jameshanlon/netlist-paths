@@ -27,6 +27,7 @@ class Options {
   bool traverseRegisters;
   bool restrictStartPoints;
   bool restrictEndPoints;
+  bool errorOnUnmatchedNode;
 
 public:
   bool isMatchExact() const { return matchType == MatchType::EXACT; }
@@ -40,6 +41,7 @@ public:
   bool isRestrictEndPoints() const { return restrictEndPoints; }
   bool isVerboseMode() const { return verboseMode; }
   bool isDebugMode() const { return debugMode; }
+  bool isErrorOnUnmatchedNode() const { return errorOnUnmatchedNode; }
 
   /// Set matching to use wildcards.
   void setMatchWildcard() { matchType = MatchType::WILDCARD; }
@@ -75,6 +77,10 @@ public:
   /// top-level ports or registers. When set to false, paths can end on any
   /// variable.
   void setRestrictEndPoints(bool value) { restrictEndPoints = value; }
+
+  /// Setup the XML parser to raise an error when an unmatched node is
+  /// encountered. For testing purposes only.
+  void setErrorOnUnmatchedNode(bool value) { errorOnUnmatchedNode = value; }
 
   /// Enable verbose output.
   void setVerbose() {
@@ -113,7 +119,8 @@ private:
       matchOneVertex(true),
       traverseRegisters(false),
       restrictStartPoints(true),
-      restrictEndPoints(true) {
+      restrictEndPoints(true),
+      errorOnUnmatchedNode(false) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
     setQuiet();

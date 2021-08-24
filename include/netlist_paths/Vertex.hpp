@@ -17,42 +17,51 @@ namespace netlist_paths {
 
 /// Vertex types corresponding to the Verilator XML AST format.
 enum class VertexAstType {
-  LOGIC,
+  ALWAYS,
   ASSIGN,
   ASSIGN_ALIAS,
   ASSIGN_DLY,
   ASSIGN_W,
-  ALWAYS,
+  CASE,
+  C_FUNC,
+  C_METHOD_CALL,
+  C_STMT,
+  DISPLAY,
+  DST_REG,
+  DST_REG_ALIAS,
+  FINISH,
+  IF,
   INITIAL,
   INSTANCE,
-  SRC_REG,
-  DST_REG,
-  SEN_GATE,
-  SEN_ITEM,
-  VAR,
-  WIRE,
+  JUMP_BLOCK,
+  LOGIC,
   PORT,
+  READ_MEM,
+  SEN_GATE,
+  SFORMATF,
+  SRC_REG,
   SRC_REG_ALIAS,
-  DST_REG_ALIAS,
-  C_FUNC,
+  VAR,
+  WHILE,
+  WIRE,
   INVALID
 };
 
 /// Vertex categorisation within the netlist graph, used for selecting
 /// collections of vertices with particular properties.
 enum class VertexNetlistType {
-  REG,
   DST_REG,
-  SRC_REG,
-  SRC_REG_ALIAS,
   DST_REG_ALIAS,
-  NET,
-  LOGIC,
-  PORT,
-  START_POINT,
-  MID_POINT,
   END_POINT,
   IS_NAMED,
+  LOGIC,
+  MID_POINT,
+  NET,
+  PORT,
+  REG,
+  SRC_REG,
+  SRC_REG_ALIAS,
+  START_POINT,
   ANY
 };
 
@@ -70,24 +79,33 @@ enum class VertexDirection {
 
 inline VertexAstType getVertexAstType(const std::string &name) {
   static std::map<std::string, VertexAstType> mappings {
-      { "LOGIC",         VertexAstType::LOGIC },
+      { "ALWAYS",        VertexAstType::ALWAYS },
       { "ASSIGN",        VertexAstType::ASSIGN },
       { "ASSIGN_ALIAS",  VertexAstType::ASSIGN_ALIAS },
       { "ASSIGN_DLY",    VertexAstType::ASSIGN_DLY },
       { "ASSIGN_W",      VertexAstType::ASSIGN_W },
-      { "ALWAYS",        VertexAstType::ALWAYS },
+      { "CASE",          VertexAstType::CASE },
+      { "C_FUNC",        VertexAstType::C_FUNC },
+      { "C_METHOD_CALL", VertexAstType::C_METHOD_CALL },
+      { "C_STMT",        VertexAstType::C_STMT },
+      { "DISPLAY",       VertexAstType::DISPLAY },
+      { "DST_REG",       VertexAstType::DST_REG },
+      { "DST_REG_ALIAS", VertexAstType::DST_REG_ALIAS },
+      { "FINISH",        VertexAstType::FINISH },
+      { "IF",            VertexAstType::IF },
       { "INITIAL",       VertexAstType::INITIAL },
       { "INSTANCE",      VertexAstType::INSTANCE },
-      { "SRC_REG",       VertexAstType::SRC_REG },
-      { "DST_REG",       VertexAstType::DST_REG },
-      { "SEN_GATE",      VertexAstType::SEN_GATE },
-      { "SEN_ITEM",      VertexAstType::SEN_ITEM },
-      { "VAR",           VertexAstType::VAR },
-      { "WIRE",          VertexAstType::WIRE },
+      { "JUMP_BLOCK",    VertexAstType::JUMP_BLOCK },
+      { "LOGIC",         VertexAstType::LOGIC },
       { "PORT",          VertexAstType::PORT },
+      { "READ_MEM",      VertexAstType::READ_MEM },
+      { "SEN_GATE",      VertexAstType::SEN_GATE },
+      { "SFORMATF",      VertexAstType::SFORMATF },
+      { "SRC_REG",       VertexAstType::SRC_REG },
       { "SRC_REG_ALIAS", VertexAstType::SRC_REG_ALIAS },
-      { "DST_REG_ALIAS", VertexAstType::DST_REG_ALIAS },
-      { "C_FUNC",        VertexAstType::C_FUNC },
+      { "VAR",           VertexAstType::VAR },
+      { "WHILE",         VertexAstType::WHILE },
+      { "WIRE",          VertexAstType::WIRE },
   };
   auto it = mappings.find(name);
   return (it != mappings.end()) ? it->second : VertexAstType::INVALID;
@@ -96,25 +114,33 @@ inline VertexAstType getVertexAstType(const std::string &name) {
 /// Return string representations of the VertexAstType enum.
 inline const char *getVertexAstTypeStr(VertexAstType type) {
   switch (type) {
-    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::ALWAYS:        return "ALWAYS";
     case VertexAstType::ASSIGN:        return "ASSIGN";
     case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN_ALIAS";
     case VertexAstType::ASSIGN_DLY:    return "ASSIGN_DLY";
     case VertexAstType::ASSIGN_W:      return "ASSIGN_W";
-    case VertexAstType::ALWAYS:        return "ALWAYS";
+    case VertexAstType::CASE:          return "CASE";
+    case VertexAstType::C_FUNC:        return "C_FUNC";
+    case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
+    case VertexAstType::C_STMT:        return "C_STMT";
+    case VertexAstType::DISPLAY:       return "DISPLAY";
+    case VertexAstType::DST_REG:       return "DST_REG";
+    case VertexAstType::DST_REG_ALIAS: return "DST_REG_ALIAS";
+    case VertexAstType::FINISH:        return "FINISH";
+    case VertexAstType::IF:            return "IF";
     case VertexAstType::INITIAL:       return "INITIAL";
     case VertexAstType::INSTANCE:      return "INSTANCE";
-    case VertexAstType::SRC_REG:       return "SRC_REG";
-    case VertexAstType::DST_REG:       return "DST_REG";
-    case VertexAstType::SEN_GATE:      return "SEN_GATE";
-    case VertexAstType::SEN_ITEM:      return "SEN_ITEM";
-    case VertexAstType::VAR:           return "VAR";
-    case VertexAstType::WIRE:          return "WIRE";
-    case VertexAstType::PORT:          return "PORT";
-    case VertexAstType::SRC_REG_ALIAS: return "SRC_REG_ALIAS";
-    case VertexAstType::DST_REG_ALIAS: return "DST_REG_ALIAS";
-    case VertexAstType::C_FUNC:        return "C_FUNC";
     case VertexAstType::INVALID:       return "INVALID";
+    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::READ_MEM:      return "READ_MEM";
+    case VertexAstType::SEN_GATE:      return "SEN_GATE";
+    case VertexAstType::SFORMATF:      return "SFORMATF";
+    case VertexAstType::SRC_REG:       return "SRC_REG";
+    case VertexAstType::SRC_REG_ALIAS: return "SRC_REG_ALIAS";
+    case VertexAstType::VAR:           return "VAR";
+    case VertexAstType::WHILE:         return "WHILE";
+    case VertexAstType::WIRE:          return "WIRE";
     default:                           return "UNKNOWN";
   }
 }
@@ -122,25 +148,33 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
 /// Map Vertex AST types to useful names that can be included in reports.
 inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
   switch (type) {
-    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::ALWAYS:        return "ALWAYS";
     case VertexAstType::ASSIGN:        return "ASSIGN";
     case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN";
     case VertexAstType::ASSIGN_DLY:    return "ASSIGN";
     case VertexAstType::ASSIGN_W:      return "ASSIGN";
-    case VertexAstType::ALWAYS:        return "ALWAYS";
+    case VertexAstType::CASE:          return "CASE";
+    case VertexAstType::C_FUNC:        return "C_FUNCTION";
+    case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
+    case VertexAstType::C_STMT:        return "C_STATEMENT";
+    case VertexAstType::DISPLAY:       return "DISPLAY";
+    case VertexAstType::DST_REG:       return "REG";
+    case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
+    case VertexAstType::FINISH:        return "FINISH";
+    case VertexAstType::IF:            return "IF";
     case VertexAstType::INITIAL:       return "INITIAL";
     case VertexAstType::INSTANCE:      return "INSTANCE";
-    case VertexAstType::SRC_REG:       return "REG";
-    case VertexAstType::DST_REG:       return "REG";
-    case VertexAstType::SEN_GATE:      return "SEN";
-    case VertexAstType::SEN_ITEM:      return "SEN";
-    case VertexAstType::VAR:           return "VAR";
-    case VertexAstType::WIRE:          return "WIRE";
-    case VertexAstType::PORT:          return "PORT";
-    case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
-    case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
-    case VertexAstType::C_FUNC:        return "C_FUNCTION";
     case VertexAstType::INVALID:       return "INVALID";
+    case VertexAstType::LOGIC:         return "LOGIC";
+    case VertexAstType::PORT:          return "PORT";
+    case VertexAstType::READ_MEM:      return "READ_MEM";
+    case VertexAstType::SEN_GATE:      return "SEN";
+    case VertexAstType::SFORMATF:      return "SFORMATF";
+    case VertexAstType::SRC_REG:       return "REG";
+    case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
+    case VertexAstType::VAR:           return "VAR";
+    case VertexAstType::WHILE:         return "WHILE";
+    case VertexAstType::WIRE:          return "WIRE";
     default:                           return "UNKNOWN";
   }
 }
@@ -332,14 +366,21 @@ public:
   /// Return true if the vertex is a logic statement.
   inline bool isLogic() const {
     return astType == VertexAstType::LOGIC ||
+           astType == VertexAstType::ALWAYS ||
            astType == VertexAstType::ASSIGN ||
            astType == VertexAstType::ASSIGN_ALIAS ||
            astType == VertexAstType::ASSIGN_DLY ||
            astType == VertexAstType::ASSIGN_W ||
-           astType == VertexAstType::ALWAYS ||
+           astType == VertexAstType::C_FUNC ||
+           astType == VertexAstType::C_METHOD_CALL ||
+           astType == VertexAstType::C_STMT ||
+           astType == VertexAstType::DISPLAY ||
+           astType == VertexAstType::FINISH ||
+           astType == VertexAstType::IF ||
            astType == VertexAstType::INITIAL ||
            astType == VertexAstType::SEN_GATE ||
-           astType == VertexAstType::SEN_ITEM;
+           astType == VertexAstType::SFORMATF ||
+           astType == VertexAstType::WHILE;
   }
 
   /// Return true if the vertex is a parameter variable.

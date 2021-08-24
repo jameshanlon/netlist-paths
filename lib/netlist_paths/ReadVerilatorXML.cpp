@@ -11,30 +11,90 @@
 using namespace netlist_paths;
 
 enum class AstNode {
+  ADD,
   ALWAYS,
   ALWAYS_PUBLIC,
+  AND,
+  ARRAY_SEL,
   ASSIGN,
   ASSIGN_ALIAS,
   ASSIGN_DLY,
   ASSIGN_W,
   BASIC_DTYPE,
+  CASE,
+  CASE_ITEM,
+  CLASS_REF_DTYPE,
+  COMMENT,
+  CONCAT,
+  COND,
   CONST,
   CONT_ASSIGN,
   C_FUNC,
-  ENUM,
+  C_METHOD_CALL,
+  C_NEW,
+  C_STMT,
+  DISPLAY,
+  DIV,
+  DIVS,
+  ENUM_DTYPE,
+  EQ,
+  EQWILD,
+  EXTEND,
+  EXTENDS,
+  FINISH,
+  GT,
+  GTE,
+  GTES,
+  GTS,
+  IF,
   IFACE_REF_DTYPE,
   INITIAL,
   INSTANCE,
   INTF_REF,
+  JUMP_BLOCK,
+  JUMP_GO,
+  JUMP_LABEL,
+  LT,
+  LTE,
+  LTES,
+  LTS,
   MEMBER_DTYPE,
+  MOD,
+  MODS,
+  MOD_DIV,
+  MOD_DIVS,
   MODULE,
+  MUL,
+  MULS,
+  NEGATE,
+  NEQ,
+  NOT,
+  OR,
   PACKED_ARRAY,
+  POWSU,
   RANGE,
+  READ_MEM,
+  REDAND,
+  REDOR,
+  REDXOR,
   REF_DTYPE,
+  REPLICATE,
   SCOPE,
+  SCOPE_NAME,
+  SEL,
   SEN_GATE,
   SEN_ITEM,
+  SEN_TREE,
+  SFORMATF,
+  SHIFTL,
+  SHIFTLS,
+  SHIFTR,
+  SHIFTRS,
   STRUCT_DTYPE,
+  SUB,
+  TEST_PLUS_ARGS,
+  TEXT,
+  TIME,
   TOP_SCOPE,
   TYPEDEF,
   TYPE_TABLE,
@@ -43,35 +103,98 @@ enum class AstNode {
   VAR,
   VAR_REF,
   VAR_SCOPE,
+  VOID_DTYPE,
+  WHILE,
+  XOR,
   INVALID
 };
 
 /// Convert a string name into an AstNode type.
 static AstNode resolveNode(const char *name) {
   static std::map<std::string, AstNode> mappings {
+      { "add",              AstNode::ADD },
       { "always",           AstNode::ALWAYS },
       { "alwayspublic",     AstNode::ALWAYS_PUBLIC },
+      { "and",              AstNode::AND },
+      { "arraysel",         AstNode::ARRAY_SEL },
       { "assign",           AstNode::ASSIGN },
       { "assignalias",      AstNode::ASSIGN_ALIAS },
       { "assigndly",        AstNode::ASSIGN_DLY },
       { "assignw",          AstNode::ASSIGN_W },
       { "basicdtype",       AstNode::BASIC_DTYPE },
+      { "case",             AstNode::CASE },
+      { "caseitem",         AstNode::CASE_ITEM },
       { "cfunc",            AstNode::C_FUNC },
+      { "classrefdtype",    AstNode::CLASS_REF_DTYPE },
+      { "cmethodcall",      AstNode::C_METHOD_CALL },
+      { "cnew",             AstNode::C_NEW },
+      { "comment",          AstNode::COMMENT },
+      { "concat",           AstNode::CONCAT },
+      { "cond",             AstNode::COND },
       { "const",            AstNode::CONST },
       { "contassign",       AstNode::CONT_ASSIGN },
-      { "enumdtype",        AstNode::ENUM },
+      { "display",          AstNode::DISPLAY },
+      { "div",              AstNode::DIV },
+      { "divs",             AstNode::DIVS },
+      { "cstmt",            AstNode::C_STMT },
+      { "enumdtype",        AstNode::ENUM_DTYPE },
+      { "eq",               AstNode::EQ },
+      { "eqwild",           AstNode::EQWILD },
+      { "extend",           AstNode::EXTEND },
+      { "extends",          AstNode::EXTENDS },
+      { "finish",           AstNode::FINISH },
+      { "gt",               AstNode::GT },
+      { "gte",              AstNode::GTE },
+      { "gtes",             AstNode::GTES },
+      { "gts",              AstNode::GTS },
+      { "if",               AstNode::IF },
       { "ifacerefdtype",    AstNode::IFACE_REF_DTYPE },
       { "initial",          AstNode::INITIAL },
       { "instance",         AstNode::INSTANCE },
       { "intfref",          AstNode::INTF_REF },
+      { "jumpblock",        AstNode::JUMP_BLOCK },
+      { "jumpgo",           AstNode::JUMP_GO },
+      { "jumplabel",        AstNode::JUMP_LABEL },
+      { "lt",               AstNode::LT },
+      { "lte",              AstNode::LTE },
+      { "ltes",             AstNode::LTES },
+      { "lts",              AstNode::LTS },
       { "memberdtype",      AstNode::MEMBER_DTYPE },
+      { "mod",              AstNode::MOD },
+      { "mods",             AstNode::MODS },
+      { "moddiv",           AstNode::MOD_DIV },
+      { "moddivs",          AstNode::MOD_DIVS },
       { "module",           AstNode::MODULE },
+      { "mul",              AstNode::MUL },
+      { "muls",             AstNode::MULS },
+      { "negate",           AstNode::NEGATE },
+      { "neq",              AstNode::NEQ },
+      { "not",              AstNode::NOT },
+      { "or",               AstNode::OR, },
       { "packarraydtype",   AstNode::PACKED_ARRAY },
+      { "powsu",            AstNode::POWSU },
+      { "readmem",          AstNode::READ_MEM },
+      { "redand",           AstNode::REDAND },
+      { "redor",            AstNode::REDOR },
+      { "redxor",           AstNode::REDXOR },
       { "refdtype",         AstNode::REF_DTYPE },
+      { "replicate",        AstNode::REPLICATE },
       { "scope",            AstNode::SCOPE },
+      { "scopename",        AstNode::SCOPE_NAME },
+      { "sel",              AstNode::SEL },
       { "sengate",          AstNode::SEN_GATE },
       { "senitem",          AstNode::SEN_ITEM },
+      { "sentree",          AstNode::SEN_TREE },
+      { "sformatf",         AstNode::SFORMATF },
+      { "shiftl",           AstNode::SHIFTL },
+      { "shiftls",          AstNode::SHIFTLS },
+      { "shiftr",           AstNode::SHIFTR },
+      { "shiftrs",          AstNode::SHIFTRS },
       { "structdtype",      AstNode::STRUCT_DTYPE },
+      { "sub",              AstNode::SUB },
+      { "testplusargs",     AstNode::TEST_PLUS_ARGS },
+      { "text",             AstNode::TEXT },
+      { "time",             AstNode::TIME },
       { "topscope",         AstNode::TOP_SCOPE },
       { "typedef",          AstNode::TYPEDEF },
       { "typetable",        AstNode::TYPE_TABLE },
@@ -80,6 +203,9 @@ static AstNode resolveNode(const char *name) {
       { "var",              AstNode::VAR },
       { "varref",           AstNode::VAR_REF },
       { "varscope",         AstNode::VAR_SCOPE },
+      { "voiddtype",        AstNode::VOID_DTYPE },
+      { "while",            AstNode::WHILE },
+      { "xor",              AstNode::XOR },
   };
   auto it = mappings.find(name);
   return (it != mappings.end()) ? it->second : AstNode::INVALID;
@@ -88,27 +214,88 @@ static AstNode resolveNode(const char *name) {
 void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   // Handle node by type.
   switch (resolveNode(node->name())) {
+  case AstNode::ADD:             visitNode(node);                        break;
   case AstNode::ALWAYS:          visitAlways(node);                      break;
   case AstNode::ALWAYS_PUBLIC:   visitAlways(node);                      break;
+  case AstNode::AND:             visitNode(node);                        break;
+  case AstNode::ARRAY_SEL:       visitNode(node);                        break;
   case AstNode::ASSIGN:          visitAssign(node);                      break;
   case AstNode::ASSIGN_ALIAS:    visitAssignAlias(node);                 break;
   case AstNode::ASSIGN_DLY:      visitAssignDly(node);                   break;
   case AstNode::ASSIGN_W:        visitAssign(node);                      break;
   case AstNode::BASIC_DTYPE:     visitBasicDtype(node);                  break;
+  case AstNode::CASE:            visitCase(node);                        break;
+  case AstNode::CASE_ITEM:       visitNode(node);                        break;
+  case AstNode::CLASS_REF_DTYPE: visitClassRefDType(node);               break;
+  case AstNode::COMMENT:         visitNode(node);                        break;
+  case AstNode::CONCAT:          visitNode(node);                        break;
+  case AstNode::COND:            visitNode(node);                        break;
+  case AstNode::CONST:           visitNode(node);                        break; // Don't visit consts unless expected
   case AstNode::CONT_ASSIGN:     visitAssign(node);                      break;
   case AstNode::C_FUNC:          visitCFunc(node);                       break;
-  case AstNode::ENUM:            visitEnumDType(node);                   break;
+  case AstNode::C_METHOD_CALL:   visitNode(node);                        break;
+  case AstNode::C_NEW:           visitNode(node);                        break;
+  case AstNode::C_STMT:          visitCStmt(node);                       break;
+  case AstNode::DISPLAY:         visitDisplay(node);                     break;
+  case AstNode::DIV:             visitNode(node);                        break;
+  case AstNode::DIVS:            visitNode(node);                        break;
+  case AstNode::ENUM_DTYPE:      visitEnumDType(node);                   break;
+  case AstNode::EQ:              visitNode(node);                        break;
+  case AstNode::EQWILD:          visitNode(node);                        break;
+  case AstNode::EXTEND:          visitNode(node);                        break;
+  case AstNode::EXTENDS:         visitNode(node);                        break;
+  case AstNode::FINISH:          visitFinish(node);                      break;
+  case AstNode::GT:              visitNode(node);                        break;
+  case AstNode::GTE:             visitNode(node);                        break;
+  case AstNode::GTES:            visitNode(node);                        break;
+  case AstNode::GTS:             visitNode(node);                        break;
+  case AstNode::IF:              visitIf(node);                          break;
   case AstNode::IFACE_REF_DTYPE: visitInterfaceRefDType(node);           break;
   case AstNode::INITIAL:         visitInitial(node);                     break;
   case AstNode::INSTANCE:        visitInstance(node);                    break;
   case AstNode::INTF_REF:        visitInterfaceRef(node);                break;
+  case AstNode::JUMP_BLOCK:      visitJumpBlock(node);                   break;
+  case AstNode::JUMP_GO:         visitNode(node);                        break;
+  case AstNode::JUMP_LABEL:      visitNode(node);                        break;
+  case AstNode::LT:              visitNode(node);                        break;
+  case AstNode::LTE:             visitNode(node);                        break;
+  case AstNode::LTES:            visitNode(node);                        break;
+  case AstNode::LTS:             visitNode(node);                        break;
   case AstNode::MEMBER_DTYPE:    visitMemberDType(node);                 break;
+  case AstNode::MOD:             visitNode(node);                        break;
+  case AstNode::MODS:            visitNode(node);                        break;
+  case AstNode::MOD_DIV:         visitNode(node);                        break;
+  case AstNode::MOD_DIVS:        visitNode(node);                        break;
+  case AstNode::MUL:             visitNode(node);                        break;
+  case AstNode::MULS:            visitNode(node);                        break;
+  case AstNode::NEGATE:          visitNode(node);                        break;
+  case AstNode::NEQ:             visitNode(node);                        break;
+  case AstNode::NOT:             visitNode(node);                        break;
+  case AstNode::OR:              visitNode(node);                        break;
   case AstNode::PACKED_ARRAY:    visitArrayDType(node, true);            break;
+  case AstNode::POWSU:           visitNode(node);                        break;
+  case AstNode::READ_MEM:        visitReadMem(node);                     break;
+  case AstNode::REDAND:          visitNode(node);                        break;
+  case AstNode::REDOR:           visitNode(node);                        break;
+  case AstNode::REDXOR:          visitNode(node);                        break;
   case AstNode::REF_DTYPE:       visitRefDtype(node);                    break;
+  case AstNode::REPLICATE:       visitNode(node);                        break;
   case AstNode::SCOPE:           visitScope(node);                       break;
-  case AstNode::SEN_GATE:        visitSenGate(node);                     break;
-  case AstNode::SEN_ITEM:        visitSenItem(node);                     break;
+  case AstNode::SCOPE_NAME:      visitNode(node);                        break;
+  case AstNode::SEL:             visitNode(node);                        break;
+  case AstNode::SEN_GATE:        visitNode(node);                        break;
+  case AstNode::SEN_ITEM:        visitNode(node);                        break;
+  case AstNode::SEN_TREE:        visitNode(node);                        break;
+  case AstNode::SFORMATF:        visitSformatf(node);                    break;
+  case AstNode::SHIFTL:          visitNode(node);                        break;
+  case AstNode::SHIFTLS:         visitNode(node);                        break;
+  case AstNode::SHIFTR:          visitNode(node);                        break;
+  case AstNode::SHIFTRS:         visitNode(node);                        break;
   case AstNode::STRUCT_DTYPE:    visitAggregateDType<StructDType>(node); break;
+  case AstNode::SUB:             visitNode(node);                        break;
+  case AstNode::TEST_PLUS_ARGS:  visitNode(node);                        break;
+  case AstNode::TEXT:            visitNode(node);                        break;
+  case AstNode::TIME:            visitNode(node);                        break;
   case AstNode::TOP_SCOPE:       visitScope(node);                       break;
   case AstNode::TYPEDEF:         visitTypedef(node);                     break;
   case AstNode::UNION_DTYPE:     visitAggregateDType<UnionDType>(node);  break;
@@ -116,10 +303,17 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::VAR:             visitVar(node);                         break;
   case AstNode::VAR_REF:         visitVarRef(node);                      break;
   case AstNode::VAR_SCOPE:       visitVarScope(node);                    break;
+  case AstNode::VOID_DTYPE:      visitVoidDType(node);                   break;
+  case AstNode::WHILE:           visitWhile(node);                       break;
+  case AstNode::XOR:             visitNode(node);                        break;
   default:
-    BOOST_LOG_TRIVIAL(debug) << "Unrecognised node: " << node->name();
-    visitNode(node);
-    break;
+    if (Options::getInstance().isErrorOnUnmatchedNode()) {
+      throw XMLException(std::string("Unrecognised node ")+node->name());
+    } else {
+      BOOST_LOG_TRIVIAL(warning) << "Unrecognised node: " << node->name();
+      visitNode(node);
+      break;
+    }
   }
 }
 
@@ -327,7 +521,9 @@ void ReadVerilatorXML::newVarRef(XMLNode *node) {
     auto varName = node->first_attribute("name")->value();
     auto varVertex = lookupVarVertex(varName);
     if (varVertex == netlist.nullVertex()) {
-      throw XMLException(std::string("var ")+varName+" does not have a VAR_SCOPE");
+      // Workaround issue #7: https://github.com/jameshanlon/netlist-paths/issues/7
+      BOOST_LOG_TRIVIAL(warning) << "var " << +varName << " does not have a VAR_SCOPE";
+      return;
     }
     if (isLValue) {
       // Assignment to var
@@ -356,6 +552,22 @@ void ReadVerilatorXML::newVarRef(XMLNode *node) {
 
 void ReadVerilatorXML::visitNode(XMLNode *node) {
   iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitReadMem(XMLNode *node) {
+  newStatement(node, VertexAstType::READ_MEM);
+}
+
+void ReadVerilatorXML::visitSformatf(XMLNode *node) {
+  newStatement(node, VertexAstType::SFORMATF);
+}
+
+void ReadVerilatorXML::visitCase(XMLNode *node) {
+  newStatement(node, VertexAstType::CASE);
+}
+
+void ReadVerilatorXML::visitJumpBlock(XMLNode *node) {
+  newStatement(node, VertexAstType::JUMP_BLOCK);
 }
 
 void ReadVerilatorXML::visitModule(XMLNode *node) {
@@ -388,16 +600,12 @@ void ReadVerilatorXML::visitInitial(XMLNode *node) {
   newStatement(node, VertexAstType::INITIAL);
 }
 
-void ReadVerilatorXML::visitInstance(XMLNode *node) {
-  newStatement(node, VertexAstType::INSTANCE);
+void ReadVerilatorXML::visitIf(XMLNode *node) {
+  newStatement(node, VertexAstType::IF);
 }
 
-void ReadVerilatorXML::visitSenItem(XMLNode *node) {
-  if (currentLogic) {
-    iterateChildren(node);
-  } else {
-    newStatement(node, VertexAstType::SEN_ITEM);
-  }
+void ReadVerilatorXML::visitInstance(XMLNode *node) {
+  newStatement(node, VertexAstType::INSTANCE);
 }
 
 void ReadVerilatorXML::visitSenGate(XMLNode *node) {
@@ -406,6 +614,18 @@ void ReadVerilatorXML::visitSenGate(XMLNode *node) {
 
 void ReadVerilatorXML::visitCFunc(XMLNode *node) {
   newStatement(node, VertexAstType::C_FUNC);
+}
+
+void ReadVerilatorXML::visitCStmt(XMLNode *node) {
+  newStatement(node, VertexAstType::C_STMT);
+}
+
+void ReadVerilatorXML::visitDisplay(XMLNode *node) {
+  newStatement(node, VertexAstType::DISPLAY);
+}
+
+void ReadVerilatorXML::visitFinish(XMLNode *node) {
+  newStatement(node, VertexAstType::FINISH);
 }
 
 void ReadVerilatorXML::visitVar(XMLNode *node) {
@@ -432,6 +652,10 @@ void ReadVerilatorXML::visitTypeTable(XMLNode *node) {
 
 void ReadVerilatorXML::visitTypedef(XMLNode *node) {
   iterateChildren(node);
+}
+
+void ReadVerilatorXML::visitWhile(XMLNode *node) {
+  newStatement(node, VertexAstType::WHILE);
 }
 
 void ReadVerilatorXML::visitBasicDtype(XMLNode *node) {
@@ -483,15 +707,15 @@ size_t ReadVerilatorXML::visitConst(XMLNode *node) {
     // Drop any value type prefixes.
     auto pos = value.rfind("'sh");
     if (pos != std::string::npos) {
-      return std::stoi(value.substr(pos+3), nullptr, 16);
+      return std::stoll(value.substr(pos+3), nullptr, 16);
     }
     pos = value.rfind("'h");
     if (pos != std::string::npos) {
-      return std::stoul(value.substr(pos+2), nullptr, 16);
+      return std::stoull(value.substr(pos+2), nullptr, 16);
     }
     assert(0 && "Unexpected constant type prefix");
   }
-  return std::stoul(value);
+  return std::stoull(value);
 }
 
 std::pair<size_t, size_t>
@@ -582,6 +806,25 @@ void ReadVerilatorXML::visitEnumDType(XMLNode *node) {
 
 void ReadVerilatorXML::visitInterfaceRefDType(XMLNode *node) {
  // To do.
+}
+
+void ReadVerilatorXML::visitVoidDType(XMLNode *node) {
+  auto id = node->first_attribute("id")->value();
+  if (dtypeMappings.count(id) == 0) {
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    dtypeMappings[id] = std::make_shared<VoidDType>(location);
+    addDtype(dtypeMappings[id]);
+  }
+}
+
+void ReadVerilatorXML::visitClassRefDType(XMLNode *node) {
+  auto id = node->first_attribute("id")->value();
+  if (dtypeMappings.count(id) == 0) {
+    auto name = node->first_attribute("name")->value();
+    auto location = parseLocation(node->first_attribute("loc")->value());
+    dtypeMappings[id] = std::make_shared<ClassRefDType>(name, location);
+    addDtype(dtypeMappings[id]);
+  }
 }
 
 void ReadVerilatorXML::readXML(const std::string &filename) {

@@ -89,7 +89,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("set_traverse_registers",        &Options::setTraverseRegisters)
     .def("set_restrict_start_points",     &Options::setRestrictStartPoints)
     .def("set_restrict_end_points",       &Options::setRestrictEndPoints)
-    .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers);
+    .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers)
+    .def("set_error_on_unmatched_node",   &Options::setErrorOnUnmatchedNode);
 
   int (RunVerilator::*run)(const std::string&, const std::string&) const = &RunVerilator::run;
 
