@@ -80,10 +80,12 @@ enum class AstNode {
   REF_DTYPE,
   REPLICATE,
   SCOPE,
+  SCOPE_NAME,
   SEL,
   SEN_GATE,
   SEN_ITEM,
   SEN_TREE,
+  SFORMATF,
   SHIFTL,
   SHIFTLS,
   SHIFTR,
@@ -92,6 +94,7 @@ enum class AstNode {
   SUB,
   TEST_PLUS_ARGS,
   TEXT,
+  TIME,
   TOP_SCOPE,
   TYPEDEF,
   TYPE_TABLE,
@@ -177,10 +180,12 @@ static AstNode resolveNode(const char *name) {
       { "refdtype",         AstNode::REF_DTYPE },
       { "replicate",        AstNode::REPLICATE },
       { "scope",            AstNode::SCOPE },
+      { "scope_name",       AstNode::SCOPE_NAME },
       { "sel",              AstNode::SEL },
       { "sengate",          AstNode::SEN_GATE },
       { "senitem",          AstNode::SEN_ITEM },
       { "sentree",          AstNode::SEN_TREE },
+      { "sformatf",         AstNode::SFORMATF },
       { "shiftl",           AstNode::SHIFTL },
       { "shiftls",          AstNode::SHIFTLS },
       { "shiftr",           AstNode::SHIFTR },
@@ -189,6 +194,7 @@ static AstNode resolveNode(const char *name) {
       { "sub",              AstNode::SUB },
       { "testplusargs",     AstNode::TEST_PLUS_ARGS },
       { "text",             AstNode::TEXT },
+      { "time",             AstNode::TIME },
       { "topscope",         AstNode::TOP_SCOPE },
       { "typedef",          AstNode::TYPEDEF },
       { "typetable",        AstNode::TYPE_TABLE },
@@ -231,6 +237,8 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::C_NEW:           visitNode(node);                        break;
   case AstNode::C_STMT:          visitCStmt(node);                       break;
   case AstNode::DISPLAY:         visitDisplay(node);                     break;
+  case AstNode::DIV:             visitNode(node);                        break;
+  case AstNode::DIVS:            visitNode(node);                        break;
   case AstNode::ENUM_DTYPE:      visitEnumDType(node);                   break;
   case AstNode::EQ:              visitNode(node);                        break;
   case AstNode::EQWILD:          visitNode(node);                        break;
@@ -273,10 +281,12 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::REF_DTYPE:       visitRefDtype(node);                    break;
   case AstNode::REPLICATE:       visitNode(node);                        break;
   case AstNode::SCOPE:           visitScope(node);                       break;
+  case AstNode::SCOPE_NAME:      visitNode(node);                        break;
   case AstNode::SEL:             visitNode(node);                        break;
   case AstNode::SEN_GATE:        visitNode(node);                        break;
   case AstNode::SEN_ITEM:        visitNode(node);                        break;
   case AstNode::SEN_TREE:        visitNode(node);                        break;
+  case AstNode::SFORMATF:        visitSformatf(node);                    break;
   case AstNode::SHIFTL:          visitNode(node);                        break;
   case AstNode::SHIFTLS:         visitNode(node);                        break;
   case AstNode::SHIFTR:          visitNode(node);                        break;
@@ -285,6 +295,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::SUB:             visitNode(node);                        break;
   case AstNode::TEST_PLUS_ARGS:  visitNode(node);                        break;
   case AstNode::TEXT:            visitNode(node);                        break;
+  case AstNode::TIME:            visitNode(node);                        break;
   case AstNode::TOP_SCOPE:       visitScope(node);                       break;
   case AstNode::TYPEDEF:         visitTypedef(node);                     break;
   case AstNode::UNION_DTYPE:     visitAggregateDType<UnionDType>(node);  break;
@@ -545,6 +556,10 @@ void ReadVerilatorXML::visitNode(XMLNode *node) {
 
 void ReadVerilatorXML::visitReadMem(XMLNode *node) {
   newStatement(node, VertexAstType::READ_MEM);
+}
+
+void ReadVerilatorXML::visitSformatf(XMLNode *node) {
+  newStatement(node, VertexAstType::SFORMATF);
 }
 
 void ReadVerilatorXML::visitCase(XMLNode *node) {

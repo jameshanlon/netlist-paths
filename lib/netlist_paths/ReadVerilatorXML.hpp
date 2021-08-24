@@ -103,6 +103,7 @@ private:
   void visitRefDtype(XMLNode *node);
   void visitScope(XMLNode *node);
   void visitSenGate(XMLNode *node);
+  void visitSformatf(XMLNode *node);
   void visitTypeTable(XMLNode *node);
   void visitTypedef(XMLNode *node);
   void visitVar(XMLNode *node);

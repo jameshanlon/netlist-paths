@@ -38,7 +38,7 @@ enum class VertexAstType {
   PORT,
   READ_MEM,
   SEN_GATE,
-  SEN_ITEM,
+  SFORMATF,
   SRC_REG,
   SRC_REG_ALIAS,
   VAR,
@@ -100,7 +100,7 @@ inline VertexAstType getVertexAstType(const std::string &name) {
       { "PORT",          VertexAstType::PORT },
       { "READ_MEM",      VertexAstType::READ_MEM },
       { "SEN_GATE",      VertexAstType::SEN_GATE },
-      { "SEN_ITEM",      VertexAstType::SEN_ITEM },
+      { "SFORMATF",      VertexAstType::SFORMATF },
       { "SRC_REG",       VertexAstType::SRC_REG },
       { "SRC_REG_ALIAS", VertexAstType::SRC_REG_ALIAS },
       { "VAR",           VertexAstType::VAR },
@@ -135,7 +135,7 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::PORT:          return "PORT";
     case VertexAstType::READ_MEM:      return "READ_MEM";
     case VertexAstType::SEN_GATE:      return "SEN_GATE";
-    case VertexAstType::SEN_ITEM:      return "SEN_ITEM";
+    case VertexAstType::SFORMATF:      return "SFORMATF";
     case VertexAstType::SRC_REG:       return "SRC_REG";
     case VertexAstType::SRC_REG_ALIAS: return "SRC_REG_ALIAS";
     case VertexAstType::VAR:           return "VAR";
@@ -169,7 +169,7 @@ inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
     case VertexAstType::PORT:          return "PORT";
     case VertexAstType::READ_MEM:      return "READ_MEM";
     case VertexAstType::SEN_GATE:      return "SEN";
-    case VertexAstType::SEN_ITEM:      return "SEN";
+    case VertexAstType::SFORMATF:      return "SFORMATF";
     case VertexAstType::SRC_REG:       return "REG";
     case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
     case VertexAstType::VAR:           return "VAR";
@@ -379,6 +379,7 @@ public:
            astType == VertexAstType::IF ||
            astType == VertexAstType::INITIAL ||
            astType == VertexAstType::SEN_GATE ||
+           astType == VertexAstType::SFORMATF ||
            astType == VertexAstType::WHILE;
   }
 
