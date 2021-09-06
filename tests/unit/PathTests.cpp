@@ -4,7 +4,7 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/test/unit_test.hpp>
-#include "tests/definitions.hpp"
+#include "tests/unit/definitions.hpp"
 #include "TestContext.hpp"
 
 #define CHECK_VAR_REPORT(vertex, astTypeStr, dtypeStr, name) \
