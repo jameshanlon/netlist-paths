@@ -217,6 +217,45 @@ Contributing
 
 Contributions are welcome, please follow the `LLVM coding standards <https://llvm.org/docs/CodingStandards.html>`_.
 
+Debugging
+---------
+
+Produce XML from a test case:
+
+.. code-block:: bash
+
+  $ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
+  info: Running "/Users/jamieh/netlist-paths/Debug/install/bin/np-verilator_bin" +1800-2012ext+.sv
+     --bbox-sys --bbox-unsup --xml-only --flatten --error-limit 10000 --xml-output adder.xml tests/verilog/adder.sv
+  info: Parsing input XML file
+  info: 1 modules in netlist
+  info: 0 interfaces in netlist
+  info: 0 packages in netlist
+  info: 4 entries in type table
+  info: Netlist contains 15 vertices and 22 edges
+
+Produce a visualisation of the netlist graph:
+
+.. code-block:: bash
+
+  $ netlist-paths adder.xml --dump-dot -o adder.dot
+  $ dot -Tpdf adder.dot -o adder.pdf
+
+Run C++ unit tests directly, eg:
+
+.. code-block:: bash
+
+  $ cd Debug
+  $ ctest --verbose # Run all the tests
+  $ ./tests/NameTests # Run a particular test
+
+Run Python unit tests directly (the version of Python must match the build):
+
+.. code-block:: bash
+
+  $ cd Debug/tests
+  $ python3 py_wrapper_tests.py
+
 
 .. _cpp_api:
 
