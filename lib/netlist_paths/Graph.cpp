@@ -143,8 +143,10 @@ void Graph::splitRegVertices() {
 
       // Otherwise, mark edges from a DST_REG node to each node that is
       // connected by an out edge, allowing paths through registered to be
-      // traversed.
-      graph[boost::edge(v, target, graph).first].setThroughRegister();
+      // traversed. Note that with multiple edges between v and target this
+      // doesn't work since boost::edge() always returns the first one. The
+      // Graph::addEdge() method guarantees that no duplicate edges are added.
+      graph[boost::edge(v, target, graph).first].setThroughRegister(true);
 
       // And copy the same out edge to the new srcReg.
       boost::add_edge(srcRegVertex, target, graph);

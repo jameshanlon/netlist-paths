@@ -12,5 +12,3 @@ module basic_ff_chain
     out = b;
   end
 endmodule
-
-

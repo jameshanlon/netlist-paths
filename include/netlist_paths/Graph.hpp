@@ -121,9 +121,11 @@ public:
     return boost::add_vertex(vertex, graph);
   }
 
-  /// Add an edge to the graph.
+  /// Add an edge to the graph. Don't allow multi-edges.
   void addEdge(VertexID src, VertexID dst) {
-    boost::add_edge(src, dst, graph);
+    if (!boost::edge(src, dst, graph).second) {
+      boost::add_edge(src, dst, graph);
+    }
   }
 
   /// Set the specified vertex to be a destination register.

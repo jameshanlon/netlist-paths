@@ -571,9 +571,11 @@ BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
 
 BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
-  netlist_paths::Options::getInstance().setTraverseRegisters(true);
+
+  // Paths through regisers.
   {
     // Any path: in -> a -> b -> out
+    netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
     BOOST_TEST(vertices.size() == 7);
     CHECK_VAR_REPORT(vertices[0], "VAR", "logic", "in");
@@ -583,6 +585,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   }
   {
     // Any path: a -> b -> out
+    netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
     BOOST_TEST(vertices.size() == 5);
     CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.a");
@@ -591,13 +594,34 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   }
   {
     // Any path: b -> out
+    netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
     BOOST_TEST(vertices.size() == 3);
     CHECK_VAR_REPORT(vertices[0], "SRC_REG", "logic", "basic_ff_chain.b");
     CHECK_VAR_REPORT(vertices[2], "VAR", "logic", "out");
   }
+
+  // Check also the through-register paths don't appear when not traversing registers.
+  {
+    netlist_paths::Options::getInstance().setTraverseRegisters(false);
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+    BOOST_TEST(vertices.size() == 0);
+  }
+  {
+    netlist_paths::Options::getInstance().setTraverseRegisters(false);
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(vertices.size() == 0);
+  }
+  {
+    netlist_paths::Options::getInstance().setTraverseRegisters(false);
+    auto vertices = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.a", "out"));
+    BOOST_TEST(vertices.size() == 0);
+  }
+
+  // Check fanout and fanin path queries.
   {
     // Fanout: in
+    netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto paths = np->getAllFanOut("in");
     std::vector<std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == endPoints.size());
@@ -607,6 +631,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
   }
   {
     // Fanout: out
+    netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto paths = np->getAllFanIn("out");
     std::vector<std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == startPoints.size());

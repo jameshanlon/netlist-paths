@@ -18,7 +18,7 @@ public:
   Edge() : throughRegister(false) {};
   Edge(bool throughRegister) : throughRegister(throughRegister) {}
 
-  void setThroughRegister() { throughRegister = true; }
+  void setThroughRegister(bool value) { throughRegister = value; }
   bool isThroughRegister() const { return throughRegister; }
 };
 
