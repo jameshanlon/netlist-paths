@@ -96,7 +96,10 @@
 <li><a class="reference internal" href="#python-module">Python module</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a><ul>
+<li><a class="reference internal" href="#debugging">Debugging</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#c-api-reference">C++ API reference</a><ul>
 <li><a class="reference internal" href="#dtype">DType</a></li>
 <li><a class="reference internal" href="#exception">Exception</a></li>
@@ -369,6 +372,37 @@ fsm.state_q packed union
 <div class="section" id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
 <p>Contributions are welcome, please follow the <a class="reference external" href="https://llvm.org/docs/CodingStandards.html">LLVM coding standards</a>.</p>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<p>Produce XML from a test case:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
+info: Running <span class="s2">&quot;/Users/jamieh/netlist-paths/Debug/install/bin/np-verilator_bin&quot;</span> +1800-2012ext+.sv
+   --bbox-sys --bbox-unsup --xml-only --flatten --error-limit <span class="m">10000</span> --xml-output adder.xml tests/verilog/adder.sv
+info: Parsing input XML file
+info: <span class="m">1</span> modules in netlist
+info: <span class="m">0</span> interfaces in netlist
+info: <span class="m">0</span> packages in netlist
+info: <span class="m">4</span> entries in <span class="nb">type</span> table
+info: Netlist contains <span class="m">15</span> vertices and <span class="m">22</span> edges
+</pre></div>
+</div>
+<p>Produce a visualisation of the netlist graph:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ netlist-paths adder.xml --dump-dot -o adder.dot
+$ dot -Tpdf adder.dot -o adder.pdf
+</pre></div>
+</div>
+<p>Run C++ unit tests directly, eg:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> Debug
+$ ctest --verbose <span class="c1"># Run all the tests</span>
+$ ./tests/NameTests <span class="c1"># Run a particular test</span>
+</pre></div>
+</div>
+<p>Run Python unit tests directly (the version of Python must match the build):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> Debug/tests
+$ python3 py_wrapper_tests.py
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="c-api-reference">
 <span id="cpp-api"></span><h1>C++ API reference<a class="headerlink" href="#c-api-reference" title="Permalink to this headline">¶</a></h1>
