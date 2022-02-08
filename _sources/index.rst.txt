@@ -217,8 +217,8 @@ Contributing
 
 Contributions are welcome, please follow the `LLVM coding standards <https://llvm.org/docs/CodingStandards.html>`_.
 
-Debugging
----------
+Developer notes
+---------------
 
 Produce XML from a test case:
 
@@ -255,6 +255,10 @@ Run Python unit tests directly (the version of Python must match the build):
 
   $ cd Debug/tests
   $ python3 py_wrapper_tests.py
+
+To run the extended test set, the
+`netlist-paths-tests <https://github.com/jameshanlon/netlist-paths-tests>`_
+repository contains tests based on external System Verilog designs.
 
 
 .. _cpp_api:
