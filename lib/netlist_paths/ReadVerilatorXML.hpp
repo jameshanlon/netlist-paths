@@ -86,6 +86,7 @@ private:
   void visitAssignAlias(XMLNode *node);
   void visitAssignDly(XMLNode *node);
   void visitBasicDtype(XMLNode *node);
+  void visitCCall(XMLNode *node);
   void visitCFunc(XMLNode *node);
   void visitCStmt(XMLNode *node);
   void visitCase(XMLNode *node);

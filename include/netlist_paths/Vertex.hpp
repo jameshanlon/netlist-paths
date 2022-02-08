@@ -23,6 +23,7 @@ enum class VertexAstType {
   ASSIGN_DLY,
   ASSIGN_W,
   CASE,
+  C_CALL,
   C_FUNC,
   C_METHOD_CALL,
   C_STMT,
@@ -371,6 +372,7 @@ public:
            astType == VertexAstType::ASSIGN_ALIAS ||
            astType == VertexAstType::ASSIGN_DLY ||
            astType == VertexAstType::ASSIGN_W ||
+           astType == VertexAstType::C_CALL ||
            astType == VertexAstType::C_FUNC ||
            astType == VertexAstType::C_METHOD_CALL ||
            astType == VertexAstType::C_STMT ||

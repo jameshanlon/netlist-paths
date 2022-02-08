@@ -23,7 +23,9 @@ enum class AstNode {
   BASIC_DTYPE,
   CASE,
   CASE_ITEM,
+  C_CALL,
   CLASS_REF_DTYPE,
+  C_MATH,
   COMMENT,
   CONCAT,
   COND,
@@ -38,6 +40,7 @@ enum class AstNode {
   DIVS,
   ENUM_DTYPE,
   EQ,
+  EQ_CASE,
   EQWILD,
   EXTEND,
   EXTENDS,
@@ -48,6 +51,8 @@ enum class AstNode {
   GTS,
   IF,
   IFACE_REF_DTYPE,
+  INIT_ARRAY,
+  INIT_ITEM,
   INITIAL,
   INSTANCE,
   INTF_REF,
@@ -68,6 +73,7 @@ enum class AstNode {
   MULS,
   NEGATE,
   NEQ,
+  NEQ_CASE,
   NOT,
   OR,
   PACKED_ARRAY,
@@ -90,6 +96,7 @@ enum class AstNode {
   SHIFTLS,
   SHIFTR,
   SHIFTRS,
+  STREAM_L,
   STRUCT_DTYPE,
   SUB,
   TEST_PLUS_ARGS,
@@ -126,6 +133,8 @@ static AstNode resolveNode(const char *name) {
       { "caseitem",         AstNode::CASE_ITEM },
       { "cfunc",            AstNode::C_FUNC },
       { "classrefdtype",    AstNode::CLASS_REF_DTYPE },
+      { "ccall",            AstNode::C_CALL },
+      { "cmath",            AstNode::C_MATH },
       { "cmethodcall",      AstNode::C_METHOD_CALL },
       { "cnew",             AstNode::C_NEW },
       { "comment",          AstNode::COMMENT },
@@ -139,6 +148,7 @@ static AstNode resolveNode(const char *name) {
       { "cstmt",            AstNode::C_STMT },
       { "enumdtype",        AstNode::ENUM_DTYPE },
       { "eq",               AstNode::EQ },
+      { "eqcase",           AstNode::EQ_CASE },
       { "eqwild",           AstNode::EQWILD },
       { "extend",           AstNode::EXTEND },
       { "extends",          AstNode::EXTENDS },
@@ -149,6 +159,8 @@ static AstNode resolveNode(const char *name) {
       { "gts",              AstNode::GTS },
       { "if",               AstNode::IF },
       { "ifacerefdtype",    AstNode::IFACE_REF_DTYPE },
+      { "initarray",        AstNode::INIT_ARRAY },
+      { "inititem",         AstNode::INIT_ITEM },
       { "initial",          AstNode::INITIAL },
       { "instance",         AstNode::INSTANCE },
       { "intfref",          AstNode::INTF_REF },
@@ -169,6 +181,7 @@ static AstNode resolveNode(const char *name) {
       { "muls",             AstNode::MULS },
       { "negate",           AstNode::NEGATE },
       { "neq",              AstNode::NEQ },
+      { "neqcase",          AstNode::NEQ_CASE },
       { "not",              AstNode::NOT },
       { "or",               AstNode::OR, },
       { "packarraydtype",   AstNode::PACKED_ARRAY },
@@ -190,6 +203,7 @@ static AstNode resolveNode(const char *name) {
       { "shiftls",          AstNode::SHIFTLS },
       { "shiftr",           AstNode::SHIFTR },
       { "shiftrs",          AstNode::SHIFTRS },
+      { "streaml",          AstNode::STREAM_L },
       { "structdtype",      AstNode::STRUCT_DTYPE },
       { "sub",              AstNode::SUB },
       { "testplusargs",     AstNode::TEST_PLUS_ARGS },
@@ -232,7 +246,9 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::COND:            visitNode(node);                        break;
   case AstNode::CONST:           visitNode(node);                        break; // Don't visit consts unless expected
   case AstNode::CONT_ASSIGN:     visitAssign(node);                      break;
+  case AstNode::C_CALL:          visitCCall(node);                       break;
   case AstNode::C_FUNC:          visitCFunc(node);                       break;
+  case AstNode::C_MATH:          visitNode(node);                        break;
   case AstNode::C_METHOD_CALL:   visitNode(node);                        break;
   case AstNode::C_NEW:           visitNode(node);                        break;
   case AstNode::C_STMT:          visitCStmt(node);                       break;
@@ -241,6 +257,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::DIVS:            visitNode(node);                        break;
   case AstNode::ENUM_DTYPE:      visitEnumDType(node);                   break;
   case AstNode::EQ:              visitNode(node);                        break;
+  case AstNode::EQ_CASE:         visitNode(node);                        break;
   case AstNode::EQWILD:          visitNode(node);                        break;
   case AstNode::EXTEND:          visitNode(node);                        break;
   case AstNode::EXTENDS:         visitNode(node);                        break;
@@ -251,6 +268,8 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::GTS:             visitNode(node);                        break;
   case AstNode::IF:              visitIf(node);                          break;
   case AstNode::IFACE_REF_DTYPE: visitInterfaceRefDType(node);           break;
+  case AstNode::INIT_ARRAY:      visitNode(node);                        break;
+  case AstNode::INIT_ITEM:       visitNode(node);                        break;
   case AstNode::INITIAL:         visitInitial(node);                     break;
   case AstNode::INSTANCE:        visitInstance(node);                    break;
   case AstNode::INTF_REF:        visitInterfaceRef(node);                break;
@@ -270,6 +289,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::MULS:            visitNode(node);                        break;
   case AstNode::NEGATE:          visitNode(node);                        break;
   case AstNode::NEQ:             visitNode(node);                        break;
+  case AstNode::NEQ_CASE:        visitNode(node);                        break;
   case AstNode::NOT:             visitNode(node);                        break;
   case AstNode::OR:              visitNode(node);                        break;
   case AstNode::PACKED_ARRAY:    visitArrayDType(node, true);            break;
@@ -291,6 +311,7 @@ void ReadVerilatorXML::dispatchVisitor(XMLNode *node) {
   case AstNode::SHIFTLS:         visitNode(node);                        break;
   case AstNode::SHIFTR:          visitNode(node);                        break;
   case AstNode::SHIFTRS:         visitNode(node);                        break;
+  case AstNode::STREAM_L:        visitNode(node);                        break;
   case AstNode::STRUCT_DTYPE:    visitAggregateDType<StructDType>(node); break;
   case AstNode::SUB:             visitNode(node);                        break;
   case AstNode::TEST_PLUS_ARGS:  visitNode(node);                        break;
@@ -610,6 +631,10 @@ void ReadVerilatorXML::visitInstance(XMLNode *node) {
 
 void ReadVerilatorXML::visitSenGate(XMLNode *node) {
   newStatement(node, VertexAstType::SEN_GATE);
+}
+
+void ReadVerilatorXML::visitCCall(XMLNode *node) {
+  newStatement(node, VertexAstType::C_CALL);
 }
 
 void ReadVerilatorXML::visitCFunc(XMLNode *node) {
