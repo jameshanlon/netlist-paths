@@ -13,7 +13,7 @@ namespace netlist_paths {
 /// \param pattern The wildcard pattern to match.
 ///
 /// \returns True if the wildcard pattern matches the text.
-bool wildcardMatch(const char *text, const char *pattern) {
+static bool wildcardMatch(const char *text, const char *pattern) {
   while (*pattern != '\0') {
     if (*pattern == '*') {
       // Ignore the * and check for matches against the remaining pattern and text.
@@ -52,7 +52,7 @@ bool wildcardMatch(const char *text, const char *pattern) {
 /// \param pattern The wildcard pattern to match.
 ///
 /// \returns True if the wildcard pattern matches the text.
-bool wildcardMatch(const std::string &text, const std::string &pattern) {
+static bool wildcardMatch(const std::string &text, const std::string &pattern) {
   return wildcardMatch(text.c_str(), pattern.c_str());
 }
 

@@ -108,6 +108,9 @@ public:
   /// \returns The width of the data type.
   size_t getDTypeWidth(const std::string &name) const;
 
+  /// Return a vector of data types in the design. Convert to raw pointers for Python.
+  const std::vector<DType*> getNamedDTypes(const std::string pattern=std::string()) const;
+
   //===--------------------------------------------------------------------===//
   // Basic path querying.
   //===--------------------------------------------------------------------===//
@@ -202,6 +205,10 @@ public:
   getNamedVertices(const std::string pattern=std::string()) const;
 
   /// Return a vector of pointers to vertices that have names.
+  ///
+  /// \param pattern A pattern to match vertices against.
+  ///
+  /// \returns A vector of pointers to Vertex objects.
   std::vector<Vertex*> getNamedVerticesPtr(const std::string pattern=std::string()) const {
     return createVertexPtrVec(graph.getVertices(pattern, VertexNetlistType::IS_NAMED));
   }

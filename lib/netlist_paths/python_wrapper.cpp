@@ -34,6 +34,9 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_str_overloads,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertex_dtype_width_overloads,
                                        getVertexDTypeWidth, 1, 2)
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(dtype_to_str_overloads,
+                                       toString, 0, 1)
+
 BOOST_PYTHON_MODULE(py_netlist_paths)
 {
   using namespace boost::python;
@@ -46,7 +49,8 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
   class_<DType, DType*, boost::noncopyable>("DType")
      .def("get_name",   &DType::getName)
      .def("get_width",  &DType::getWidth)
-     .def("to_str",     &DType::toString);
+     .def("to_str",     &DType::toString,
+                        dtype_to_str_overloads());
 
   class_<Vertex, Vertex*, boost::noncopyable>("Vertex")
      .def("get_name",          &Vertex::getName)
@@ -74,6 +78,9 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
 
   class_<std::vector<std::vector<Vertex*> > >("PathList")
       .def(vector_indexing_suite<std::vector<std::vector<Vertex*> > >());
+
+  class_<std::vector<DType*> >("DType")
+      .def(vector_indexing_suite<std::vector<DType*> >());
 
   class_<Options, boost::noncopyable>("Options", no_init)
     .def("get_instance",       &Options::getInstancePtr,
@@ -127,6 +134,7 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("get_all_fanout_paths",   &Netlist::getAllFanOut)
     .def("get_all_fanin_paths",    &Netlist::getAllFanIn)
     .def("get_dtype_width",        &Netlist::getDTypeWidth)
+    .def("get_named_dtypes",       &Netlist::getNamedDTypes)
     .def("get_vertex_dtype_str",   &Netlist::getVertexDTypeStr,
                                    get_vertex_dtype_str_overloads())
     .def("get_vertex_dtype_width", &Netlist::getVertexDTypeWidth,

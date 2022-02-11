@@ -2,6 +2,7 @@
 #include <boost/format.hpp>
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/ReadVerilatorXML.hpp"
+#include "netlist_paths/Utilities.hpp"
 
 using namespace netlist_paths;
 
@@ -300,4 +301,45 @@ Netlist::getNamedVertices(const std::string pattern) const {
                    return a.compareLessThan(b); };
   std::sort(vertices.begin(), vertices.end(), compare);
   return vertices;
+}
+
+/// Match a pattern against a name.
+bool matchName(const std::string &pattern, const std::string name) {
+  if (pattern.empty()) {
+    return true;
+  }
+  if (Options::getInstance().isMatchExact()) {
+    return pattern == name;
+  }
+  if (Options::getInstance().isMatchRegex()) {
+    // Catch any errors in the regex string.
+    std::regex nameRegex;
+    try {
+      nameRegex.assign(pattern);
+    } catch(std::regex_error const &e) {
+      throw Exception(std::string("malformed regular expression: ")+e.what());
+    }
+    return std::regex_search(name, nameRegex);
+  }
+  if (Options::getInstance().isMatchWildcard()) {
+    return wildcardMatch(pattern, name);
+  }
+  return {};
+}
+
+const std::vector<DType*>
+Netlist::getNamedDTypes(const std::string pattern) const {
+    std::vector<DType*> dtypeVecPtrs;
+    std::set<std::string> dtypesSeen;
+    for (auto &dtype : dtypes) {
+      // Return unique DTypes with non-empty names, not containing '__type', matching pattern (if non empty).
+      if (!dtype->getName().empty() &&
+          (dtype->getName().find("__type") == std::string::npos) &&
+          matchName(pattern, dtype->getName()) &&
+          (dtypesSeen.find(dtype->getName()) == dtypesSeen.end())) {
+        dtypeVecPtrs.push_back(dtype.get());
+        dtypesSeen.insert(dtype->getName());
+      }
+    }
+    return dtypeVecPtrs;
 }

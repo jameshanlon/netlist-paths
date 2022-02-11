@@ -29,7 +29,7 @@ def write_table(rows, fd):
 
 def dump_names(vertices, fd):
     """
-    Dump a table of names and their attributes matching regex to fd.
+    Dump a table of vertex names and their attributes matching regex to fd.
     """
     rows = []
     HDR = ['Name', 'Type', 'DType', 'Width', 'Direction', 'Location']
@@ -51,7 +51,26 @@ def dump_names(vertices, fd):
         # Write the table out.
         write_table(rows, fd)
     else:
-        print('No matching vertices.')
+        fd.write('No matching vertices.\n')
+
+def dump_dtypes(dtypes, fd):
+    """
+    Dump a table of data types.
+    """
+    rows = []
+    HDR = ['Name', 'Width', 'Description']
+    rows.append(HDR)
+    # Sort by name, then description.
+    dtypes = sorted(dtypes, key=lambda x: (x.get_name(), x.to_str()))
+    for dtype in dtypes:
+      rows.append((dtype.get_name(),
+                   str(dtype.get_width()),
+                   dtype.to_str()))
+    if len(dtypes) > 0:
+        # Write the table out.
+        write_table(rows, fd)
+    else:
+        fd.write('No matching data types.\n')
 
 def dump_path_report(netlist, path, fd):
     """
@@ -60,7 +79,7 @@ def dump_path_report(netlist, path, fd):
     """
     rows = []
     rows.append(('Name', 'Type', 'DType', 'Statement', 'Location'))
-    index = 0;
+    index = 0
     while index < len(path):
         # Var reference and logic statement.
         if index+1 < len(path) and \
@@ -138,6 +157,12 @@ def main():
                         const='',
                         metavar='pattern',
                         help='Dump all registers, filter by regex')
+    parser.add_argument('--dump-dtypes',
+                        nargs='?',
+                        default=None,
+                        const='',
+                        metavar='pattern',
+                        help='Dump all data types, filter by regex')
     parser.add_argument('--dump-dot',
                         action='store_true',
                         help='Dump a dotfile of the netlist\'s graph')
@@ -258,6 +283,11 @@ def main():
         # Dump regs
         if args.dump_regs != None:
             dump_names(netlist.get_reg_vertices(args.dump_regs), sys.stdout)
+            return 0
+
+        # Dump data types
+        if args.dump_dtypes != None:
+            dump_dtypes(netlist.get_named_dtypes(args.dump_dtypes), sys.stdout)
             return 0
 
         # Dump graph dotfile

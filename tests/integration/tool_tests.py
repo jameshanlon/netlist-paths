@@ -68,6 +68,17 @@ class TestTool(unittest.TestCase):
         self.assertEqual(returncode, 0)
         self.assertEqual(len(stdout.split('\n')), 5)
 
+    def test_dump_dtypes(self):
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'dtypes.sv')
+        # Dump a table of all data types.
+        returncode, stdout = self.run_np(['--compile', test_path, '--dump-dtypes'])
+        self.assertEqual(returncode, 0)
+        self.assertEqual(len(stdout.split('\n')), 18)
+        # Filter by 'packed' regex.
+        returncode, stdout = self.run_np(['--compile', test_path, '--dump-dtypes', 'packed', '--regex'])
+        self.assertEqual(returncode, 0)
+        self.assertEqual(len(stdout.split('\n')), 11)
+
     def test_dump_any_path(self):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'multiple_paths.sv')
         returncode, _ = self.run_np(['--compile', test_path, '--from', 'in', '--to', 'out'])
