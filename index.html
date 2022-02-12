@@ -625,6 +625,12 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 <dl class="cpp function">
+<dt id="_CPPv4NK13netlist_paths7Netlist14getNamedDTypesEKNSt6stringE">
+<span id="_CPPv3NK13netlist_paths7Netlist14getNamedDTypesEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist14getNamedDTypesEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNamedDTypes__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1afddedbf3ff2a42c27dd76a29c4e0ae40"></span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths5DTypeE" title="netlist_paths::DType"><span class="pre">DType</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNamedDTypes</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist14getNamedDTypesEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return a vector of data types in the design. Convert to raw pointers for Python. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE"></span><span id="netlist_paths::Netlist::startpointExists__ssCRC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1afeed28f2e7dc32ff6df330f8c3adefc1"></span><span class="pre">bool</span> <code class="sig-name descname"><span class="pre">startpointExists</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <span class="pre">&amp;</span><em><span class="pre">name</span></em><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist16startpointExistsERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
 <dd><p>Return true if a single startpoint matching a pattern exists.</p>
@@ -795,7 +801,15 @@ repository contains tests based on external System Verilog designs.</p>
 <dl class="cpp function">
 <dt id="_CPPv4NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE">
 <span id="_CPPv3NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE"></span><span id="_CPPv2NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE"></span><span id="netlist_paths::Netlist::getNamedVerticesPtr__ssCC"></span><span class="target" id="classnetlist__paths_1_1_netlist_1a771c3d067336c23a432a5f67e9e92fc1"></span><em class="property"><span class="pre">inline</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">vector</span><span class="pre">&lt;</span><a class="reference internal" href="#_CPPv4N13netlist_paths6VertexE" title="netlist_paths::Vertex"><span class="pre">Vertex</span></a><span class="pre">*</span><span class="pre">&gt;</span> <code class="sig-name descname"><span class="pre">getNamedVerticesPtr</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">const</span></em> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span> <em><span class="pre">pattern</span></em> <span class="pre">=</span> <span class="pre">std</span><span class="pre">::</span><span class="pre">string</span><span class="pre">(</span><span class="pre">)</span><span class="sig-paren">)</span> <em class="property"><span class="pre">const</span></em><a class="headerlink" href="#_CPPv4NK13netlist_paths7Netlist19getNamedVerticesPtrEKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
-<dd><p>Return a vector of pointers to vertices that have names. </p>
+<dd><p>Return a vector of pointers to vertices that have names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – A pattern to match vertices against.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A vector of pointers to <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> objects. </p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1509,28 +1523,19 @@ repository contains tests based on external System Verilog designs.</p>
 <dt id="py_netlist_paths.DType">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></code><code class="sig-name descname"><span class="pre">DType</span></code><a class="headerlink" href="#py_netlist_paths.DType" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="py_netlist_paths.DType.get_name">
-<code class="sig-name descname"><span class="pre">get_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.get_name" title="Permalink to this definition">¶</a></dt>
+<dt id="py_netlist_paths.DType.append">
+<code class="sig-name descname"><span class="pre">append</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em>, <em class="sig-param"><span class="pre">(object)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.append" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_name(netlist_paths::DType {lvalue})</p>
+<dt>C++ signature :</dt><dd><p>void append(std::vector&lt;netlist_paths::DType*, std::allocator&lt;netlist_paths::DType*&gt; &gt; {lvalue},boost::python::api::object)</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt id="py_netlist_paths.DType.get_width">
-<code class="sig-name descname"><span class="pre">get_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.get_width" title="Permalink to this definition">¶</a></dt>
+<dt id="py_netlist_paths.DType.extend">
+<code class="sig-name descname"><span class="pre">extend</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em>, <em class="sig-param"><span class="pre">(object)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.extend" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>unsigned long get_width(netlist_paths::DType {lvalue})</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="py_netlist_paths.DType.to_str">
-<code class="sig-name descname"><span class="pre">to_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(DType)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.DType.to_str" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; to_str(netlist_paths::DType {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+<dt>C++ signature :</dt><dd><p>void extend(std::vector&lt;netlist_paths::DType*, std::allocator&lt;netlist_paths::DType*&gt; &gt; {lvalue},boost::python::api::object)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1754,6 +1759,15 @@ repository contains tests based on external System Verilog designs.</p>
 <code class="sig-name descname"><span class="pre">get_dtype_width</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_dtype_width" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>C++ signature :</dt><dd><p>unsigned long get_dtype_width(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="py_netlist_paths.Netlist.get_named_dtypes">
+<code class="sig-name descname"><span class="pre">get_named_dtypes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">(Netlist)arg1</span></em>, <em class="sig-param"><span class="pre">(str)arg2</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">DType</span> <span class="pre">:</span><a class="headerlink" href="#py_netlist_paths.Netlist.get_named_dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>std::vector&lt;netlist_paths::DType*, std::allocator&lt;netlist_paths::DType*&gt; &gt; get_named_dtypes(netlist_paths::Netlist {lvalue},std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;)</p>
 </dd>
 </dl>
 </dd></dl>

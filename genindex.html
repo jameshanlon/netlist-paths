@@ -166,7 +166,6 @@
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
- | <a href="#T"><strong>T</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -180,15 +179,17 @@
 </li>
       <li><a href="index.html#py_netlist_paths.Waypoints.add_start_point">add_start_point() (py_netlist_paths.Waypoints method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#py_netlist_paths.Waypoints.add_through_point">add_through_point() (py_netlist_paths.Waypoints method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#py_netlist_paths.Netlist.any_endpoint_exists">any_endpoint_exists() (py_netlist_paths.Netlist method)</a>
 </li>
       <li><a href="index.html#py_netlist_paths.Netlist.any_reg_exists">any_reg_exists() (py_netlist_paths.Netlist method)</a>
 </li>
       <li><a href="index.html#py_netlist_paths.Netlist.any_startpoint_exists">any_startpoint_exists() (py_netlist_paths.Netlist method)</a>
+</li>
+      <li><a href="index.html#py_netlist_paths.DType.append">append() (py_netlist_paths.DType method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -217,6 +218,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="index.html#py_netlist_paths.Netlist.endpoint_exists">endpoint_exists() (py_netlist_paths.Netlist method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#py_netlist_paths.DType.extend">extend() (py_netlist_paths.DType method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -252,12 +257,10 @@
 </li>
       <li><a href="index.html#py_netlist_paths.Vertex.get_location_str">get_location_str() (py_netlist_paths.Vertex method)</a>
 </li>
-      <li><a href="index.html#py_netlist_paths.DType.get_name">get_name() (py_netlist_paths.DType method)</a>
-
-      <ul>
-        <li><a href="index.html#py_netlist_paths.Vertex.get_name">(py_netlist_paths.Vertex method)</a>
+      <li><a href="index.html#py_netlist_paths.Vertex.get_name">get_name() (py_netlist_paths.Vertex method)</a>
 </li>
-      </ul></li>
+      <li><a href="index.html#py_netlist_paths.Netlist.get_named_dtypes">get_named_dtypes() (py_netlist_paths.Netlist method)</a>
+</li>
       <li><a href="index.html#py_netlist_paths.Netlist.get_named_vertices">get_named_vertices() (py_netlist_paths.Netlist method)</a>
 </li>
       <li><a href="index.html#py_netlist_paths.Netlist.get_net_vertices">get_net_vertices() (py_netlist_paths.Netlist method)</a>
@@ -269,8 +272,6 @@
       <li><a href="index.html#py_netlist_paths.Netlist.get_vertex_dtype_str">get_vertex_dtype_str() (py_netlist_paths.Netlist method)</a>
 </li>
       <li><a href="index.html#py_netlist_paths.Netlist.get_vertex_dtype_width">get_vertex_dtype_width() (py_netlist_paths.Netlist method)</a>
-</li>
-      <li><a href="index.html#py_netlist_paths.DType.get_width">get_width() (py_netlist_paths.DType method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -335,6 +336,8 @@
       <li><a href="index.html#_CPPv4NK13netlist_paths7Netlist10getAnyPathE9Waypoints">netlist_paths::Netlist::getAnyPath (C++ function)</a>
 </li>
       <li><a href="index.html#_CPPv4NK13netlist_paths7Netlist13getDTypeWidthERKNSt6stringE">netlist_paths::Netlist::getDTypeWidth (C++ function)</a>
+</li>
+      <li><a href="index.html#_CPPv4NK13netlist_paths7Netlist14getNamedDTypesEKNSt6stringE">netlist_paths::Netlist::getNamedDTypes (C++ function)</a>
 </li>
       <li><a href="index.html#_CPPv4NK13netlist_paths7Netlist16getNamedVerticesEKNSt6stringE">netlist_paths::Netlist::getNamedVertices (C++ function)</a>
 </li>
@@ -434,10 +437,10 @@
 </li>
       <li><a href="index.html#_CPPv4NK13netlist_paths6Vertex6isPortEv">netlist_paths::Vertex::isPort (C++ function)</a>
 </li>
-      <li><a href="index.html#_CPPv4NK13netlist_paths6Vertex8isPublicEv">netlist_paths::Vertex::isPublic (C++ function)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="index.html#_CPPv4NK13netlist_paths6Vertex8isPublicEv">netlist_paths::Vertex::isPublic (C++ function)</a>
+</li>
       <li><a href="index.html#_CPPv4NK13netlist_paths6Vertex5isRegEv">netlist_paths::Vertex::isReg (C++ function)</a>
 </li>
       <li><a href="index.html#_CPPv4NK13netlist_paths6Vertex8isSrcRegEv">netlist_paths::Vertex::isSrcReg (C++ function)</a>
@@ -631,14 +634,6 @@
       <li><a href="index.html#py_netlist_paths.Options.set_verbose">set_verbose() (py_netlist_paths.Options method)</a>
 </li>
       <li><a href="index.html#py_netlist_paths.Netlist.startpoint_exists">startpoint_exists() (py_netlist_paths.Netlist method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="T">T</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="index.html#py_netlist_paths.DType.to_str">to_str() (py_netlist_paths.DType method)</a>
 </li>
   </ul></td>
 </tr></table>
