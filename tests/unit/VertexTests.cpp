@@ -1,18 +1,15 @@
-#define BOOST_TEST_MODULE vertex_tests
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
 #include "tests/unit/definitions.hpp"
 #include "TestContext.hpp"
 #include "netlist_paths/Utilities.hpp"
 
+BOOST_FIXTURE_TEST_SUITE(vertex, TestContext);
+
 //===----------------------------------------------------------------------===//
 // Test querying of vertex types.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(registers, TestContext) {
+BOOST_AUTO_TEST_CASE(registers) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   netlist_paths::Options::getInstance().setMatchRegex();
   // Names
@@ -37,7 +34,7 @@ BOOST_FIXTURE_TEST_CASE(registers, TestContext) {
 // modules.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(port_register, TestContext) {
+BOOST_AUTO_TEST_CASE(port_register) {
   BOOST_CHECK_NO_THROW(compile("registered_output.sv"));
   netlist_paths::Options::getInstance().setMatchRegex();
   // Names
@@ -54,7 +51,7 @@ BOOST_FIXTURE_TEST_CASE(port_register, TestContext) {
   BOOST_TEST(np->getNetVerticesPtr().size() == 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(port_register_nested, TestContext) {
+BOOST_AUTO_TEST_CASE(port_register_nested) {
 
   // Nested module with register type propagated to outer module.
   BOOST_CHECK_NO_THROW(compile("registered_output_nested.sv"));
@@ -75,3 +72,5 @@ BOOST_FIXTURE_TEST_CASE(port_register_nested, TestContext) {
   BOOST_TEST(np->getNetVerticesPtr("i_").size() == 2);
   BOOST_TEST(np->getNetVerticesPtr("o_").size() == 1);
 }
+
+BOOST_AUTO_TEST_SUITE_END();

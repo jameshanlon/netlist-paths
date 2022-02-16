@@ -1,18 +1,15 @@
-#define BOOST_TEST_MODULE name_tests
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
 #include "tests/unit/definitions.hpp"
 #include "TestContext.hpp"
 #include "netlist_paths/Utilities.hpp"
 
+BOOST_FIXTURE_TEST_SUITE(names, TestContext);
+
 //===----------------------------------------------------------------------===//
 // Test exact matching.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(exact_name_matching_counter, TestContext) {
+BOOST_AUTO_TEST_CASE(exact_name_matching_counter) {
   BOOST_CHECK_NO_THROW(compile("counter.sv"));
   netlist_paths::Options::getInstance().setMatchExact();
   // Check the SRC and DST variants are not reported twice.
@@ -30,7 +27,7 @@ BOOST_FIXTURE_TEST_CASE(exact_name_matching_counter, TestContext) {
   BOOST_TEST(!np->endpointExists("foo"));
 }
 
-BOOST_FIXTURE_TEST_CASE(exact_name_matching_pipeline_module, TestContext) {
+BOOST_AUTO_TEST_CASE(exact_name_matching_pipeline_module) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Exact
   netlist_paths::Options::getInstance().setMatchExact();
@@ -68,7 +65,7 @@ BOOST_AUTO_TEST_CASE(wildcard_matching) {
 }
 
 /// Test matching of names by wildcards and regexes.
-BOOST_FIXTURE_TEST_CASE(wildcard_name_matching, TestContext) {
+BOOST_AUTO_TEST_CASE(wildcard_name_matching) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Wildcard
   netlist_paths::Options::getInstance().setMatchWildcard();
@@ -85,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE(wildcard_name_matching, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// Test matching of names by wildcards and regexes.
-BOOST_FIXTURE_TEST_CASE(regex_name_matching, TestContext) {
+BOOST_AUTO_TEST_CASE(regex_name_matching) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Regex
   netlist_paths::Options::getInstance().setMatchRegex();
@@ -99,7 +96,7 @@ BOOST_FIXTURE_TEST_CASE(regex_name_matching, TestContext) {
 }
 
 /// Test malform regexes are caught.
-BOOST_FIXTURE_TEST_CASE(malformed_regex, TestContext) {
+BOOST_AUTO_TEST_CASE(malformed_regex) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline"));
   netlist_paths::Options::getInstance().setMatchRegex();
   BOOST_CHECK_THROW(np->anyRegExists("*data_q"), netlist_paths::Exception);
@@ -111,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE(malformed_regex, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// counter
-BOOST_FIXTURE_TEST_CASE(hierarchy_separators_counter, TestContext) {
+BOOST_AUTO_TEST_CASE(hierarchy_separators_counter) {
   BOOST_CHECK_NO_THROW(compile("counter.sv", "counter"));
   netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(true);
 
@@ -132,7 +129,7 @@ BOOST_FIXTURE_TEST_CASE(hierarchy_separators_counter, TestContext) {
 }
 
 /// pipeline_module
-BOOST_FIXTURE_TEST_CASE(hierarchy_separators_pipeline_module, TestContext) {
+BOOST_AUTO_TEST_CASE(hierarchy_separators_pipeline_module) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv", "pipeline_module"));
   netlist_paths::Options::getInstance().setIgnoreHierarchyMarkers(true);
 
@@ -168,3 +165,5 @@ BOOST_FIXTURE_TEST_CASE(hierarchy_separators_pipeline_module, TestContext) {
   BOOST_TEST(np->anyRegExists("*/*/u_pipestage/data_q")); // Hier slash
   BOOST_TEST(np->anyRegExists("*_*_u_pipestage_data_q")); // Flat
 }
+
+BOOST_AUTO_TEST_SUITE_END();

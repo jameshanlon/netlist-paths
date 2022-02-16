@@ -1,27 +1,14 @@
-#define BOOST_TEST_MODULE path_tests
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
 #include "tests/unit/definitions.hpp"
 #include "TestContext.hpp"
 
-#define CHECK_VAR_REPORT(vertex, astTypeStr, dtypeStr, name) \
-  do { \
-    BOOST_TEST(vertex->getAstTypeStr() == astTypeStr); \
-    BOOST_TEST(vertex->getDTypeStr() == dtypeStr); \
-    BOOST_TEST(vertex->getName() == name); \
-  } while (0);
-
-#define CHECK_LOG_REPORT(vertex, astTypeStr) \
-  BOOST_TEST(vertex->getAstTypeStr() == astTypeStr)
+BOOST_FIXTURE_TEST_SUITE(paths, TestContext);
 
 //===----------------------------------------------------------------------===//
 // Test path exists
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(path_exists_adder, TestContext) {
+BOOST_AUTO_TEST_CASE(path_exists_adder) {
   BOOST_CHECK_NO_THROW(compile("adder.sv"));
   // Check paths between all start and end points are reported.
   auto startPoints = {"adder.i_a", "adder.i_b"};
@@ -37,7 +24,7 @@ BOOST_FIXTURE_TEST_CASE(path_exists_adder, TestContext) {
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(path_exists_counter, TestContext) {
+BOOST_AUTO_TEST_CASE(path_exists_counter) {
   BOOST_CHECK_NO_THROW(compile("counter.sv"));
   // Valid paths.
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("counter.i_clk", "counter.counter_q")));
@@ -56,7 +43,7 @@ BOOST_FIXTURE_TEST_CASE(path_exists_counter, TestContext) {
   // TODO: check --from o_counter has no fan out paths
 }
 
-BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
+BOOST_AUTO_TEST_CASE(path_exists_pipeline_module) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // Check paths exist between all stages.
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("pipeline_module.g_pipestage[0].u_pipestage.data_q",
@@ -93,7 +80,7 @@ BOOST_FIXTURE_TEST_CASE(path_exists_pipeline_module, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// Test when there are no paths.
-BOOST_FIXTURE_TEST_CASE(path_none, TestContext) {
+BOOST_AUTO_TEST_CASE(path_none) {
   BOOST_CHECK_NO_THROW(compile("empty_module.sv"));
   // Any path.
   auto vertices = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
@@ -103,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE(path_none, TestContext) {
   BOOST_TEST(paths.empty());
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_basic_assign_chain) {
   BOOST_CHECK_NO_THROW(compile("basic_assign_chain.sv"));
   auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
   BOOST_TEST(path.length() == 7);
@@ -116,7 +103,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_assign_chain, TestContext) {
   CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_basic_comb_chain) {
   BOOST_CHECK_NO_THROW(compile("basic_comb_chain.sv"));
   auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
   BOOST_TEST(path.length() == 7);
@@ -129,7 +116,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_comb_chain, TestContext) {
   CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_basic_ff_chain) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
   {
     // in -> a
@@ -157,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_basic_ff_chain, TestContext) {
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_pipeline_module) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   // NOTE: can differentiate between the generate instances of the pipeline.
   auto path = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_module.g_pipestage[0].u_pipestage.data_q"));
@@ -170,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_module, TestContext) {
   CHECK_VAR_REPORT(path.getVertex(5), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_pipeline_loops) {
   BOOST_CHECK_NO_THROW(compile("pipeline_loops.sv"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
   auto path = np->getAnyPath(netlist_paths::Waypoints("i_data", "pipeline_loops.data_q"));
@@ -180,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_loops, TestContext) {
   CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "[31:0] logic [7:0]", "pipeline_loops.data_q");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
+BOOST_AUTO_TEST_CASE(path_query_pipeline_no_loops) {
   BOOST_CHECK_NO_THROW(compile("pipeline_no_loops.sv"));
   // NOTE: cannot currently differentiate between elements of the data_q array.
   auto path = np->getAnyPath(netlist_paths::Waypoints("pipeline_no_loops.data_q", "pipeline_no_loops.data_q"));
@@ -194,7 +181,7 @@ BOOST_FIXTURE_TEST_CASE(path_query_pipeline_no_loops, TestContext) {
 // Test all paths query.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
+BOOST_AUTO_TEST_CASE(path_all_paths) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   auto paths = np->getAllPaths(netlist_paths::Waypoints("in", "out"));
   BOOST_TEST(paths.size() == 3);
@@ -220,14 +207,14 @@ BOOST_FIXTURE_TEST_CASE(path_all_paths, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// Test empty fan in and out paths.
-BOOST_FIXTURE_TEST_CASE(path_fan_out_empty, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_out_empty) {
   BOOST_CHECK_NO_THROW(compile("empty_module.sv"));
   BOOST_TEST(np->getAllFanOut("in").empty());
   BOOST_TEST(np->getAllFanIn("out").empty());
 }
 
 /// Test paths fanning out to three end points.
-BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_out) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanOut("in");
   BOOST_TEST(paths.size() == 3);
@@ -246,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out, TestContext) {
 }
 
 /// Test paths fanning into an end point.
-BOOST_FIXTURE_TEST_CASE(path_fan_in, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_in) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   auto paths = np->getAllFanIn("out");
   BOOST_TEST(paths.size() == 3);
@@ -265,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in, TestContext) {
 }
 
 /// Test that invalid through points throw exceptions.
-BOOST_FIXTURE_TEST_CASE(path_fan_out_exceptions, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_out_exceptions) {
   BOOST_CHECK_NO_THROW(compile("fan_out_in.sv"));
   // Fan out.
   // Invalid vertex.
@@ -279,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out_exceptions, TestContext) {
   BOOST_CHECK_THROW(np->getAllFanIn("in"), netlist_paths::Exception);
 }
 
-BOOST_FIXTURE_TEST_CASE(path_fan_out_modules, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_out_modules) {
   // Test fan out paths ending in sub modules.
   BOOST_CHECK_NO_THROW(compile("fan_out_in_modules.sv"));
   auto paths = np->getAllFanOut("in");
@@ -298,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(path_fan_out_modules, TestContext) {
   CHECK_VAR_REPORT(paths[2].getVertex(2), "DST_REG", "logic", "fan_out_in_modules.foo_c.x");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
+BOOST_AUTO_TEST_CASE(path_fan_in_modules) {
   // Test fan out paths starting in sub modules.
   BOOST_CHECK_NO_THROW(compile("fan_out_in_modules.sv"));
   auto paths = np->getAllFanIn("out");
@@ -320,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(path_fan_in_modules, TestContext) {
   CHECK_VAR_REPORT(paths[2].getVertex(5), "VAR", "logic", "out");
 }
 
-BOOST_FIXTURE_TEST_CASE(path_false_fan_in_out, TestContext) {
+BOOST_AUTO_TEST_CASE(path_false_fan_in_out) {
   // Demonstrate the false connections though an array variable used in a generate statement.
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   {
@@ -338,7 +325,7 @@ BOOST_FIXTURE_TEST_CASE(path_false_fan_in_out, TestContext) {
 //===----------------------------------------------------------------------===//
 
 /// All paths: test querying paths when a single through point is provided.
-BOOST_FIXTURE_TEST_CASE(all_paths_single_through_point, TestContext) {
+BOOST_AUTO_TEST_CASE(all_paths_single_through_point) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -372,7 +359,7 @@ BOOST_FIXTURE_TEST_CASE(all_paths_single_through_point, TestContext) {
 }
 
 /// All paths: test querying paths when multiple through points are provided.
-BOOST_FIXTURE_TEST_CASE(all_paths_multiple_through_points, TestContext) {
+BOOST_AUTO_TEST_CASE(all_paths_multiple_through_points) {
   BOOST_CHECK_NO_THROW(compile("three_multi_path_stages.sv"));
   {
     // Check the number of paths without through points.
@@ -391,7 +378,7 @@ BOOST_FIXTURE_TEST_CASE(all_paths_multiple_through_points, TestContext) {
 }
 
 /// Any path: test querying paths when a single through point is provided.
-BOOST_FIXTURE_TEST_CASE(any_path_single_through_point, TestContext) {
+BOOST_AUTO_TEST_CASE(any_path_single_through_point) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -411,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(any_path_single_through_point, TestContext) {
 }
 
 /// Any path: test querying paths when multiple through points are provided.
-BOOST_FIXTURE_TEST_CASE(any_path_multiple_through_points, TestContext) {
+BOOST_AUTO_TEST_CASE(any_path_multiple_through_points) {
   BOOST_CHECK_NO_THROW(compile("three_multi_path_stages.sv"));
   {
     // Add the two intermediate fan-in/out points.
@@ -432,7 +419,7 @@ BOOST_FIXTURE_TEST_CASE(any_path_multiple_through_points, TestContext) {
 }
 
 // Test that invalid through points throw exceptions.
-BOOST_FIXTURE_TEST_CASE(through_point_exception, TestContext) {
+BOOST_AUTO_TEST_CASE(through_point_exception) {
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
@@ -455,7 +442,7 @@ BOOST_FIXTURE_TEST_CASE(through_point_exception, TestContext) {
 // Test avoid points.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
+BOOST_AUTO_TEST_CASE(one_avoid_point) {
   // Test that avoiding a net prevents a path from being found.
   BOOST_CHECK_NO_THROW(compile("one_avoid_point.sv"));
   {
@@ -477,7 +464,7 @@ BOOST_FIXTURE_TEST_CASE(one_avoid_point, TestContext) {
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
+BOOST_AUTO_TEST_CASE(multiple_avoid_points) {
   // Test that avoiding combinations of alternative paths results in the correct
   // paths being found.
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
@@ -513,7 +500,7 @@ BOOST_FIXTURE_TEST_CASE(multiple_avoid_points, TestContext) {
   }
 }
 
-BOOST_FIXTURE_TEST_CASE(avoid_point_exception, TestContext) {
+BOOST_AUTO_TEST_CASE(avoid_point_exception) {
   // Test that an invalid avoid point throws an exception.
   BOOST_CHECK_NO_THROW(compile("multiple_paths.sv"));
   {
@@ -537,7 +524,7 @@ BOOST_FIXTURE_TEST_CASE(avoid_point_exception, TestContext) {
 // Test matching any start/finish points.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(multiple_separate_paths, TestContext) {
+BOOST_AUTO_TEST_CASE(multiple_separate_paths) {
   BOOST_CHECK_NO_THROW(compile("multiple_separate_paths.sv"));
   netlist_paths::Options::getInstance().setMatchWildcard();
   netlist_paths::Options::getInstance().setMatchAnyVertex();
@@ -566,7 +553,7 @@ BOOST_FIXTURE_TEST_CASE(multiple_separate_paths, TestContext) {
 // should be the correct number of registers and paths.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
+BOOST_AUTO_TEST_CASE(paths_with_port_registers) {
 
   BOOST_CHECK_NO_THROW(compile("registered_output_path.sv"));
 
@@ -601,7 +588,7 @@ BOOST_FIXTURE_TEST_CASE(paths_with_port_registers, TestContext) {
 // Test path queries through registers.
 //===----------------------------------------------------------------------===//
 
-BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
+BOOST_AUTO_TEST_CASE(through_registers) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
 
   // Paths through regisers.
@@ -678,7 +665,7 @@ BOOST_FIXTURE_TEST_CASE(through_registers, TestContext) {
 //===----------------------------------------------------------------------===//
 
 // Alias start point (due to inlining of the sub module).
-BOOST_FIXTURE_TEST_CASE(alias_start_point, TestContext) {
+BOOST_AUTO_TEST_CASE(alias_start_point) {
   BOOST_CHECK_NO_THROW(compile("alias_start_point.sv"));
   netlist_paths::Options::getInstance().setRestrictStartPoints(false);
   // alias_start_point.u_a.out is an alias of alias_start_point.x, check that it can be used as a start point.
@@ -688,7 +675,7 @@ BOOST_FIXTURE_TEST_CASE(alias_start_point, TestContext) {
 
 // Check that paths between variables in two sub modules can start and end on
 // the different variables or aliases of those points.
-BOOST_FIXTURE_TEST_CASE(aliases_sub_comb, TestContext) {
+BOOST_AUTO_TEST_CASE(aliases_sub_comb) {
   BOOST_CHECK_NO_THROW(compile("aliases_sub_comb.sv"));
   netlist_paths::Options::getInstance().setRestrictStartPoints(false);
   netlist_paths::Options::getInstance().setRestrictEndPoints(false);
@@ -704,7 +691,7 @@ BOOST_FIXTURE_TEST_CASE(aliases_sub_comb, TestContext) {
 
 // Same again, but this time with sub modules that register their inputs
 // directly to outputs.
-BOOST_FIXTURE_TEST_CASE(aliases_sub_reg, TestContext) {
+BOOST_AUTO_TEST_CASE(aliases_sub_reg) {
   BOOST_CHECK_NO_THROW(compile("aliases_sub_reg.sv"));
   netlist_paths::Options::getInstance().setRestrictStartPoints(false);
   netlist_paths::Options::getInstance().setRestrictEndPoints(false);
@@ -720,10 +707,12 @@ BOOST_FIXTURE_TEST_CASE(aliases_sub_reg, TestContext) {
 
 /// Test that the inlined tasks do not share a merged VlVbound node.
 /// See https://www.veripool.org/boards/3/topics/2619
-BOOST_FIXTURE_TEST_CASE(vlvbound, TestContext) {
+BOOST_AUTO_TEST_CASE(vlvbound) {
   BOOST_CHECK_NO_THROW(compile("vlvbound.sv"));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("i_foo_current", "o_foo_inactive")));
   BOOST_TEST(np->pathExists(netlist_paths::Waypoints("i_foo_next", "o_next_foo_inactive")));
   BOOST_TEST(!np->pathExists(netlist_paths::Waypoints("i_foo_current", "o_next_foo_inactive")));
   BOOST_TEST(!np->pathExists(netlist_paths::Waypoints("i_foo_next", "o_foo_inactive")));
 }
+
+BOOST_AUTO_TEST_SUITE_END();

@@ -11,6 +11,16 @@
 
 namespace fs = boost::filesystem;
 
+#define CHECK_VAR_REPORT(vertex, astTypeStr, dtypeStr, name) \
+  do { \
+    BOOST_TEST(vertex->getAstTypeStr() == astTypeStr); \
+    BOOST_TEST(vertex->getDTypeStr() == dtypeStr); \
+    BOOST_TEST(vertex->getName() == name); \
+  } while (0);
+
+#define CHECK_LOG_REPORT(vertex, astTypeStr) \
+  BOOST_TEST(vertex->getAstTypeStr() == astTypeStr)
+
 struct TestContext {
 
   std::unique_ptr<netlist_paths::Netlist> np;

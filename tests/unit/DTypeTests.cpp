@@ -1,14 +1,11 @@
-#define BOOST_TEST_MODULE dtype_tests
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
-
 #include <boost/test/unit_test.hpp>
 #include "tests/unit/definitions.hpp"
 #include "TestContext.hpp"
 
+BOOST_FIXTURE_TEST_SUITE(dtypes, TestContext);
+
 /// Test string representations of types.
-BOOST_FIXTURE_TEST_CASE(dtype_strings, TestContext) {
+BOOST_AUTO_TEST_CASE(dtype_strings) {
   BOOST_CHECK_NO_THROW(compile("dtypes.sv", "dtypes"));
   netlist_paths::Options::getInstance().setMatchExact();
 
@@ -55,7 +52,7 @@ BOOST_FIXTURE_TEST_CASE(dtype_strings, TestContext) {
 }
 
 /// Test the computed widths of data types.
-BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
+BOOST_AUTO_TEST_CASE(dtype_widths) {
   BOOST_CHECK_NO_THROW(compile("dtypes.sv", "dtypes"));
   netlist_paths::Options::getInstance().setMatchExact();
 
@@ -112,7 +109,7 @@ BOOST_FIXTURE_TEST_CASE(dtype_widths, TestContext) {
 }
 
 /// Test accessing data types directly from the netlist.
-BOOST_FIXTURE_TEST_CASE(dtype_list, TestContext) {
+BOOST_AUTO_TEST_CASE(dtype_list) {
   BOOST_CHECK_NO_THROW(compile("dtypes.sv", "dtypes"));
   netlist_paths::Options::getInstance().setMatchExact();
 
@@ -140,3 +137,5 @@ BOOST_FIXTURE_TEST_CASE(dtype_list, TestContext) {
   BOOST_TEST(np->getNamedDTypes("dtypes.enum_auto_t").size() == 1);
   BOOST_TEST(np->getNamedDTypes("dtypes.enum_onehot_t").size() == 1);
 }
+
+BOOST_AUTO_TEST_SUITE_END();
