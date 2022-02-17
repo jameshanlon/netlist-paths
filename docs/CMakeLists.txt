@@ -18,10 +18,6 @@ configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 configure_file(conf.py
                ${CMAKE_CURRENT_BINARY_DIR})
 
-configure_file(index.rst
-               ${CMAKE_CURRENT_BINARY_DIR}
-               COPYONLY)
-
 #This will be the main output of our command
 set(DOXYGEN_INDEX_FILE ${CMAKE_CURRENT_SOURCE_DIR}/html/index.html)
 
@@ -36,12 +32,13 @@ add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
 
 find_package(Sphinx REQUIRED)
 
-set(SPHINX_SOURCE ${CMAKE_CURRENT_BINARY_DIR})
+set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 
 add_custom_target(Sphinx ALL
                   COMMAND ${SPHINX_EXECUTABLE} -b html
                     -Dbreathe_projects.netlist-paths=${DOXYGEN_OUTPUT_DIR}/xml
+                    -c ${CMAKE_CURRENT_BINARY_DIR}
                     ${SPHINX_SOURCE} ${SPHINX_BUILD}
                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                   DEPENDS py_netlist_paths

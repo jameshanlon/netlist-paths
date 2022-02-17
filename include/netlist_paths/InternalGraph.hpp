@@ -29,9 +29,10 @@ struct EdgePredicate {
 
   EdgePredicate(const InternalGraph *graph) : graph(graph) {}
 
+  // Return true if the edge should be included in the graph. Include all edges
+  // if traversal of registers is enabled, otherwise only include edges that do
+  // not traverse a register.
   bool operator()(EdgeID edgeID) const {
-    // Include all edges if traversal of registers is enabled, otherwise only
-    // include edges that do not traverse a register.
     if (Options::getInstance().shouldTraverseRegisters()) {
       return true;
     } else {
@@ -49,7 +50,8 @@ struct VertexPredicate {
   VertexPredicate(const VertexIDVec *avoidPointIDs) :
       avoidPointIDs(avoidPointIDs) {}
 
-  /// Return true if the vertex should be excluded from the search.
+  /// Return true if the vertex should be excluded from the search. Excluded
+  /// vertices are specified in the avoid points list.
   bool operator()(VertexID vertexID) const {
     if (!avoidPointIDs) {
       return true;

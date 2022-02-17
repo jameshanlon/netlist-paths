@@ -18,15 +18,8 @@ Netlist Paths is oriented towards command-line use for exploration of a design
    :caption: Contents:
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
-
-
-Build and installation
-======================
+Installation
+============
 
 The following dependencies must be installed:
 
@@ -41,7 +34,7 @@ The following dependencies must be installed:
 - Doxygen (only required if building the documentation)
 
 To build and install netlist paths, configure the build system with CMake, then
-run Make, for example:
+run Make. Note that Verilator is included as a submodule and as part of the build.
 
 .. code-block:: bash
 
@@ -58,7 +51,7 @@ Optionally, run the unit tests:
 
 .. code-block:: bash
 
-  ➜ ctest
+  ➜ ctest --verbose
   ...
 
 To build the documentation add ``-DNETLIST_PATHS_BUILD_DOCS=1`` to the
@@ -127,9 +120,18 @@ expression matching):
 
 There is similar behaviour with ``--dump-nets``, ``--dump-ports``,
 ``--dump-regs`` to select only net, port or register variable types
-respectively.
+respectively. The argument ``--dump-dtypes`` reports the named data types
+used in the design:
 
-Note that the ``--compile`` flag causes Verilator to be run to create the XML
+.. code-block:: bash
+
+  ➜ netlist-paths --compile examples/fsm.sv --dump-dtypes fsm --regex
+  Name             Width Description
+  ---------------- ----- ------------
+  fsm.state_enum_t 3     enum
+  fsm.state_t      3     packed union
+
+Note that the ``--compile`` argument causes Verilator to be run to create the XML
 netlist, and is useful for compiling simple examples. Execution of Verilator
 can be seen with verbose output:
 
@@ -215,16 +217,23 @@ This example tool can be run from the examples directory:
 Contributing
 ============
 
-Contributions are welcome, please follow the `LLVM coding standards <https://llvm.org/docs/CodingStandards.html>`_.
+Contributions are welcome, check the
+`GitHub issues page <https://github.com/jameshanlon/netlist-paths/issues>`_
+for work to do, and
+please follow the
+`LLVM coding standards <https://llvm.org/docs/CodingStandards.html>`_.
 
 Developer notes
 ---------------
 
-Produce XML from a test case:
+The command-line flags `--verbose` and `--debug` provide logging information
+that can aid debugging.
+
+To produce XML from a test case (noting the call to verilator):
 
 .. code-block:: bash
 
-  $ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
+  ➜ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
   info: Running "/Users/jamieh/netlist-paths/Debug/install/bin/np-verilator_bin" +1800-2012ext+.sv
      --bbox-sys --bbox-unsup --xml-only --flatten --error-limit 10000 --xml-output adder.xml tests/verilog/adder.sv
   info: Parsing input XML file
@@ -234,31 +243,61 @@ Produce XML from a test case:
   info: 4 entries in type table
   info: Netlist contains 15 vertices and 22 edges
 
-Produce a visualisation of the netlist graph:
+To produce a visualisation of the netlist graph, a dot file can be produced and
+rendered into an image. This can be useful to understand the structure of the
+graph, although it is only practical to use with small designs.
 
 .. code-block:: bash
 
-  $ netlist-paths adder.xml --dump-dot -o adder.dot
-  $ dot -Tpdf adder.dot -o adder.pdf
+  ➜ netlist-paths adder.xml --dump-dot -o adder.dot
+  ➜ dot -Tpdf adder.dot -o adder.pdf
 
-Run C++ unit tests directly, eg:
+.. figure:: images/adder-graph.*
 
-.. code-block:: bash
-
-  $ cd Debug
-  $ ctest --verbose # Run all the tests
-  $ ./tests/NameTests # Run a particular test
-
-Run Python unit tests directly (the version of Python must match the build):
+The tests are split into three categories: C++ unit tests for the library
+components, Python unit tests for the Python API and Python integration tests
+for the command-line tools. These can all be run automatically using `ctest`,
+or individually.
 
 .. code-block:: bash
 
-  $ cd Debug/tests
-  $ python3 py_wrapper_tests.py
+  ➜ ctest --verbose # Run all tests from the build directory.
+
+For the C++ unit tests:
+
+.. code-block:: bash
+
+  ➜ ./tests/unit/UnitTests --help
+  ➜ ./tests/unit/UnitTests --list_content # Report a list of all the tests.
+  ➜ ./tests/unit/UnitTests # Run all the unit tests
+  ...
+
+For the Python API unit tests:
+
+.. code-block:: bash
+
+  ➜ cd Debug/tests/integration
+  ➜ python3 -m unittest py_wrapper_tests.py
+  ...
+
+For the Python integration tests:
+
+.. code-block:: bash
+
+  ➜ cd Debug/tests/integration
+  ➜ python3 -m unittest tool_tests.py
+  ...
 
 To run the extended test set, the
 `netlist-paths-tests <https://github.com/jameshanlon/netlist-paths-tests>`_
 repository contains tests based on external System Verilog designs.
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`search`
 
 
 .. _cpp_api:
@@ -352,6 +391,13 @@ Waypoints
 ---------
 
 .. autoclass:: py_netlist_paths.Waypoints
+   :members:
+   :undoc-members:
+
+Path
+----
+
+.. autoclass:: py_netlist_paths.Path
    :members:
    :undoc-members:
 

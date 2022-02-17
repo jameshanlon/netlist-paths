@@ -18,21 +18,33 @@ public:
   Path() {};
 
   /// Constrct a Path from a list of Vertices.
+  ///
+  /// \param sourceVertices A vector of vertices to copy.
   Path(const std::vector<const Vertex*> sourceVertices) {
     vertices.assign(sourceVertices.begin(), sourceVertices.end());
   }
 
   /// Copy constructor.
+  ///
+  /// \param path The Path to copy.
   Path(const Path &path) {
     vertices.assign(path.getVertices().begin(), path.getVertices().end());
   }
 
-  /// Test quality with another path.
+  /// Test equality with another path.
+  ///
+  /// \param other The Path to test against.
+  ///
+  /// \returns A Boolean indicating equal or not.
   bool operator==(const Path& other) const {
     return vertices == other.getVertices();
   }
 
   /// Return true if the vertex is contained in this path.
+  ///
+  /// \param vertex The Vertex to test.
+  ///
+  /// \returns A Boolean indicating whether vertex is contained in this path.
   bool contains(const Vertex *vertex) const {
     return std::find_if(vertices.begin(), vertices.end(),
                         [=](const Vertex *v) { return v->getID() == vertex->getID(); })
@@ -45,9 +57,13 @@ public:
   }
 
   /// Append a vertex to the end of this path.
+  ///
+  /// \param vertex The Vertex to append to this path.
   void appendVertex(const Vertex *vertex) { vertices.push_back(vertex); }
 
   /// Append a path to the end of this path.
+  ///
+  /// \param path The Path to append to this path.
   void appendPath(const Path &path) {
     vertices.insert(vertices.end(), path.getVertices().begin(), path.getVertices().end()-1);
   }
@@ -60,7 +76,7 @@ public:
   size_t length() const { return vertices.size(); }
   bool empty() const { return vertices.empty(); }
 
-  // Remove const on Vertex* to make results compatible with the boost::python wrappers.
+  // Methods compatible with the boost::python wrappers by removing const from the Vertex* type.
 
   std::vector<Vertex*> getVerticesNoConst() const {
     std::vector<Vertex*> newVec;
