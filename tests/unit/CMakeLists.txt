@@ -8,9 +8,19 @@ add_executable(UnitTests
                main.cpp
                DTypeTests.cpp
                NameTests.cpp
-               PathTests.cpp
+               PathAllTests.cpp
+               PathAvoidTests.cpp
+               PathComponentsTests.cpp
+               PathExistsTests.cpp
+               PathFanInOutTests.cpp
+               PathMatchAnyTests.cpp
+               PathRegOutputsTests.cpp
+               PathStartFinishAliasesTests.cpp
+               PathThroughPointsTests.cpp
+               PathThroughRegsTests.cpp
                VerilatorXMLTests.cpp
                VertexTests.cpp
+               VlvboundTest.cpp
                )
 
 target_link_libraries(UnitTests
