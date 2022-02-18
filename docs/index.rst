@@ -171,6 +171,7 @@ Command-line tool reference
 
   options:
     -h, --help                  Show this help message and exit
+    --version                   Display the version number and exit
     -c, --compile               Run Verilator to compile a netlist
     -I include_path             Add an source include path (only with --compile)
     -D definition               Define a preprocessor macro (only with --compile)

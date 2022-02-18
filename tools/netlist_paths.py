@@ -128,6 +128,10 @@ def main():
     parser.add_argument('files',
                         nargs='+',
                         help='Input files')
+    parser.add_argument('--version',
+                        action='version',
+                        version='%(prog)s {}.{}.{}'.format(defs.VERSION_MAJOR, defs.VERSION_MINOR, defs.VERSION_PATCH),
+                        help='Display the version number and exit')
     parser.add_argument('-c', '--compile',
                         action='store_true',
                         help='Run Verilator to compile a netlist')
