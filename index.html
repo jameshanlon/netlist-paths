@@ -42,16 +42,19 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Netlist Paths</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#user-guide">User guide</a><ul>
 <li><a class="reference internal" href="#command-line-tool">Command-line tool</a></li>
+<li><a class="reference internal" href="#command-line-tool-reference">Command-line tool reference</a></li>
 <li><a class="reference internal" href="#python-module">Python module</a></li>
+<li><a class="reference internal" href="#running-netlist-paths-on-a-design">Running Netlist Paths on a design</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#contributing">Contributing</a><ul>
 <li><a class="reference internal" href="#developer-notes">Developer notes</a></li>
+<li><a class="reference internal" href="#internals">Internals</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 <li><a class="reference internal" href="#c-api-reference">C++ API reference</a><ul>
 <li><a class="reference internal" href="#dtype">DType</a></li>
 <li><a class="reference internal" href="#exception">Exception</a></li>
@@ -64,13 +67,13 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#python-api-reference">Python API reference</a><ul>
-<li><a class="reference internal" href="#id1">DType</a></li>
-<li><a class="reference internal" href="#id2">Options</a></li>
-<li><a class="reference internal" href="#id3">Netlist</a></li>
-<li><a class="reference internal" href="#id4">Waypoints</a></li>
-<li><a class="reference internal" href="#id5">Path</a></li>
-<li><a class="reference internal" href="#id6">RunVerilator</a></li>
-<li><a class="reference internal" href="#id7">Vertex</a></li>
+<li><a class="reference internal" href="#id3">DType</a></li>
+<li><a class="reference internal" href="#id4">Options</a></li>
+<li><a class="reference internal" href="#id5">Netlist</a></li>
+<li><a class="reference internal" href="#id6">Waypoints</a></li>
+<li><a class="reference internal" href="#id7">Path</a></li>
+<li><a class="reference internal" href="#id8">RunVerilator</a></li>
+<li><a class="reference internal" href="#id9">Vertex</a></li>
 </ul>
 </li>
 </ul>
@@ -104,13 +107,18 @@
 <p>Netlist Paths is a library and command-line tool for querying a Verilog
 netlist. It reads an XML representation of a design’s netlist, produced by
 <a class="reference external" href="https://www.veripool.org/wiki/verilator">Verilator</a>, and provides facilities
-for inspecting variables and their type and dependency information. The library
-is written in C++ and has a Python interface allowing it to be integrated
-easily into scripts.</p>
+for inspecting variables and their data type and dependency information. The
+library is written in C++ and has a Python interface allowing it to be
+integrated easily into scripts.</p>
 <p>Compared with standard front-end EDA tools such as Synopsys Verdi and Spyglass,
 Netlist Paths is oriented towards command-line use for exploration of a design
 (rather than with a GUI), and for integration with Python infrastructure
-(rather than TCL) to build tools for analysing or debugging a design.</p>
+(rather than TCL) to build tools for analysing or debugging a design. By
+focusing on source-level connectivity it is lightweight and will run faster
+than standard tools to perform a comparable task, whilst also being open source
+and unrestricted by licensing issues. Applications include critical timing path
+investigation, creation of unit tests for design structure and connectivity,
+and development of patterns for quality-of-result reporting.</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -118,7 +126,7 @@ Netlist Paths is oriented towards command-line use for exploration of a design
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
 <p>The following dependencies must be installed:</p>
 <ul class="simple">
-<li><p>C++ compiler supporting C++14</p></li>
+<li><p>C++ compiler supporting C++17</p></li>
 <li><p>CMake (minimum 3.12.0)</p></li>
 <li><p>Boost (minimum 1.65.0)</p></li>
 <li><p>Python (minimum 3.8)</p></li>
@@ -159,8 +167,8 @@ dependencies in a virtualenv:</p>
 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> appropriately to the <code class="docutils literal notranslate"><span class="pre">bin</span></code> and <code class="docutils literal notranslate"><span class="pre">lib</span></code> directories of the
 installation to make the command-line tools and Python modules accessible.</p>
 </section>
-<section id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h1>
+<section id="user-guide">
+<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline"></a></h1>
 <section id="command-line-tool">
 <h2>Command-line tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline"></a></h2>
 <p>The easiest way to use Netlist Paths is with the <code class="docutils literal notranslate"><span class="pre">netlist-paths</span></code> command
@@ -225,6 +233,49 @@ directories and macro definitions respectively for Verilator, but for more
 complex invocations, Verilator can just be run separately and the path to the
 XML output provided to <code class="docutils literal notranslate"><span class="pre">netlist-paths</span></code> as an argument.</p>
 </section>
+<section id="command-line-tool-reference">
+<h2>Command-line tool reference<a class="headerlink" href="#command-line-tool-reference" title="Permalink to this headline"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage: netlist-paths [-h] [-c] [-I include_path] [-D definition] [-o file] [--dump-names [pattern]]
+                     [--dump-nets [pattern]] [--dump-ports [pattern]] [--dump-regs [pattern]]
+                     [--dump-dtypes [pattern]] [--dump-dot] [--from point] [--to point] [--through point]
+                     [--avoid point] [--traverse-registers] [--start-anywhere] [--end-anywhere] [--all-paths]
+                     [--regex] [--wildcard] [--ignore-hierarchy-markers] [-v] [-d]
+                     files [files ...]
+
+Query a Verilog netlist
+
+positional arguments:
+  files                       Input files
+
+options:
+  -h, --help                  Show this help message and exit
+  --version                   Display the version number and exit
+  -c, --compile               Run Verilator to compile a netlist
+  -I include_path             Add an source include path (only with --compile)
+  -D definition               Define a preprocessor macro (only with --compile)
+  -o file,--output file       Specify an output file
+  --dump-names [pattern]      Dump all named entities, filter by regex
+  --dump-nets [pattern]       Dump all nets, filter by regex
+  --dump-ports [pattern]      Dump all ports, filter by regex
+  --dump-regs [pattern]       Dump all registers, filter by regex
+  --dump-dtypes [pattern]     Dump all data types, filter by regex
+  --dump-dot                  Dump a dotfile of the netlist&#39;s graph
+  --from point                Specify a path start point
+  --to point                  Specify a path finish point
+  --through point             Specify a path though point
+  --avoid point               Specify a point for a path to avoid
+  --traverse-registers        Allow paths to traverse registers
+  --start-anywhere            Allow paths to start on any variable
+  --end-anywhere              Allow paths to end on any variable
+  --all-paths                 Find all paths between two points (exponential time)
+  --regex                     Enable regular expression matching of names
+  --wildcard                  Enable wildcard matching of names
+  --ignore-hierarchy-markers  Ignore hierarchy markers: _ . /
+  -v, --verbose               Print execution information
+  -d, --debug                 Print debugging information
+</pre></div>
+</div>
+</section>
 <section id="python-module">
 <h2>Python module<a class="headerlink" href="#python-module" title="Permalink to this headline"></a></h2>
 <p>The functionality of Netlist Paths can be accessed in Python, using the
@@ -282,6 +333,33 @@ fsm.state_q packed union
 </pre></div>
 </div>
 </section>
+<section id="running-netlist-paths-on-a-design">
+<h2>Running Netlist Paths on a design<a class="headerlink" href="#running-netlist-paths-on-a-design" title="Permalink to this headline"></a></h2>
+<p>If it is possible to elaborate a design with Verilator, then Netlist Paths can
+be used to analyse the XML netlist of that design. Verilator produces the
+netlist with the arguments <code class="docutils literal notranslate"><span class="pre">--xml-only</span></code> (causing it to only create XML
+output) and <code class="docutils literal notranslate"><span class="pre">--flatten</span></code> (causing it to force inlining of all modules, tasks
+and functions, fully elaborating the netlist). Examples of complex, real-world
+designs can be found in the <a class="reference external" href="https://github.com/jameshanlon/netlist-paths-tests">netlist-paths-tests</a> repository.</p>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline"></a></h2>
+<p>Netlist Paths has some limitations that should be considered when using it:</p>
+<ul class="simple">
+<li><p>It does not perform elaboration of the design at the bit level,
+meaning that dependencies are between named variables, rather than components
+of variables, such as subscripts, slices, or fields. As such, the
+dependencies it does infer are at a coarse level of granularity. Full
+bit-level elaboration (or bit blasting) will substantially impact the size of
+the netlist graph, and the corresponding runtimes, but it is something that may
+be supported in the future.</p></li>
+<li><p>During elaboration of the design, Verilator introduces new entities that do
+not appear in the original design source, with names beginning or
+containing <code class="docutils literal notranslate"><span class="pre">__V</span></code>. This is a artefact of Verilator preparing the syntax
+tree for emission as C++ code for simulation, rather than as a true
+source-level netlist. Future releases of Verilator may improve this mapping.</p></li>
+</ul>
+</section>
 </section>
 <section id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h1>
@@ -292,11 +370,21 @@ please follow the
 <a class="reference external" href="https://llvm.org/docs/CodingStandards.html">LLVM coding standards</a>.</p>
 <section id="developer-notes">
 <h2>Developer notes<a class="headerlink" href="#developer-notes" title="Permalink to this headline"></a></h2>
-<p>The command-line flags <cite>–verbose</cite> and <cite>–debug</cite> provide logging information
-that can aid debugging.</p>
-<p>To produce XML from a test case (noting the call to verilator):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
-info: Running <span class="s2">&quot;/Users/jamieh/netlist-paths/Debug/install/bin/np-verilator_bin&quot;</span> +1800-2012ext+.sv
+<p>The command-line flags <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> and <code class="docutils literal notranslate"><span class="pre">--debug</span></code> provide logging
+information that can aid debugging.</p>
+<p>To produce XML from a test case (noting the underlying call to Verilator):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ cat tests/verilog/adder.sv
+module adder
+  <span class="c1">#(parameter p_width = 32)(</span>
+    input  logic <span class="o">[</span>p_width-1:0<span class="o">]</span> i_a,
+    input  logic <span class="o">[</span>p_width-1:0<span class="o">]</span> i_b,
+    output logic <span class="o">[</span>p_width-1:0<span class="o">]</span> o_sum,
+    output logic               o_co
+  <span class="o">)</span><span class="p">;</span>
+  assign <span class="o">{</span>o_co, o_sum<span class="o">}</span> <span class="o">=</span> i_a + i_b<span class="p">;</span>
+endmodule
+➜ netlist-paths --compile tests/verilog/adder.sv -o adder.xml --verbose
+info: Running <span class="s2">&quot;.../netlist-paths/Debug/install/bin/np-verilator_bin&quot;</span> +1800-2012ext+.sv
    --bbox-sys --bbox-unsup --xml-only --flatten --error-limit <span class="m">10000</span> --xml-output adder.xml tests/verilog/adder.sv
 info: Parsing input XML file
 info: <span class="m">1</span> modules in netlist
@@ -346,13 +434,62 @@ or individually.</p>
 <a class="reference external" href="https://github.com/jameshanlon/netlist-paths-tests">netlist-paths-tests</a>
 repository contains tests based on external System Verilog designs.</p>
 </section>
+<section id="internals">
+<h2>Internals<a class="headerlink" href="#internals" title="Permalink to this headline"></a></h2>
+<p>Netlist Paths works by reading an XML representation of a Verilog design
+produced by Verilator, which is a single flattened module with all tasks,
+functions, and sub-module instances inlined (Verilator is run using the
+<code class="docutils literal notranslate"><span class="pre">--xml-only</span></code> and <code class="docutils literal notranslate"><span class="pre">--flatten</span></code> options). The XML is traversed to build up
+a directed graph data structure representing the design netlist, where nodes of
+the graph are logic statements or variables, and edges are data dependencies
+between them. The data-type information of the design is also read from the
+XML, and a corresponding data-type table is constructed, that each variable
+references.</p>
+<p>To support querying of paths that start and/or finish on registers (as is the case
+with physical timing reports), registers are identified during parsing of the
+XML so they can be split into two components: a source and a destination, with
+out-edges and in-edges of the original node respectively. Register variables
+are identified when they appear on the left-hand side of a non-blocking
+assignment <a class="footnote-reference brackets" href="#register-identification" id="id2">1</a>. As an example, consider the following
+module that provides a bank of asynchronous-reset flip flops:</p>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="k">module</span> <span class="n">pipestage</span>
+  <span class="p">#(</span><span class="k">parameter</span> <span class="n">p_width</span><span class="o">=</span><span class="mh">32</span><span class="p">)</span> <span class="p">(</span>
+    <span class="k">input</span>  <span class="kt">logic</span>               <span class="n">i_clk</span><span class="p">,</span>
+    <span class="k">input</span>  <span class="kt">logic</span>               <span class="n">i_rst</span><span class="p">,</span>
+    <span class="k">input</span>  <span class="kt">logic</span> <span class="p">[</span><span class="n">p_width</span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span> <span class="n">in</span><span class="p">,</span>
+    <span class="k">output</span> <span class="kt">logic</span> <span class="p">[</span><span class="n">p_width</span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span> <span class="n">out</span>
+  <span class="p">);</span>
+  <span class="kt">logic</span> <span class="p">[</span><span class="n">p_width</span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span> <span class="n">data_q</span><span class="p">;</span>
+  <span class="k">always_ff</span> <span class="p">@(</span><span class="k">posedge</span> <span class="n">i_clk</span> <span class="k">or</span> <span class="k">posedge</span> <span class="n">i_rst</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i_rst</span><span class="p">)</span> <span class="k">begin</span>
+      <span class="n">data_q</span> <span class="o">&lt;=</span> <span class="m">&#39;0</span><span class="p">;</span>
+    <span class="k">end</span> <span class="k">else</span> <span class="k">begin</span>
+      <span class="n">data_q</span> <span class="o">&lt;=</span> <span class="n">in</span><span class="p">;</span>
+    <span class="k">end</span>
+  <span class="k">assign</span> <span class="n">out</span> <span class="o">=</span> <span class="n">data_q</span><span class="p">;</span>
+<span class="k">endmodule</span>
+</pre></div>
+</div>
+<p>The netlist graph of the <code class="docutils literal notranslate"><span class="pre">pipestage</span></code> has two distinct components: the fan
+in-cone to <code class="docutils literal notranslate"><span class="pre">data_q</span></code> (appearing as a <code class="docutils literal notranslate"><span class="pre">DST_REG</span></code>) including the sensitivity
+list of the always block and the input port, and <code class="docutils literal notranslate"><span class="pre">data_q</span></code> driving the output
+port (appearing as a <code class="docutils literal notranslate"><span class="pre">SRC_REG</span></code>).</p>
+<figure class="align-default">
+<img alt="_images/pipestage-graph.png" src="_images/pipestage-graph.png" />
+</figure>
+<p>Edges between register endpoints and subsequent uses of the register are
+retained in the graph to support queries ‘through’ registers, which can be
+useful for establishing connectivity in a pipelined design.</p>
+<dl class="footnote brackets">
+<dt class="label" id="register-identification"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>Note that this condition is simplistic and will
+be extended to check the always block is sensitive to a rising or falling
+edge of a clock. It is however sufficient to identify registers in most RTL
+code, which generally does not mix blocking and non-blocking assignments.
+See <a class="reference external" href="https://github.com/jameshanlon/netlist-paths/issues/5">Issue 5</a>.</p>
+</dd>
+</dl>
 </section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </section>
 <section id="c-api-reference">
 <span id="cpp-api"></span><h1>C++ API reference<a class="headerlink" href="#c-api-reference" title="Permalink to this headline"></a></h1>
@@ -1560,8 +1697,8 @@ repository contains tests based on external System Verilog designs.</p>
 </section>
 <section id="python-api-reference">
 <span id="python-api"></span><h1>Python API reference<a class="headerlink" href="#python-api-reference" title="Permalink to this headline"></a></h1>
-<section id="id1">
-<h2>DType<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
+<section id="id3">
+<h2>DType<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.DType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">DType</span></span><a class="headerlink" href="#py_netlist_paths.DType" title="Permalink to this definition"></a></dt>
@@ -1586,8 +1723,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id2">
-<h2>Options<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
+<section id="id4">
+<h2>Options<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.Options">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">Options</span></span><a class="headerlink" href="#py_netlist_paths.Options" title="Permalink to this definition"></a></dt>
@@ -1711,8 +1848,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id3">
-<h2>Netlist<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h2>
+<section id="id5">
+<h2>Netlist<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.Netlist">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">Netlist</span></span><a class="headerlink" href="#py_netlist_paths.Netlist" title="Permalink to this definition"></a></dt>
@@ -1899,8 +2036,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id4">
-<h2>Waypoints<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h2>
+<section id="id6">
+<h2>Waypoints<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.Waypoints">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">Waypoints</span></span><a class="headerlink" href="#py_netlist_paths.Waypoints" title="Permalink to this definition"></a></dt>
@@ -1943,8 +2080,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id5">
-<h2>Path<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h2>
+<section id="id7">
+<h2>Path<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.Path">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">Path</span></span><a class="headerlink" href="#py_netlist_paths.Path" title="Permalink to this definition"></a></dt>
@@ -2041,8 +2178,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id6">
-<h2>RunVerilator<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h2>
+<section id="id8">
+<h2>RunVerilator<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.RunVerilator">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">RunVerilator</span></span><a class="headerlink" href="#py_netlist_paths.RunVerilator" title="Permalink to this definition"></a></dt>
@@ -2058,8 +2195,8 @@ repository contains tests based on external System Verilog designs.</p>
 </dd></dl>
 
 </section>
-<section id="id7">
-<h2>Vertex<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h2>
+<section id="id9">
+<h2>Vertex<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py_netlist_paths.Vertex">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">py_netlist_paths.</span></span><span class="sig-name descname"><span class="pre">Vertex</span></span><a class="headerlink" href="#py_netlist_paths.Vertex" title="Permalink to this definition"></a></dt>
