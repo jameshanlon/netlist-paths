@@ -97,6 +97,11 @@ public:
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::warning);
   }
 
+  /// Supress warning, verbose and debug messages.
+  void setNoWarnings() {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::error);
+  }
+
 public:
 
   /// Return a reference to the Options object.

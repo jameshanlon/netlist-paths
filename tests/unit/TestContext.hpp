@@ -7,6 +7,7 @@
 #include <boost/test/unit_test.hpp>
 #include "netlist_paths/Netlist.hpp"
 #include "netlist_paths/RunVerilator.hpp"
+#include "netlist_paths/Options.hpp"
 #include "netlist_paths/Waypoints.hpp"
 
 namespace fs = boost::filesystem;

@@ -54,8 +54,10 @@ BOOST_AUTO_TEST_CASE(assign_alias_regs) {
 /// have a corresponding variable declaration in a varscope. See
 /// https://github.com/jameshanlon/netlist-paths/issues/7
 BOOST_AUTO_TEST_CASE(var_no_scope) {
+  netlist_paths::Options::getInstance().setNoWarnings(); // Supress warning about missing scope.
   BOOST_CHECK_NO_THROW(compile("var_no_scope.sv"));
   BOOST_TEST(!np->isEmpty());
+  netlist_paths::Options::getInstance().setQuiet();
 }
 
 BOOST_AUTO_TEST_SUITE_END();
