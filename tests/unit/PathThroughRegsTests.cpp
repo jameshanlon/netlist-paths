@@ -18,10 +18,10 @@ BOOST_AUTO_TEST_CASE(through_registers) {
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
     BOOST_TEST(path.length() == 7);
-    CHECK_VAR_REPORT(path.getVertex(0), "VAR", "logic", "in");
+    CHECK_VAR_REPORT(path.getVertex(0), "PORT", "logic", "in");
     CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.a");
     CHECK_VAR_REPORT(path.getVertex(4), "DST_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(path.getVertex(6), "VAR", "logic", "out");
+    CHECK_VAR_REPORT(path.getVertex(6), "PORT", "logic", "out");
   }
   {
     // Any path: a -> b -> out
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(through_registers) {
     BOOST_TEST(path.length() == 5);
     CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.a");
     CHECK_VAR_REPORT(path.getVertex(2), "DST_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(path.getVertex(4), "VAR", "logic", "out");
+    CHECK_VAR_REPORT(path.getVertex(4), "PORT", "logic", "out");
   }
   {
     // Any path: b -> out
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(through_registers) {
     auto path = np->getAnyPath(netlist_paths::Waypoints("basic_ff_chain.b", "out"));
     BOOST_TEST(path.length() == 3);
     CHECK_VAR_REPORT(path.getVertex(0), "SRC_REG", "logic", "basic_ff_chain.b");
-    CHECK_VAR_REPORT(path.getVertex(2), "VAR", "logic", "out");
+    CHECK_VAR_REPORT(path.getVertex(2), "PORT", "logic", "out");
   }
 
   // Check also the through-register paths don't appear when not traversing registers.

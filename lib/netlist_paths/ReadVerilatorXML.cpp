@@ -456,14 +456,18 @@ void ReadVerilatorXML::newVar(XMLNode *node) {
 
   // Canonicalise the variable name by adding a top prefix if it is known.
   auto canonicalName = addTopPrefix(name);
-  auto vertex = netlist.addVarVertex(VertexAstType::VAR, direction, location,
+  auto vertexAstType = direction == VertexDirection::NONE ? VertexAstType::VAR
+                                                          : VertexAstType::PORT;
+  auto vertex = netlist.addVarVertex(vertexAstType, direction, location,
                                      dtypeMappings[dtypeID], canonicalName,
                                      isParam, paramValue, isPublic);
   if (vars.count(canonicalName) == 0) {
     vars[canonicalName] = vertex;
-    BOOST_LOG_TRIVIAL(debug) << boost::format("Add var %s (canonical %s) to scope") % name % canonicalName;
+    BOOST_LOG_TRIVIAL(debug) << boost::format("Add var %s %s (canonical %s) to scope")
+                                  % getVertexAstTypeStr(vertexAstType) % name % canonicalName;
   } else {
-    BOOST_LOG_TRIVIAL(debug) << boost::format("Var %s (canonical %s) already exists") % name % canonicalName;
+    BOOST_LOG_TRIVIAL(debug) << boost::format("Var %s %s (canonical %s) already exists")
+                                  % getVertexAstTypeStr(vertexAstType) % name % canonicalName;
   }
 
   // Add edges between public/top-level port variables and their internal

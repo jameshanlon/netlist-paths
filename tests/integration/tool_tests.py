@@ -60,13 +60,13 @@ class TestTool(unittest.TestCase):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv')
         returncode, stdout = self.run_np(['--compile', test_path, '--dump-ports'])
         self.assertEqual(returncode, 0)
-        self.assertEqual(len(stdout.split('\n')), 11)
+        self.assertEqual(len(stdout.split('\n')), 7)
 
     def test_dump_nets(self):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv')
         returncode, stdout = self.run_np(['--compile', test_path, '--dump-nets'])
         self.assertEqual(returncode, 0)
-        self.assertEqual(len(stdout.split('\n')), 5)
+        self.assertEqual(len(stdout.split('\n')), 9)
 
     def test_dump_dtypes(self):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'dtypes.sv')

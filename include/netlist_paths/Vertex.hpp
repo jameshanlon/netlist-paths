@@ -417,11 +417,7 @@ public:
 
   /// Return true if the vertex is a port variable.
   inline bool isPort() const {
-    return !deleted &&
-           top &&
-           (direction == VertexDirection::INPUT ||
-            direction == VertexDirection::OUTPUT ||
-            direction == VertexDirection::INOUT);
+    return !deleted && astType == VertexAstType::PORT;
   }
 
   /// Return true if the vertex is a valid start point for a combinatorial path

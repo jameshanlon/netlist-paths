@@ -92,12 +92,12 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(len(np.get_reg_vertices('counter_q')) == 1)
         self.assertTrue(len(np.get_reg_vertices('foo')) == 0)
         # Net vertices
-        self.assertTrue(len(np.get_net_vertices()) == 2)
+        self.assertTrue(len(np.get_net_vertices()) == 6)
         self.assertTrue(len(np.get_net_vertices('\.counter')) == 1)
         self.assertTrue(len(np.get_net_vertices('foo')) == 0)
         # Port vertices
-        self.assertTrue(len(np.get_port_vertices()) == 8)
-        self.assertTrue(len(np.get_port_vertices('clk')) == 2)
+        self.assertTrue(len(np.get_port_vertices()) == 4)
+        self.assertTrue(len(np.get_port_vertices('clk')) == 1)
         self.assertTrue(len(np.get_port_vertices('foo')) == 0)
 
     def test_dtypes(self):
