@@ -38,11 +38,19 @@ The following dependencies must be installed:
 - Bison
 - Doxygen (only required if building the documentation)
 
+In an Ubuntu 20.04 environment for instance, these can be satisfied with:
+
+.. code-block:: bash
+
+  ➜ apt-get update && apt-get install -yq build-essential git flex bison libboost-all-dev libfl-dev cmake
+
 To build and install netlist paths, configure the build system with CMake, then
 run Make. Note that Verilator is included as a submodule and as part of the build.
 
 .. code-block:: bash
 
+  ➜ git clone https://github.com/jameshanlon/netlist-paths.git
+  ➜ cd netlist-paths
   ➜ git submodule update --init --recursive
   ...
   ➜ mkdir Release
