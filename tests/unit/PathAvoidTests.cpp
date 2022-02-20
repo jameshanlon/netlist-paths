@@ -76,12 +76,12 @@ BOOST_AUTO_TEST_CASE(avoid_point_exception) {
   }
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
-    waypoints.addThroughPoint("multiple_paths.in"); // Not a valid avoid point.
+    waypoints.addThroughPoint("in"); // Not a valid avoid point since it's a start point.
     BOOST_CHECK_THROW(np->getAllPaths(waypoints), netlist_paths::Exception);
   }
   {
     auto waypoints = netlist_paths::Waypoints("in", "out");
-    waypoints.addThroughPoint("multiple_paths.out"); // Not a valid avoid point.
+    waypoints.addThroughPoint("out"); // Not a valid avoid point since it's a finish point.
     BOOST_CHECK_THROW(np->getAllPaths(waypoints), netlist_paths::Exception);
   }
 }

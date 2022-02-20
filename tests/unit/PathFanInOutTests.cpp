@@ -114,11 +114,31 @@ BOOST_AUTO_TEST_CASE(path_false_fan_in_out) {
   BOOST_CHECK_NO_THROW(compile("pipeline_module.sv"));
   {
     auto paths = np->getAllFanOut("pipeline_module.g_pipestage[6].u_pipestage.data_q");
-    BOOST_TEST(paths.size() == 10);
+    BOOST_TEST(paths.size() == 9);
+    CHECK_VAR_REPORT(paths[0].getFinishVertex(), "PORT", "[31:0] logic", "o_data");
+    CHECK_VAR_REPORT(paths[1].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[2].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[1].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[3].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[2].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[4].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[3].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[5].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[4].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[6].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[5].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[7].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[6].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[8].getFinishVertex(), "DST_REG", "[31:0] logic", "pipeline_module.g_pipestage[7].u_pipestage.data_q");
   }
   {
     auto paths = np->getAllFanIn("pipeline_module.g_pipestage[6].u_pipestage.data_q");
-    BOOST_TEST(paths.size() == 14);
+    BOOST_TEST(paths.size() == 11);
+    CHECK_VAR_REPORT(paths[0].getStartVertex(), "PORT", "logic", "i_clk");
+    CHECK_VAR_REPORT(paths[1].getStartVertex(), "PORT", "logic", "i_rst");
+    CHECK_VAR_REPORT(paths[2].getStartVertex(), "PORT", "[31:0] logic", "i_data");
+    CHECK_VAR_REPORT(paths[3].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[0].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[4].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[1].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[5].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[2].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[6].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[3].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[7].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[4].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[8].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[5].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[9].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[6].u_pipestage.data_q");
+    CHECK_VAR_REPORT(paths[10].getStartVertex(), "SRC_REG", "[31:0] logic", "pipeline_module.g_pipestage[7].u_pipestage.data_q");
   }
 }
 

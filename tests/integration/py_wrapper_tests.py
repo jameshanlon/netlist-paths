@@ -30,34 +30,33 @@ class TestPyWrapper(unittest.TestCase):
     def test_option_ignore_hierarchy_markers(self):
         np = self.compile_test('counter.sv')
         Options.get_instance().set_ignore_hierarchy_markers(True)
-        self.assertTrue(np.path_exists(Waypoints('counter/counter_q', 'counter/o_count')))
-        self.assertTrue(np.path_exists(Waypoints('counter_counter_q', 'counter_o_count')))
+        self.assertTrue(np.path_exists(Waypoints('counter/counter_q', 'o_count')))
+        self.assertTrue(np.path_exists(Waypoints('counter_counter_q', 'o_count')))
 
     def test_adder_path_points(self):
         """
         Test basic querying of path start and end points.
         """
         np = self.compile_test('adder.sv')
-        for prefix in ['', 'adder.']:
-            # Start and finish points
-            self.assertTrue(np.startpoint_exists(prefix+'i_a'))
-            self.assertTrue(np.startpoint_exists(prefix+'i_b'))
-            self.assertTrue(np.endpoint_exists(prefix+'o_sum'))
-            self.assertTrue(np.endpoint_exists(prefix+'o_co'))
-            # Any start and finish points.
-            self.assertTrue(np.any_startpoint_exists(prefix+'i_a'))
-            self.assertTrue(np.any_startpoint_exists(prefix+'i_b'))
-            self.assertTrue(np.any_endpoint_exists(prefix+'o_sum'))
-            self.assertTrue(np.any_endpoint_exists(prefix+'o_co'))
-            Options.get_instance().set_match_regex()
-            self.assertTrue(np.any_startpoint_exists(prefix+'i_.*'))
-            self.assertTrue(np.any_endpoint_exists(prefix+'o_.*'))
-            Options.get_instance().set_match_exact()
-            # Invalid start and end points
-            self.assertFalse(np.endpoint_exists(prefix+'i_a'))
-            self.assertFalse(np.endpoint_exists(prefix+'i_b'))
-            self.assertFalse(np.startpoint_exists(prefix+'o_sum'))
-            self.assertFalse(np.startpoint_exists(prefix+'o_co'))
+        # Start and finish points
+        self.assertTrue(np.startpoint_exists('i_a'))
+        self.assertTrue(np.startpoint_exists('i_b'))
+        self.assertTrue(np.endpoint_exists('o_sum'))
+        self.assertTrue(np.endpoint_exists('o_co'))
+        # Any start and finish points.
+        self.assertTrue(np.any_startpoint_exists('i_a'))
+        self.assertTrue(np.any_startpoint_exists('i_b'))
+        self.assertTrue(np.any_endpoint_exists('o_sum'))
+        self.assertTrue(np.any_endpoint_exists('o_co'))
+        Options.get_instance().set_match_regex()
+        self.assertTrue(np.any_startpoint_exists('i_.*'))
+        self.assertTrue(np.any_endpoint_exists('o_.*'))
+        Options.get_instance().set_match_exact()
+        # Invalid start and end points
+        self.assertFalse(np.endpoint_exists('i_a'))
+        self.assertFalse(np.endpoint_exists('i_b'))
+        self.assertFalse(np.startpoint_exists('o_sum'))
+        self.assertFalse(np.startpoint_exists('o_co'))
 
     def test_adder_path_exists(self):
         """
@@ -65,17 +64,16 @@ class TestPyWrapper(unittest.TestCase):
         """
         np = self.compile_test('adder.sv')
         Options.get_instance().set_match_exact()
-        for prefix in ['', 'adder.']:
-            # Check all valid paths are reported.
-            self.assertTrue(np.path_exists(Waypoints(prefix+'i_a', prefix+'o_sum')))
-            self.assertTrue(np.path_exists(Waypoints(prefix+'i_a', prefix+'o_co')))
-            self.assertTrue(np.path_exists(Waypoints(prefix+'i_b', prefix+'o_sum')))
-            self.assertTrue(np.path_exists(Waypoints(prefix+'i_b', prefix+'o_co')))
-            # Check for invalid paths.
-            self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_sum', prefix+'i_a'))
-            self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_co',  prefix+'i_a'))
-            self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_sum', prefix+'i_b'))
-            self.assertRaises(RuntimeError, np.path_exists, Waypoints(prefix+'o_co',  prefix+'i_b'))
+        # Check all valid paths are reported.
+        self.assertTrue(np.path_exists(Waypoints('i_a', 'o_sum')))
+        self.assertTrue(np.path_exists(Waypoints('i_a', 'o_co')))
+        self.assertTrue(np.path_exists(Waypoints('i_b', 'o_sum')))
+        self.assertTrue(np.path_exists(Waypoints('i_b', 'o_co')))
+        # Check for invalid paths.
+        self.assertRaises(RuntimeError, np.path_exists, Waypoints('o_sum', 'i_a'))
+        self.assertRaises(RuntimeError, np.path_exists, Waypoints('o_co',  'i_a'))
+        self.assertRaises(RuntimeError, np.path_exists, Waypoints('o_sum', 'i_b'))
+        self.assertRaises(RuntimeError, np.path_exists, Waypoints('o_co',  'i_b'))
 
     def test_get_names(self):
         """

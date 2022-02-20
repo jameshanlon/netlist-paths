@@ -147,40 +147,6 @@ inline const char *getVertexAstTypeStr(VertexAstType type) {
   }
 }
 
-/// Map Vertex AST types to useful names that can be included in reports.
-inline const char *getSimpleVertexAstTypeStr(VertexAstType type) {
-  switch (type) {
-    case VertexAstType::ALWAYS:        return "ALWAYS";
-    case VertexAstType::ASSIGN:        return "ASSIGN";
-    case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN";
-    case VertexAstType::ASSIGN_DLY:    return "ASSIGN";
-    case VertexAstType::ASSIGN_W:      return "ASSIGN";
-    case VertexAstType::CASE:          return "CASE";
-    case VertexAstType::C_FUNC:        return "C_FUNCTION";
-    case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
-    case VertexAstType::C_STMT:        return "C_STATEMENT";
-    case VertexAstType::DISPLAY:       return "DISPLAY";
-    case VertexAstType::DST_REG:       return "REG";
-    case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
-    case VertexAstType::FINISH:        return "FINISH";
-    case VertexAstType::IF:            return "IF";
-    case VertexAstType::INITIAL:       return "INITIAL";
-    case VertexAstType::INSTANCE:      return "INSTANCE";
-    case VertexAstType::INVALID:       return "INVALID";
-    case VertexAstType::LOGIC:         return "LOGIC";
-    case VertexAstType::PORT:          return "PORT";
-    case VertexAstType::READ_MEM:      return "READ_MEM";
-    case VertexAstType::SEN_GATE:      return "SEN";
-    case VertexAstType::SFORMATF:      return "SFORMATF";
-    case VertexAstType::SRC_REG:       return "REG";
-    case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
-    case VertexAstType::VAR:           return "VAR";
-    case VertexAstType::WHILE:         return "WHILE";
-    case VertexAstType::WIRE:          return "WIRE";
-    default:                           return "UNKNOWN";
-  }
-}
-
 inline VertexDirection getVertexDirection(const std::string &direction) {
   static std::map<std::string, VertexDirection> mappings {
       { "input",  VertexDirection::INPUT },
@@ -277,11 +243,11 @@ public:
       top(v.top),
       deleted(v.deleted) {}
 
-  /// Return whether a variable name is in the top scope.
+  /// Return whether a variable name is a top signal.
   ///
-  /// A variable is in the 'top' scope when has one or two hierarchical
-  /// components. For example, module.name or name is top level, but
-  /// module.submodule.name is not.
+  /// A variable is 'top' when it is not prefixed with any hierarchy path.
+  /// This applies to top-level ports and parameters only, since all other
+  /// variables exist within a module scope.
   ///
   /// \param name The name of a variable.
   ///
@@ -289,7 +255,7 @@ public:
   static bool determineIsTop(const std::string &name) {
     std::vector<std::string> tokens;
     boost::split(tokens, name, boost::is_any_of("."));
-    return tokens.size() < 3;
+    return tokens.size() == 1;
   }
 
   /// Given a hierarchical variable name, eg a.b.c, return the last component c.
@@ -416,8 +382,11 @@ public:
   }
 
   /// Return true if the vertex is a port variable.
+  /// Handle a special case where port registers have REG VertexAstType.
   inline bool isPort() const {
-    return !deleted && astType == VertexAstType::PORT;
+    auto isAstPort = astType == VertexAstType::PORT;
+    auto isRegPort = top && isReg() && (direction == VertexDirection::OUTPUT);
+    return !deleted && (isAstPort || isRegPort);
   }
 
   /// Return true if the vertex is a valid start point for a combinatorial path
@@ -501,6 +470,40 @@ public:
            !deleted;
   }
 
+  /// Map Vertex AST types to useful names that can be included in reports.
+  const char *getSimpleAstTypeStr() const {
+    switch (astType) {
+      case VertexAstType::ALWAYS:        return "ALWAYS";
+      case VertexAstType::ASSIGN:        return "ASSIGN";
+      case VertexAstType::ASSIGN_ALIAS:  return "ASSIGN";
+      case VertexAstType::ASSIGN_DLY:    return "ASSIGN";
+      case VertexAstType::ASSIGN_W:      return "ASSIGN";
+      case VertexAstType::CASE:          return "CASE";
+      case VertexAstType::C_FUNC:        return "C_FUNCTION";
+      case VertexAstType::C_METHOD_CALL: return "C_METHOD_CALL";
+      case VertexAstType::C_STMT:        return "C_STATEMENT";
+      case VertexAstType::DISPLAY:       return "DISPLAY";
+      case VertexAstType::DST_REG:       return isPort() ? "PORT_REG" : "REG";
+      case VertexAstType::DST_REG_ALIAS: return "REG_ALIAS";
+      case VertexAstType::FINISH:        return "FINISH";
+      case VertexAstType::IF:            return "IF";
+      case VertexAstType::INITIAL:       return "INITIAL";
+      case VertexAstType::INSTANCE:      return "INSTANCE";
+      case VertexAstType::INVALID:       return "INVALID";
+      case VertexAstType::LOGIC:         return "LOGIC";
+      case VertexAstType::PORT:          return "PORT";
+      case VertexAstType::READ_MEM:      return "READ_MEM";
+      case VertexAstType::SEN_GATE:      return "SEN";
+      case VertexAstType::SFORMATF:      return "SFORMATF";
+      case VertexAstType::SRC_REG:       return isPort() ? "PORT_REG" : "REG";
+      case VertexAstType::SRC_REG_ALIAS: return "REG_ALIAS";
+      case VertexAstType::VAR:           return isPort() ? "PORT_VAR" : "VAR";
+      case VertexAstType::WHILE:         return "WHILE";
+      case VertexAstType::WIRE:          return "WIRE";
+      default:                           return "UNKNOWN";
+    }
+  }
+
   /// Return a string description of this vertex.
   std::string toString() const {
     // TODO: expand on this for different vertex types.
@@ -530,7 +533,6 @@ public:
   size_t getID() const { return id; }
   const std::string getName() const { return name; }
   const std::string getAstTypeStr() const { return getVertexAstTypeStr(astType); }
-  const std::string getSimpleAstTypeStr() const { return getSimpleVertexAstTypeStr(astType); }
   const std::string getDirStr() const { return getVertexDirectionStr(direction); }
   const std::string getDTypeStr() const { return dtype != nullptr ? dtype->toString() : "-"; }
   const std::string getLocationStr() const { return location.getLocationStr(); }

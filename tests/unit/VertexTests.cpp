@@ -44,9 +44,10 @@ BOOST_AUTO_TEST_CASE(port_register) {
   BOOST_TEST(np->regExists("o_b"));
   BOOST_TEST(np->anyRegExists("o_b"));
   // Ports
-  BOOST_TEST(np->getPortVerticesPtr().size() == 2);
+  BOOST_TEST(np->getPortVerticesPtr().size() == 3);
   BOOST_TEST(np->getPortVerticesPtr("i_").size() == 2);
-  BOOST_TEST(np->getPortVerticesPtr("o_").size() == 0);
+  BOOST_TEST(np->getPortVerticesPtr("o_").size() == 1);
+  BOOST_TEST(np->getPortVerticesPtr("o_")[0]->getSimpleAstTypeStr() == "PORT_REG");
   // Nets
   BOOST_TEST(np->getNetVerticesPtr().size() == 3);
 }
@@ -64,9 +65,10 @@ BOOST_AUTO_TEST_CASE(port_register_nested) {
   BOOST_TEST(np->regExists("o_b"));
   BOOST_TEST(np->anyRegExists("o_b"));
   // Ports
-  BOOST_TEST(np->getPortVerticesPtr().size() == 2);
+  BOOST_TEST(np->getPortVerticesPtr().size() == 3);
   BOOST_TEST(np->getPortVerticesPtr("i_").size() == 2);
-  BOOST_TEST(np->getPortVerticesPtr("o_").size() == 0);
+  BOOST_TEST(np->getPortVerticesPtr("o_").size() == 1);
+  BOOST_TEST(np->getPortVerticesPtr("o_")[0]->getSimpleAstTypeStr() == "PORT_REG");
   // Nets
   BOOST_TEST(np->getNetVerticesPtr().size() == 6);
   BOOST_TEST(np->getNetVerticesPtr("i_").size() == 4);

@@ -100,6 +100,12 @@ and view a list of named objects in the FSM example module:
   ➜ netlist-paths --compile examples/fsm.sv --dump-names
   Name           Type DType        Width Direction Location
   -------------- ---- ------------ ----- --------- ------------------
+  i_clk          PORT logic        1     INPUT     examples/fsm.sv:3
+  i_finish       PORT logic        1     INPUT     examples/fsm.sv:6
+  i_rst          PORT logic        1     INPUT     examples/fsm.sv:4
+  i_start        PORT logic        1     INPUT     examples/fsm.sv:5
+  i_wait         PORT logic        1     INPUT     examples/fsm.sv:7
+  o_state        PORT [2:0] logic  3     OUTPUT    examples/fsm.sv:8
   fsm.i_clk      VAR  logic        1     INPUT     examples/fsm.sv:3
   fsm.i_finish   VAR  logic        1     INPUT     examples/fsm.sv:6
   fsm.i_rst      VAR  logic        1     INPUT     examples/fsm.sv:4
@@ -108,12 +114,6 @@ and view a list of named objects in the FSM example module:
   fsm.next_state VAR  packed union 3     NONE      examples/fsm.sv:31
   fsm.o_state    VAR  [2:0] logic  3     OUTPUT    examples/fsm.sv:8
   fsm.state_q    REG  packed union 3     NONE      examples/fsm.sv:28
-  i_clk          VAR  logic        1     INPUT     examples/fsm.sv:3
-  i_finish       VAR  logic        1     INPUT     examples/fsm.sv:6
-  i_rst          VAR  logic        1     INPUT     examples/fsm.sv:4
-  i_start        VAR  logic        1     INPUT     examples/fsm.sv:5
-  i_wait         VAR  logic        1     INPUT     examples/fsm.sv:7
-  o_state        VAR  [2:0] logic  3     OUTPUT    examples/fsm.sv:8
 
 This output lists each of the variables in the design, their type (variable or
 register), the Verilog data type, with data type width, the direction of the
@@ -126,10 +126,10 @@ expression matching):
   ➜ netlist-paths --compile examples/fsm.sv --dump-names state --regex
   Name           Type DType        Width Direction Location
   -------------- ---- ------------ ----- --------- ------------------
+  o_state        PORT [2:0] logic  3     OUTPUT    examples/fsm.sv:8
   fsm.next_state VAR  packed union 3     NONE      examples/fsm.sv:31
   fsm.o_state    VAR  [2:0] logic  3     OUTPUT    examples/fsm.sv:8
   fsm.state_q    REG  packed union 3     NONE      examples/fsm.sv:28
-  o_state        VAR  [2:0] logic  3     OUTPUT    examples/fsm.sv:8
 
 There is similar behaviour with ``--dump-nets``, ``--dump-ports``,
 ``--dump-regs`` to select only net, port or register variable types
@@ -319,7 +319,8 @@ Developer notes
 The command-line flags ``--verbose`` and ``--debug`` provide logging
 information that can aid debugging.
 
-To produce XML from a test case (noting the underlying call to Verilator):
+To produce XML from a test case (noting the underlying call to Verilator),
+using an adder as an example:
 
 .. code-block:: bash
 

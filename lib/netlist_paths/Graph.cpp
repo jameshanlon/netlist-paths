@@ -416,7 +416,7 @@ Graph::getAllFanOut(VertexID startVertex) const {
                                 Path(),
                                 startVertex,
                                 static_cast<VertexID>(v));
-      if (!path.empty()) {
+      if (path.length() > 1) {
         path.reverse();
         paths.push_back(path);
       }
@@ -445,7 +445,7 @@ Graph::getAllFanIn(VertexID finishVertex) const {
                                 Path(),
                                 finishVertex,
                                 static_cast<VertexID>(v));
-      if (!path.empty()) {
+      if (path.length() > 1) {
         paths.push_back(path);
       }
     }

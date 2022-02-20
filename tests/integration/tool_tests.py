@@ -40,7 +40,7 @@ class TestTool(unittest.TestCase):
         test_path = os.path.join(defs.TEST_SRC_PREFIX, 'counter.sv')
         returncode, stdout = self.run_np(['--compile', test_path,
                                           '--from', 'counter/counter_q',
-                                          '--to', 'counter/o_count',
+                                          '--to', 'o_count',
                                           '--ignore-hierarchy-markers'])
         self.assertEqual(returncode, 0)
 

@@ -19,8 +19,9 @@ BOOST_AUTO_TEST_CASE(exact_name_matching_counter) {
   BOOST_TEST(np->endpointExists("counter.counter_q"));
   // Output ports can only be endpoints.
   BOOST_TEST(!np->regExists("counter.o_count"));
-  BOOST_TEST(np->endpointExists("counter.o_count"));
   BOOST_TEST(np->endpointExists("o_count"));
+  // Port enpoints are restricted to top instances, as above.
+  BOOST_TEST(!np->endpointExists("counter.o_count"));
   // A name that doesn't exist.
   BOOST_TEST(!np->regExists("foo"));
   BOOST_TEST(!np->startpointExists("foo"));

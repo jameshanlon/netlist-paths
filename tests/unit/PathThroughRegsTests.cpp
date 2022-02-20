@@ -9,6 +9,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(path_through_regs_queries, TestContext);
 
+/// Basic tests for through-registers traveral of basic_ff_chain.sv
 BOOST_AUTO_TEST_CASE(through_registers) {
   BOOST_CHECK_NO_THROW(compile("basic_ff_chain.sv"));
 
@@ -63,7 +64,7 @@ BOOST_AUTO_TEST_CASE(through_registers) {
     // Fanout: in
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto paths = np->getAllFanOut("in");
-    std::vector<std::string> endPoints = {"out", "basic_ff_chain.out", "basic_ff_chain.a", "basic_ff_chain.b"};
+    std::vector<std::string> endPoints = {"out", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == endPoints.size());
     for (auto path : paths) {
       BOOST_TEST((std::find(endPoints.begin(), endPoints.end(), path.getFinishVertex()->getName()) != endPoints.end()));
@@ -73,12 +74,24 @@ BOOST_AUTO_TEST_CASE(through_registers) {
     // Fanout: out
     netlist_paths::Options::getInstance().setTraverseRegisters(true);
     auto paths = np->getAllFanIn("out");
-    std::vector<std::string> startPoints = {"in", "basic_ff_chain.in", "basic_ff_chain.a", "basic_ff_chain.b"};
+    std::vector<std::string> startPoints = {"in", "basic_ff_chain.a", "basic_ff_chain.b"};
     BOOST_TEST(paths.size() == startPoints.size());
     for (auto path : paths) {
       BOOST_TEST((std::find(startPoints.begin(), startPoints.end(), path.getStartVertex()->getName()) != startPoints.end()));
     }
   }
+}
+
+/// A similar test case but with the register start, through and finish points
+/// all being port registers.
+BOOST_AUTO_TEST_CASE(through_reg_ports) {
+  BOOST_CHECK_NO_THROW(compile("registered_output_path.sv"));
+  netlist_paths::Options::getInstance().setTraverseRegisters(true);
+  auto path = np->getAnyPath(netlist_paths::Waypoints("in", "out"));
+  BOOST_TEST(path.length() == 7);
+  // This vertex is a PORT and a REG.
+  CHECK_VAR_REPORT(path.getVertex(6), "DST_REG", "[31:0] logic", "out");
+  BOOST_TEST(path.getVertex(6)->getSimpleAstTypeStr() == "PORT_REG");
 }
 
 BOOST_AUTO_TEST_SUITE_END();
