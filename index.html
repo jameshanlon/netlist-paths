@@ -136,9 +136,15 @@ and development of patterns for quality-of-result reporting.</p>
 <li><p>Bison</p></li>
 <li><p>Doxygen (only required if building the documentation)</p></li>
 </ul>
+<p>In an Ubuntu 20.04 environment for instance, these can be satisfied with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ apt-get update <span class="o">&amp;&amp;</span> apt-get install -yq build-essential git flex bison libboost-all-dev libfl-dev cmake
+</pre></div>
+</div>
 <p>To build and install netlist paths, configure the build system with CMake, then
 run Make. Note that Verilator is included as a submodule and as part of the build.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ git submodule update --init --recursive
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ git clone https://github.com/jameshanlon/netlist-paths.git
+➜ <span class="nb">cd</span> netlist-paths
+➜ git submodule update --init --recursive
 ...
 ➜ mkdir Release
 ➜ <span class="nb">cd</span> Release
@@ -178,6 +184,12 @@ and view a list of named objects in the FSM example module:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ netlist-paths --compile examples/fsm.sv --dump-names
 Name           Type DType        Width Direction Location
 -------------- ---- ------------ ----- --------- ------------------
+i_clk          PORT logic        <span class="m">1</span>     INPUT     examples/fsm.sv:3
+i_finish       PORT logic        <span class="m">1</span>     INPUT     examples/fsm.sv:6
+i_rst          PORT logic        <span class="m">1</span>     INPUT     examples/fsm.sv:4
+i_start        PORT logic        <span class="m">1</span>     INPUT     examples/fsm.sv:5
+i_wait         PORT logic        <span class="m">1</span>     INPUT     examples/fsm.sv:7
+o_state        PORT <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 fsm.i_clk      VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:3
 fsm.i_finish   VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:6
 fsm.i_rst      VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:4
@@ -186,12 +198,6 @@ fsm.i_wait     VAR  logic        <span class="m">1</span>     INPUT     examples
 fsm.next_state VAR  packed union <span class="m">3</span>     NONE      examples/fsm.sv:31
 fsm.o_state    VAR  <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 fsm.state_q    REG  packed union <span class="m">3</span>     NONE      examples/fsm.sv:28
-i_clk          VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:3
-i_finish       VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:6
-i_rst          VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:4
-i_start        VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:5
-i_wait         VAR  logic        <span class="m">1</span>     INPUT     examples/fsm.sv:7
-o_state        VAR  <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 </pre></div>
 </div>
 <p>This output lists each of the variables in the design, their type (variable or
@@ -202,10 +208,10 @@ expression matching):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ netlist-paths --compile examples/fsm.sv --dump-names state --regex
 Name           Type DType        Width Direction Location
 -------------- ---- ------------ ----- --------- ------------------
+o_state        PORT <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 fsm.next_state VAR  packed union <span class="m">3</span>     NONE      examples/fsm.sv:31
 fsm.o_state    VAR  <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 fsm.state_q    REG  packed union <span class="m">3</span>     NONE      examples/fsm.sv:28
-o_state        VAR  <span class="o">[</span><span class="m">2</span>:0<span class="o">]</span> logic  <span class="m">3</span>     OUTPUT    examples/fsm.sv:8
 </pre></div>
 </div>
 <p>There is similar behaviour with <code class="docutils literal notranslate"><span class="pre">--dump-nets</span></code>, <code class="docutils literal notranslate"><span class="pre">--dump-ports</span></code>,
@@ -372,7 +378,8 @@ please follow the
 <h2>Developer notes<a class="headerlink" href="#developer-notes" title="Permalink to this headline"></a></h2>
 <p>The command-line flags <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> and <code class="docutils literal notranslate"><span class="pre">--debug</span></code> provide logging
 information that can aid debugging.</p>
-<p>To produce XML from a test case (noting the underlying call to Verilator):</p>
+<p>To produce XML from a test case (noting the underlying call to Verilator),
+using an adder as an example:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>➜ cat tests/verilog/adder.sv
 module adder
   <span class="c1">#(parameter p_width = 32)(</span>
@@ -923,26 +930,26 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options10setVerboseEv">
-<span id="_CPPv3N13netlist_paths7Options10setVerboseEv"></span><span id="_CPPv2N13netlist_paths7Options10setVerboseEv"></span><span id="netlist_paths::Options::setVerbose"></span><span class="target" id="classnetlist__paths_1_1_options_1abe99c87c25b5c48d752b0c978093053b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setVerbose</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options10setVerboseEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options17setLoggingVerboseEv">
+<span id="_CPPv3N13netlist_paths7Options17setLoggingVerboseEv"></span><span id="_CPPv2N13netlist_paths7Options17setLoggingVerboseEv"></span><span id="netlist_paths::Options::setLoggingVerbose"></span><span class="target" id="classnetlist__paths_1_1_options_1ade4cdb992d319be361fa6ccda509d652"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setLoggingVerbose</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options17setLoggingVerboseEv" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Enable verbose output. </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options8setDebugEv">
-<span id="_CPPv3N13netlist_paths7Options8setDebugEv"></span><span id="_CPPv2N13netlist_paths7Options8setDebugEv"></span><span id="netlist_paths::Options::setDebug"></span><span class="target" id="classnetlist__paths_1_1_options_1af7c516bf5f6f7f166f1d404a1dfbc5ea"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setDebug</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options8setDebugEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options15setLoggingDebugEv">
+<span id="_CPPv3N13netlist_paths7Options15setLoggingDebugEv"></span><span id="_CPPv2N13netlist_paths7Options15setLoggingDebugEv"></span><span id="netlist_paths::Options::setLoggingDebug"></span><span class="target" id="classnetlist__paths_1_1_options_1ad97c5a94bccb2008b5246a49dc4dc037"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setLoggingDebug</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options15setLoggingDebugEv" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Enable debug output (including verbose messages). </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options8setQuietEv">
-<span id="_CPPv3N13netlist_paths7Options8setQuietEv"></span><span id="_CPPv2N13netlist_paths7Options8setQuietEv"></span><span id="netlist_paths::Options::setQuiet"></span><span class="target" id="classnetlist__paths_1_1_options_1a6c754224ba7fed47d64774554e87fbdd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setQuiet</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options8setQuietEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options15setLoggingQuietEv">
+<span id="_CPPv3N13netlist_paths7Options15setLoggingQuietEv"></span><span id="_CPPv2N13netlist_paths7Options15setLoggingQuietEv"></span><span id="netlist_paths::Options::setLoggingQuiet"></span><span class="target" id="classnetlist__paths_1_1_options_1a0698c50c8172f8c15b32193b79b1eae9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setLoggingQuiet</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options15setLoggingQuietEv" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Supress verbose and debug messages. </p>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options13setNoWarningsEv">
-<span id="_CPPv3N13netlist_paths7Options13setNoWarningsEv"></span><span id="_CPPv2N13netlist_paths7Options13setNoWarningsEv"></span><span id="netlist_paths::Options::setNoWarnings"></span><span class="target" id="classnetlist__paths_1_1_options_1a78404cac7fe7bfa1c49e172193e3c746"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setNoWarnings</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options13setNoWarningsEv" title="Permalink to this definition"></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths7Options19setLoggingErrorOnlyEv">
+<span id="_CPPv3N13netlist_paths7Options19setLoggingErrorOnlyEv"></span><span id="_CPPv2N13netlist_paths7Options19setLoggingErrorOnlyEv"></span><span id="netlist_paths::Options::setLoggingErrorOnly"></span><span class="target" id="classnetlist__paths_1_1_options_1af7dde26bb58830a19b28357f86b90058"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setLoggingErrorOnly</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths7Options19setLoggingErrorOnlyEv" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Supress warning, verbose and debug messages. </p>
 </dd></dl>
 
@@ -1268,7 +1275,7 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK13netlist_paths6Vertex6isPortEv">
 <span id="_CPPv3NK13netlist_paths6Vertex6isPortEv"></span><span id="_CPPv2NK13netlist_paths6Vertex6isPortEv"></span><span id="netlist_paths::Vertex::isPortC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1aa8ef0e9640a2dee5fa67899bfd463afb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isPort</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex6isPortEv" title="Permalink to this definition"></a><br /></dt>
-<dd><p>Return true if the vertex is a port variable. </p>
+<dd><p>Return true if the vertex is a port variable. Handle a special case where port registers have REG VertexAstType. </p>
 </dd></dl>
 
 <dl class="cpp function">
@@ -1324,6 +1331,12 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 </dd></dl>
 
 <dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK13netlist_paths6Vertex19getSimpleAstTypeStrEv">
+<span id="_CPPv3NK13netlist_paths6Vertex19getSimpleAstTypeStrEv"></span><span id="_CPPv2NK13netlist_paths6Vertex19getSimpleAstTypeStrEv"></span><span id="netlist_paths::Vertex::getSimpleAstTypeStrC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1ac66cdafe8e916a717f173b0abaf461f6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">getSimpleAstTypeStr</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex19getSimpleAstTypeStrEv" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Map <a class="reference internal" href="#classnetlist__paths_1_1_vertex"><span class="std std-ref">Vertex</span></a> AST types to useful names that can be included in reports. </p>
+</dd></dl>
+
+<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4NK13netlist_paths6Vertex8toStringEv">
 <span id="_CPPv3NK13netlist_paths6Vertex8toStringEv"></span><span id="_CPPv2NK13netlist_paths6Vertex8toStringEv"></span><span id="netlist_paths::Vertex::toStringC"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a127b61a2eb5ed05ba62d40c48af7b9bb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">toString</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK13netlist_paths6Vertex8toStringEv" title="Permalink to this definition"></a><br /></dt>
 <dd><p>Return a string description of this vertex. </p>
@@ -1335,8 +1348,8 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE">
 <span id="_CPPv3N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="_CPPv2N13netlist_paths6Vertex14determineIsTopERKNSt6stringE"></span><span id="netlist_paths::Vertex::determineIsTop__ssCR"></span><span class="target" id="classnetlist__paths_1_1_vertex_1a1c779faab8ef50d102a8b63491ea0ebd"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">determineIsTop</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N13netlist_paths6Vertex14determineIsTopERKNSt6stringE" title="Permalink to this definition"></a><br /></dt>
-<dd><p>Return whether a variable name is in the top scope.</p>
-<p>A variable is in the ‘top’ scope when has one or two hierarchical components. For example, module.name or name is top level, but module.submodule.name is not.</p>
+<dd><p>Return whether a variable name is a top signal.</p>
+<p>A variable is ‘top’ when it is not prefixed with any hierarchy path. This applies to top-level ports and parameters only, since all other variables exist within a module scope.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>name</strong> – The name of a variable.</p>
@@ -1744,15 +1757,6 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="py_netlist_paths.Options.set_debug">
-<span class="sig-name descname"><span class="pre">set_debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_debug" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_debug(netlist_paths::Options {lvalue})</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="py_netlist_paths.Options.set_error_on_unmatched_node">
 <span class="sig-name descname"><span class="pre">set_error_on_unmatched_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(bool)arg2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_error_on_unmatched_node" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
@@ -1766,6 +1770,42 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 <span class="sig-name descname"><span class="pre">set_ignore_hierarchy_markers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(bool)arg2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_ignore_hierarchy_markers" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>C++ signature :</dt><dd><p>void set_ignore_hierarchy_markers(netlist_paths::Options {lvalue},bool)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py_netlist_paths.Options.set_logging_debug">
+<span class="sig-name descname"><span class="pre">set_logging_debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_logging_debug" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_logging_debug(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py_netlist_paths.Options.set_logging_error_only">
+<span class="sig-name descname"><span class="pre">set_logging_error_only</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_logging_error_only" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_logging_error_only(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py_netlist_paths.Options.set_logging_quiet">
+<span class="sig-name descname"><span class="pre">set_logging_quiet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_logging_quiet" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_logging_quiet(netlist_paths::Options {lvalue})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py_netlist_paths.Options.set_logging_verbose">
+<span class="sig-name descname"><span class="pre">set_logging_verbose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_logging_verbose" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>C++ signature :</dt><dd><p>void set_logging_verbose(netlist_paths::Options {lvalue})</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1838,15 +1878,6 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 <span class="sig-name descname"><span class="pre">set_traverse_registers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">(bool)arg2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_traverse_registers" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>C++ signature :</dt><dd><p>void set_traverse_registers(netlist_paths::Options {lvalue},bool)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="py_netlist_paths.Options.set_verbose">
-<span class="sig-name descname"><span class="pre">set_verbose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Options)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Options.set_verbose" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>void set_verbose(netlist_paths::Options {lvalue})</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2219,7 +2250,7 @@ See <a class="reference external" href="https://github.com/jameshanlon/netlist-p
 <dt class="sig sig-object py" id="py_netlist_paths.Vertex.get_ast_type_str">
 <span class="sig-name descname"><span class="pre">get_ast_type_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">(Vertex)arg1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span> <span class="pre">:</span></span></span><a class="headerlink" href="#py_netlist_paths.Vertex.get_ast_type_str" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
-<dt>C++ signature :</dt><dd><p>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; get_ast_type_str(netlist_paths::Vertex {lvalue})</p>
+<dt>C++ signature :</dt><dd><p>char const* get_ast_type_str(netlist_paths::Vertex {lvalue})</p>
 </dd>
 </dl>
 </dd></dl>
