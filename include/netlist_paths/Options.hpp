@@ -83,22 +83,22 @@ public:
   void setErrorOnUnmatchedNode(bool value) { errorOnUnmatchedNode = value; }
 
   /// Enable verbose output.
-  void setVerbose() {
+  void setLoggingVerbose() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
   }
 
   /// Enable debug output (including verbose messages).
-  void setDebug() {
+  void setLoggingDebug() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::debug);
   }
 
   /// Supress verbose and debug messages.
-  void setQuiet() {
+  void setLoggingQuiet() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::warning);
   }
 
   /// Supress warning, verbose and debug messages.
-  void setNoWarnings() {
+  void setLoggingErrorOnly() {
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::error);
   }
 
@@ -128,7 +128,7 @@ private:
       errorOnUnmatchedNode(false) {
     // Setup logging.
     boost::log::add_console_log(std::clog, boost::log::keywords::format = "%Severity%: %Message%");
-    setQuiet();
+    setLoggingQuiet();
   }
 
 public:

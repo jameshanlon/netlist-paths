@@ -78,10 +78,10 @@ int main(int argc, char **argv) {
     po::store(po::command_line_parser(argc, argv).
                   options(allOptions).positional(p).run(), vm);
     if (vm.count("debug") > 0) {
-      netlist_paths::Options::getInstance().setDebug();
+      netlist_paths::Options::getInstance().setLoggingDebug();
     }
     if (vm.count("verbose") > 0) {
-      netlist_paths::Options::getInstance().setVerbose();
+      netlist_paths::Options::getInstance().setLoggingVerbose();
     }
     bool displayHelp   = vm.count("help") > 0;
     bool compile       = vm.count("compile") > 0;

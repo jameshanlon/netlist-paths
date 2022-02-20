@@ -234,12 +234,12 @@ def main():
                         help='Ignore hierarchy markers: _ . /')
     parser.add_argument('-v', '--verbose',
                         action='store_const',
-                        const=lambda: Options.get_instance().set_verbose(),
+                        const=lambda: Options.get_instance().set_logging_verbose(),
                         default=lambda *args: None,
                         help='Print execution information')
     parser.add_argument('-d', '--debug',
                         action='store_const',
-                        const=lambda: Options.get_instance().set_debug(),
+                        const=lambda: Options.get_instance().set_logging_debug(),
                         default=lambda *args: None,
                         help='Print debugging information')
     args = parser.parse_args()
