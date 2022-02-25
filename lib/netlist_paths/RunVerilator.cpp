@@ -6,6 +6,7 @@
 #include <boost/format.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/process.hpp>
+#include <boost/python.hpp>
 #include "netlist_paths/RunVerilator.hpp"
 #include "netlist_paths/Options.hpp"
 
@@ -52,6 +53,24 @@ int RunVerilator::run(const std::vector<std::string> &includes,
   }
   BOOST_LOG_TRIVIAL(info) << boost::format("Running %s %s") % verilatorExe % ss.str();
   return bp::system(verilatorExe, bp::args(args));
+}
+
+// A specialisation to be called in the Python wrapper
+int RunVerilator::run(const boost::python::list &_includes,
+                      const boost::python::list &_defines,
+                      const boost::python::list &_inputFiles,
+                      const std::string &outputFile) const {
+    std::vector<std::string> includes, defines, inputFiles;
+    for (int i = 0; i < len(_includes); i++) {
+        includes.push_back(boost::python::extract<std::string>(_includes[i]));
+    }
+    for (int i = 0; i < len(_defines); i++) {
+        defines.push_back(boost::python::extract<std::string>(_defines[i]));
+    }
+    for (int i = 0; i < len(_inputFiles); i++) {
+        inputFiles.push_back(boost::python::extract<std::string>(_inputFiles[i]));
+    }
+    return run(includes, defines, inputFiles, outputFile);
 }
 
 /// A specialistion of run used for testing.

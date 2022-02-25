@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <boost/filesystem.hpp>
+#include <boost/python.hpp>
 
 namespace fs = boost::filesystem;
 
@@ -35,6 +36,12 @@ public:
   int run(const std::vector<std::string> &includes,
           const std::vector<std::string> &defines,
           const std::vector<std::string> &inputFiles,
+          const std::string &outputFile) const;
+
+  // wrapper for calling from Python
+  int run(const boost::python::list &includes,
+          const boost::python::list &defines,
+          const boost::python::list &inputFiles,
           const std::string &outputFile) const;
 
   /// Run Verilator with a single source file and no other options.
