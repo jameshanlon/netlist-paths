@@ -136,9 +136,13 @@ def main():
                         action='store_true',
                         help='Run Verilator to compile a netlist')
     parser.add_argument('-I',
+                        default=[],
+                        nargs='*',
                         metavar='include_path',
                         help='Add an source include path (only with --compile)')
     parser.add_argument('-D',
+                        default=[],
+                        nargs='*',
                         metavar='definition',
                         help='Define a preprocessor macro (only with --compile)')
     parser.add_argument('-o', '--output',
@@ -255,7 +259,6 @@ def main():
     args.debug()
 
     try:
-
         # Verilator compilation
         # (Only supports one source file currently, useful for testing.)
         if args.compile:
@@ -264,7 +267,7 @@ def main():
             else:
                 output_filename = args.output_file
             comp = RunVerilator(defs.INSTALL_PREFIX)
-            if comp.run(args.files[0], output_filename) > 0:
+            if comp.run(args.I, args.D, args.files, output_filename) > 0:
                 raise RuntimeError('error compiling design')
         else:
             if len(args.files) != 1:
