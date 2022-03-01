@@ -118,11 +118,13 @@ BOOST_PYTHON_MODULE(py_netlist_paths)
     .def("set_ignore_hierarchy_markers",  &Options::setIgnoreHierarchyMarkers)
     .def("set_error_on_unmatched_node",   &Options::setErrorOnUnmatchedNode);
 
-  int (RunVerilator::*run)(const std::string&, const std::string&) const = &RunVerilator::run;
-
+  int (RunVerilator::*run_short)(const std::string&, const std::string&) const = &RunVerilator::run;
+  int (RunVerilator::*run_long)(const boost::python::list&, const boost::python::list&,
+                                const boost::python::list&, const std::string&) const = &RunVerilator::run;
   class_<RunVerilator, boost::noncopyable>("RunVerilator",
                                            init<const std::string&>())
-    .def("run", run);
+     .def("run", run_short)
+     .def("run", run_long);
 
   class_<Waypoints>("Waypoints")
     .def(init<const std::string, const std::string>())

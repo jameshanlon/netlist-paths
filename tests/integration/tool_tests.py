@@ -99,6 +99,42 @@ class TestTool(unittest.TestCase):
         returncode, _ = self.run_np(['--compile', test_path, '--to', 'counter.counter_q'])
         self.assertEqual(returncode, 0)
 
+    def test_compile_single_include(self):
+        """
+        Test passing an include path to Verilator
+        """
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'single_include.sv')
+        includes  = os.path.join(defs.TEST_SRC_PREFIX, "include_a")
+        returncode, _ = self.run_np(['--compile', test_path, '-I', includes])
+        self.assertEqual(returncode, 0)
+
+    def test_compile_multiple_includes(self):
+        """
+        Test passing multiple include paths to Verilator
+        """
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'multiple_includes.sv')
+        includes  = [os.path.join(defs.TEST_SRC_PREFIX, "include_a"), os.path.join(defs.TEST_SRC_PREFIX, "include_b")]
+        returncode, _ = self.run_np(['--compile', test_path, '-I'] + includes)
+        self.assertEqual(returncode, 0)
+
+    def test_compile_single_define(self):
+        """
+        Test passing a define to Verilator
+        """
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'single_define.sv')
+        defines   = 'EXPR_A=data_i'
+        returncode, _ = self.run_np(['--compile', test_path, '-D', defines])
+        self.assertEqual(returncode, 0)
+
+    def test_compile_multiple_defines(self):
+        """
+        Test passing multiple defines, with and withput assignment to Verilator
+        """
+        test_path = os.path.join(defs.TEST_SRC_PREFIX, 'multiple_defines.sv')
+        defines   = ['MY_DEFINE', 'EXPR_A=data_i', 'EXPR_B=data_o']
+        returncode, _ = self.run_np(['--compile', test_path, '-D'] + defines)
+        self.assertEqual(returncode, 0)
+
 
 if __name__ == '__main__':
     unittest.main()
