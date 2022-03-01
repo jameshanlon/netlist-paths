@@ -192,54 +192,54 @@ class TestPyWrapper(unittest.TestCase):
         self.assertTrue(not path.empty())
 
     def test_through_registers(self):
-      """
-      Test enabling path traversal through registers.
-      """
-      np = self.compile_test('basic_ff_chain.sv')
-      Options.get_instance().set_traverse_registers(True)
-      self.assertTrue(np.path_exists(Waypoints('in', 'out')))
+        """
+        Test enabling path traversal through registers.
+        """
+        np = self.compile_test('basic_ff_chain.sv')
+        Options.get_instance().set_traverse_registers(True)
+        self.assertTrue(np.path_exists(Waypoints('in', 'out')))
 
     def test_restrict_start_end_points(self):
-      """
-      Test relaxation of path start/end point options.
-      """
-      np = self.compile_test('aliases_sub_reg.sv')
-      Options.get_instance().set_restrict_start_points(False)
-      Options.get_instance().set_restrict_end_points(False)
-      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.in')))
-      self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.client_out')))
+        """
+        Test relaxation of path start/end point options.
+        """
+        np = self.compile_test('aliases_sub_reg.sv')
+        Options.get_instance().set_restrict_start_points(False)
+        Options.get_instance().set_restrict_end_points(False)
+        self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.in')))
+        self.assertTrue(np.path_exists(Waypoints('aliases_sub_reg.u_a.out', 'aliases_sub_reg.u_b.client_out')))
 
-    def test_compile_single_include(self):
-      """
-      Test passing include paths to Verilator
-      """
-      np = self.compile_test('single_include.sv', includes = [os.path.join(defs.TEST_SRC_PREFIX, "include_a")])
-      path = np.get_any_path(Waypoints('data_i', 'data_o'))
-      self.assertTrue(not path.empty())
+    def test_single_include(self):
+        """
+        Test passing include paths to Verilator
+        """
+        np = self.compile_test('single_include.sv', includes = [os.path.join(defs.TEST_SRC_PREFIX, "include_a")])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
 
-    def test_compile_multiple_includes(self):
-      """
-      Test passing multiple include paths to Verilator
-      """
-      np = self.compile_test('multiple_includes.sv', includes = [os.path.join(defs.TEST_SRC_PREFIX, "include_a"), os.path.join(defs.TEST_SRC_PREFIX, "include_b")])
-      path = np.get_any_path(Waypoints('data_i', 'data_o'))
-      self.assertTrue(not path.empty())
+    def test_multiple_includes(self):
+        """
+        Test passing multiple include paths to Verilator
+        """
+        np = self.compile_test('multiple_includes.sv', includes = [os.path.join(defs.TEST_SRC_PREFIX, "include_a"), os.path.join(defs.TEST_SRC_PREFIX, "include_b")])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
 
-    def test_compile_single_define(self):
-      """
-      Test passing define to Verilator
-      """
-      np = self.compile_test('single_define.sv', defines = ['EXPR_A=data_i'])
-      path = np.get_any_path(Waypoints('data_i', 'data_o'))
-      self.assertTrue(not path.empty())
+    def test_single_define(self):
+        """
+        Test passing define to Verilator
+        """
+        np = self.compile_test('single_define.sv', defines = ['EXPR_A=data_i'])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
 
-    def test_compile_multiple_defines(self):
-      """
-      Test passing multiple defines, with and withput assignment to Verilator
-      """
-      np = self.compile_test('multiple_defines.sv', defines = ['MY_DEFINE', 'EXPR_A=data_i', 'EXPR_B=data_o', ])
-      path = np.get_any_path(Waypoints('data_i', 'data_o'))
-      self.assertTrue(not path.empty())
+    def test_multiple_defines(self):
+        """
+        Test passing multiple defines, with and withput assignment to Verilator
+        """
+        np = self.compile_test('multiple_defines.sv', defines = ['MY_DEFINE', 'EXPR_A=data_i', 'EXPR_B=data_o', ])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
 
 
 if __name__ == '__main__':
