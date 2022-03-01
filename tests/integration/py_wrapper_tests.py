@@ -211,7 +211,7 @@ class TestPyWrapper(unittest.TestCase):
 
     def test_single_include(self):
         """
-        Test passing include paths to Verilator
+        Test passing an include path to Verilator
         """
         np = self.compile_test('single_include.sv', includes = [os.path.join(defs.TEST_SRC_PREFIX, "include_a")])
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
@@ -227,7 +227,7 @@ class TestPyWrapper(unittest.TestCase):
 
     def test_single_define(self):
         """
-        Test passing define to Verilator
+        Test passing a define to Verilator
         """
         np = self.compile_test('single_define.sv', defines = ['EXPR_A=data_i'])
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
