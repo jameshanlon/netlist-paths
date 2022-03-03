@@ -13,12 +13,16 @@ class TestPyWrapper(unittest.TestCase):
     def setUp(self):
         pass
 
-    def compile_test(self, filename, includes=[], defines=[]):
+    def compile_test(self, files, includes=[], defines=[]):
         """
         Compile a test and setup/reset options.
         """
         comp = RunVerilator(defs.INSTALL_PREFIX)
-        comp.run(includes, defines, [os.path.join(defs.TEST_SRC_PREFIX, filename)], 'netlist.xml')
+        if type(files) is list:
+            _files = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), _file))
+        else:
+            _files = [os.path.join(defs.TEST_SRC_PREFIX, files)]
+        comp.run(includes, defines, _files, 'netlist.xml')
         Options.get_instance().set_error_on_unmatched_node(True)
         Options.get_instance().set_ignore_hierarchy_markers(False)
         Options.get_instance().set_match_exact()
@@ -240,7 +244,6 @@ class TestPyWrapper(unittest.TestCase):
         np = self.compile_test('multiple_defines.sv', defines = ['MY_DEFINE', 'EXPR_A=data_i', 'EXPR_B=data_o', ])
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
         self.assertTrue(not path.empty())
-
 
 if __name__ == '__main__':
     unittest.main()
