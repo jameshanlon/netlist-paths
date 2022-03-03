@@ -19,7 +19,7 @@ class TestPyWrapper(unittest.TestCase):
         """
         comp = RunVerilator(defs.INSTALL_PREFIX)
         if type(files) is list:
-            _files = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), _file))
+            _files = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), files))
         else:
             _files = [os.path.join(defs.TEST_SRC_PREFIX, files)]
         comp.run(includes, defines, _files, 'netlist.xml')
@@ -242,6 +242,14 @@ class TestPyWrapper(unittest.TestCase):
         Test passing multiple defines, with and withput assignment to Verilator
         """
         np = self.compile_test('multiple_defines.sv', defines = ['MY_DEFINE', 'EXPR_A=data_i', 'EXPR_B=data_o', ])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
+
+    def test_multiple_files(self):
+        """
+        Test passing multiple files to compile with Verilator
+        """
+        np = self.compile_test(['multiple_files.sv', 'include_a/include_a.sv', 'include_b/include_b.sv'])
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
         self.assertTrue(not path.empty())
 
