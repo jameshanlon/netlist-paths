@@ -253,5 +253,9 @@ class TestPyWrapper(unittest.TestCase):
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
         self.assertTrue(not path.empty())
 
+        np = self.compile_test(['include_a/include_a.sv', 'include_b/include_b.sv', 'multiple_files.sv'])
+        path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
+
 if __name__ == '__main__':
     unittest.main()
