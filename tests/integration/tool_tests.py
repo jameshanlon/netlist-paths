@@ -135,6 +135,22 @@ class TestTool(unittest.TestCase):
         returncode, _ = self.run_np(['--compile', test_path, '-D'] + defines)
         self.assertEqual(returncode, 0)
 
+    def test_compile_multiple_files(self):
+        """
+        Test passing multiple files to compile with Verilator
+        """
+        paths = ['multiple_files.sv', 'include_a/include_a.sv', 'include_b/include_b.sv']
+        full_paths = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), paths))
+        returncode, _ = self.run_np(['--compile'] + full_paths)
+        self.assertEqual(returncode, 0)
+
+        # switch order, top-level not in first place
+        paths = ['include_a/include_a.sv', 'include_b/include_b.sv', 'multiple_files.sv']
+        full_paths = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), paths))
+        returncode, _ = self.run_np(['--compile'] + full_paths)
+        self.assertEqual(returncode, 0)
+
+
 
 if __name__ == '__main__':
     unittest.main()
