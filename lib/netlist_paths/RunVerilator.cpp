@@ -30,6 +30,7 @@ RunVerilator::RunVerilator(const std::string &binLocation) {
 int RunVerilator::run(const std::vector<std::string> &includes,
                       const std::vector<std::string> &defines,
                       const std::vector<std::string> &inputFiles,
+                      const std::string &topModule,
                       const std::string &outputFile) const {
   std::vector<std::string> args{"+1800-2012ext+.sv",
                                 "--bbox-sys",
@@ -38,6 +39,10 @@ int RunVerilator::run(const std::vector<std::string> &includes,
                                 "--flatten",
                                 "--error-limit", "10000",
                                 "--xml-output", outputFile};
+  if(!topModule.empty()) {
+      args.push_back("--top-module");
+      args.push_back(topModule);
+  }
   for (auto &path : includes) {
     args.push_back(std::string("+incdir+")+path);
   }
@@ -59,6 +64,7 @@ int RunVerilator::run(const std::vector<std::string> &includes,
 int RunVerilator::run(const boost::python::list &_includes,
                       const boost::python::list &_defines,
                       const boost::python::list &_inputFiles,
+                      const std::string &topModule,
                       const std::string &outputFile) const {
     std::vector<std::string> includes, defines, inputFiles;
     for (int i = 0; i < len(_includes); i++) {
@@ -70,11 +76,11 @@ int RunVerilator::run(const boost::python::list &_includes,
     for (int i = 0; i < len(_inputFiles); i++) {
         inputFiles.push_back(boost::python::extract<std::string>(_inputFiles[i]));
     }
-    return run(includes, defines, inputFiles, outputFile);
+    return run(includes, defines, inputFiles, topModule, outputFile);
 }
 
-/// A specialistion of run used for testing.
+// A specialistion of run used for testing.
 int RunVerilator::run(const std::string& inputFile, const std::string& outputFile) const {
   auto inputFiles = {inputFile};
-  return run({}, {}, inputFiles, outputFile);
+  return run({}, {}, inputFiles, "", outputFile);
 }

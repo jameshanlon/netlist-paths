@@ -145,6 +145,11 @@ def main():
                         nargs='*',
                         metavar='definition',
                         help='Define a preprocessor macro (only with --compile)')
+    parser.add_argument('-t', '--top-module',
+                        default="",
+                        dest='top_module',
+                        metavar='top module',
+                        help='Specify top module for compilation')
     parser.add_argument('-o', '--output',
                         default=None,
                         dest='output_file',
@@ -267,7 +272,7 @@ def main():
             else:
                 output_filename = args.output_file
             comp = RunVerilator(defs.INSTALL_PREFIX)
-            if comp.run(args.I, args.D, args.files, output_filename) > 0:
+            if comp.run(args.I, args.D, args.files, args.top_module, output_filename) > 0:
                 raise RuntimeError('error compiling design')
         else:
             if len(args.files) != 1:

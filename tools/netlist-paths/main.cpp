@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     po::positional_options_description p;
     po::variables_map vm;
     std::vector<std::string> inputFiles;
+    std::string topModule;
     std::string outputFilename;
     std::string startName;
     std::string endName;
@@ -65,6 +66,10 @@ int main(int argc, char **argv) {
       ("match",         po::value<std::string>(&nameRegex)
                           ->value_name("name regex"),
                         "Regex to match names against (only with --dump-names)")
+      ("top,t",     po::value<std::string>(&topModule)
+                          ->default_value("")
+                          ->value_name("name"),
+                        "top module name")
       ("outfile,o",     po::value<std::string>(&outputFilename)
                           ->default_value(netlist_paths::DEFAULT_OUTPUT_FILENAME)
                           ->value_name("filename"),
@@ -119,6 +124,7 @@ int main(int argc, char **argv) {
       return compileGraph.run(includes,
                               defines,
                               inputFiles,
+                              topModule,
                               outputFilename);
     }
 
