@@ -257,5 +257,19 @@ class TestPyWrapper(unittest.TestCase):
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
         self.assertTrue(not path.empty())
 
+    def test_multiple_tops(self):
+        """
+        Test '--top-module' by passing multiple independent modules to Verilator
+        """
+
+        files = ['top_a.sv', 'top_b.sv']
+        np = self.compile_test(files, top_module='top_a')
+        path = np.get_any_path(Waypoints('data_a_i', 'data_a_o'))
+        self.assertTrue(not path.empty())
+
+        np = self.compile_test(files, top_module='top_b')
+        path = np.get_any_path(Waypoints('data_b_i', 'data_b_o'))
+        self.assertTrue(not path.empty())
+
 if __name__ == '__main__':
     unittest.main()
