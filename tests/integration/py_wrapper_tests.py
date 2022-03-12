@@ -13,7 +13,7 @@ class TestPyWrapper(unittest.TestCase):
     def setUp(self):
         pass
 
-    def compile_test(self, files, includes=[], defines=[]):
+    def compile_test(self, files, includes=[], defines=[], top_module=""):
         """
         Compile a test and setup/reset options.
         """
@@ -22,7 +22,7 @@ class TestPyWrapper(unittest.TestCase):
             _files = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), files))
         else:
             _files = [os.path.join(defs.TEST_SRC_PREFIX, files)]
-        comp.run(includes, defines, _files, 'netlist.xml')
+        comp.run(includes, defines, _files, top_module, 'netlist.xml')
         Options.get_instance().set_error_on_unmatched_node(True)
         Options.get_instance().set_ignore_hierarchy_markers(False)
         Options.get_instance().set_match_exact()
@@ -255,6 +255,20 @@ class TestPyWrapper(unittest.TestCase):
 
         np = self.compile_test(['include_a/include_a.sv', 'include_b/include_b.sv', 'multiple_files.sv'])
         path = np.get_any_path(Waypoints('data_i', 'data_o'))
+        self.assertTrue(not path.empty())
+
+    def test_multiple_tops(self):
+        """
+        Test '--top-module' by passing multiple independent modules to Verilator
+        """
+
+        files = ['top_a.sv', 'top_b.sv']
+        np = self.compile_test(files, top_module='top_a')
+        path = np.get_any_path(Waypoints('data_a_i', 'data_a_o'))
+        self.assertTrue(not path.empty())
+
+        np = self.compile_test(files, top_module='top_b')
+        path = np.get_any_path(Waypoints('data_b_i', 'data_b_o'))
         self.assertTrue(not path.empty())
 
 if __name__ == '__main__':

@@ -150,6 +150,24 @@ class TestTool(unittest.TestCase):
         returncode, _ = self.run_np(['--compile'] + full_paths)
         self.assertEqual(returncode, 0)
 
+    def test_multiple_tops(self):
+        """
+        Test '--top-module' by passing multiple independent modules to Verilator
+        """
+
+        # compilation fails without specifying top explicitly
+        paths = ['top_a.sv', 'top_b.sv']
+        full_paths = list(map(lambda p: os.path.join(defs.TEST_SRC_PREFIX, p), paths))
+        returncode, _ = self.run_np(['--compile'] + full_paths)
+        self.assertNotEqual(returncode, 0)
+
+        # compilation succeeds when specifying top
+        returncode, _ = self.run_np(['--compile'] + full_paths + ['--top-module', 'top_a'])
+        self.assertEqual(returncode, 0)
+
+        returncode, _ = self.run_np(['--compile'] + full_paths + ['--top-module', 'top_b'])
+        self.assertEqual(returncode, 0)
+
 
 
 if __name__ == '__main__':
