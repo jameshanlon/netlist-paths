@@ -7,6 +7,7 @@ option(NETLIST_PATHS_BUILD_DOCS "Create and install HTML documentation" OFF)
 option(NETLIST_PATHS_INCLUDE_TESTS "Include test targets in the build" ON)
 
 set(Boost_USE_MULTITHREADED ON)
+set(NUM_PARALLEL_JOBS 16)
 
 # Use local find scripts
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
@@ -75,7 +76,7 @@ ExternalProject_Add(Verilator
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/verilator
   PREFIX verilator
   CONFIGURE_COMMAND autoconf && ./configure --prefix=<INSTALL_DIR>
-  BUILD_COMMAND make
+  BUILD_COMMAND make -j ${NUM_PARALLEL_JOBS}
   BUILD_IN_SOURCE 1
   BUILD_ALWAYS 1
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
